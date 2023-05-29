@@ -1,0 +1,77 @@
+com.d9dating.app-jetified-core-ktx-1.6.0-0 C:\Users\Ahmed\.gradle\caches\transforms-3\05cac523f1bd99d4c4eb49c40a614def\transformed\jetified-core-ktx-1.6.0\res
+com.d9dating.app-jetified-tracing-1.1.0-1 C:\Users\Ahmed\.gradle\caches\transforms-3\074cde6a1c83c7d0d99702fb6af52cb8\transformed\jetified-tracing-1.1.0\res
+com.d9dating.app-jetified-firebase-messaging-23.1.2-2 C:\Users\Ahmed\.gradle\caches\transforms-3\115b406de311ab6b99800d7cf090b6aa\transformed\jetified-firebase-messaging-23.1.2\res
+com.d9dating.app-coordinatorlayout-1.1.0-3 C:\Users\Ahmed\.gradle\caches\transforms-3\14beb664a13e23f78cefc3d0a640cd66\transformed\coordinatorlayout-1.1.0\res
+com.d9dating.app-jetified-emoji2-views-helper-1.0.0-4 C:\Users\Ahmed\.gradle\caches\transforms-3\1a357201295b979e5b68d9ade27374de\transformed\jetified-emoji2-views-helper-1.0.0\res
+com.d9dating.app-jetified-flipper-0.125.0-5 C:\Users\Ahmed\.gradle\caches\transforms-3\1f073a1ad22f87e751e341d03da488a5\transformed\jetified-flipper-0.125.0\res
+com.d9dating.app-jetified-photo-editor-android-master-6 C:\Users\Ahmed\.gradle\caches\transforms-3\20c3ad8a0554ad214cfdce1f8f5a9959\transformed\jetified-photo-editor-android-master\res
+com.d9dating.app-material-1.1.0-7 C:\Users\Ahmed\.gradle\caches\transforms-3\2d132c3fbde30d149af0a675eecdcc97\transformed\material-1.1.0\res
+com.d9dating.app-fragment-1.3.6-8 C:\Users\Ahmed\.gradle\caches\transforms-3\3d0ad80a682c8fa09d981f7db5feea31\transformed\fragment-1.3.6\res
+com.d9dating.app-appcompat-1.4.1-9 C:\Users\Ahmed\.gradle\caches\transforms-3\44e558b9b82b361db2ba0d6cbacc10d0\transformed\appcompat-1.4.1\res
+com.d9dating.app-jetified-firebase-common-20.3.2-10 C:\Users\Ahmed\.gradle\caches\transforms-3\510e45e1afd1136f2cb6bf02969a8c56\transformed\jetified-firebase-common-20.3.2\res
+com.d9dating.app-jetified-emoji2-1.0.0-11 C:\Users\Ahmed\.gradle\caches\transforms-3\5316573b26a9151264d5c4a51a587c0a\transformed\jetified-emoji2-1.0.0\res
+com.d9dating.app-lifecycle-viewmodel-2.3.1-12 C:\Users\Ahmed\.gradle\caches\transforms-3\535fd3db020be1e1b3981410d7a45a40\transformed\lifecycle-viewmodel-2.3.1\res
+com.d9dating.app-constraintlayout-1.1.3-13 C:\Users\Ahmed\.gradle\caches\transforms-3\573f68c584f7c08794ba5ac85a92485e\transformed\constraintlayout-1.1.3\res
+com.d9dating.app-jetified-library-2.4.1-14 C:\Users\Ahmed\.gradle\caches\transforms-3\5df5ee3b175509b4b75814ac3ad6ccad\transformed\jetified-library-2.4.1\res
+com.d9dating.app-jetified-play-services-basement-18.1.0-15 C:\Users\Ahmed\.gradle\caches\transforms-3\5ff1b35545e919f009b1389f7a67fc39\transformed\jetified-play-services-basement-18.1.0\res
+com.d9dating.app-jetified-lifecycle-process-2.4.0-16 C:\Users\Ahmed\.gradle\caches\transforms-3\63021d0437ffc9273532b56acec640c7\transformed\jetified-lifecycle-process-2.4.0\res
+com.d9dating.app-jetified-drawee-2.6.0-17 C:\Users\Ahmed\.gradle\caches\transforms-3\6a80f5c889d37ef1c8a4853d6d31b041\transformed\jetified-drawee-2.6.0\res
+com.d9dating.app-jetified-ucrop-2.2.2-native-18 C:\Users\Ahmed\.gradle\caches\transforms-3\6ab43591dd85d0a01ed9543a1f14adf8\transformed\jetified-ucrop-2.2.2-native\res
+com.d9dating.app-recyclerview-1.1.0-19 C:\Users\Ahmed\.gradle\caches\transforms-3\7496cd4547eecd5698223acfdcd3b56b\transformed\recyclerview-1.1.0\res
+com.d9dating.app-core-1.7.0-20 C:\Users\Ahmed\.gradle\caches\transforms-3\7c5a6a9f4362e99558bb5df78728ef68\transformed\core-1.7.0\res
+com.d9dating.app-jetified-android-maps-utils-3.4.0-21 C:\Users\Ahmed\.gradle\caches\transforms-3\85863c60532d74bc85c4d920c992230c\transformed\jetified-android-maps-utils-3.4.0\res
+com.d9dating.app-jetified-react-android-0.71.2-debug-22 C:\Users\Ahmed\.gradle\caches\transforms-3\8c3a95cbc83907db633fecbc4c7ed626\transformed\jetified-react-android-0.71.2-debug\res
+com.d9dating.app-jetified-core-splashscreen-1.0.0-23 C:\Users\Ahmed\.gradle\caches\transforms-3\8c60e4d6cc7e3005e43d8d66a2b80e3e\transformed\jetified-core-splashscreen-1.0.0\res
+com.d9dating.app-lifecycle-runtime-2.4.0-24 C:\Users\Ahmed\.gradle\caches\transforms-3\97e90684c1b562c0856012c6c66dfe0d\transformed\lifecycle-runtime-2.4.0\res
+com.d9dating.app-jetified-appcompat-resources-1.4.1-25 C:\Users\Ahmed\.gradle\caches\transforms-3\9b02c36887684ceb4afe4df7410de869\transformed\jetified-appcompat-resources-1.4.1\res
+com.d9dating.app-jetified-savedstate-1.1.0-26 C:\Users\Ahmed\.gradle\caches\transforms-3\9e2acb203afc56fb504d34ec7d03d82a\transformed\jetified-savedstate-1.1.0\res
+com.d9dating.app-jetified-play-services-auth-20.3.0-27 C:\Users\Ahmed\.gradle\caches\transforms-3\9f2ce0758f7ed2d7aa257222d44ff02f\transformed\jetified-play-services-auth-20.3.0\res
+com.d9dating.app-jetified-viewpager2-1.0.0-28 C:\Users\Ahmed\.gradle\caches\transforms-3\a410b7e807424134eb08f0b5ac5fb8e1\transformed\jetified-viewpager2-1.0.0\res
+com.d9dating.app-cardview-1.0.0-29 C:\Users\Ahmed\.gradle\caches\transforms-3\aa3c73cc4a19328b62247ba4e292cff5\transformed\cardview-1.0.0\res
+com.d9dating.app-jetified-startup-runtime-1.0.0-30 C:\Users\Ahmed\.gradle\caches\transforms-3\af3a7d9eaf5a9ab0b794f181d302e313\transformed\jetified-startup-runtime-1.0.0\res
+com.d9dating.app-work-runtime-2.7.1-31 C:\Users\Ahmed\.gradle\caches\transforms-3\b0685a6d5d94af2c61780781985a0f54\transformed\work-runtime-2.7.1\res
+com.d9dating.app-jetified-annotation-experimental-1.1.0-32 C:\Users\Ahmed\.gradle\caches\transforms-3\bea52e6eabc2a207be58b2942ac1b864\transformed\jetified-annotation-experimental-1.1.0\res
+com.d9dating.app-jetified-play-services-maps-18.0.2-33 C:\Users\Ahmed\.gradle\caches\transforms-3\c5a92fd5893ee3370230952ae5fa6b29\transformed\jetified-play-services-maps-18.0.2\res
+com.d9dating.app-jetified-numberpickerview-v1.1.5-34 C:\Users\Ahmed\.gradle\caches\transforms-3\c6effa39047e8ad1dd530d6900af350c\transformed\jetified-numberpickerview-v1.1.5\res
+com.d9dating.app-jetified-Android-ScalableVideoView-10e7b4da8b-35 C:\Users\Ahmed\.gradle\caches\transforms-3\cfc4d9bb9364ee771cd8c86257d4b3f4\transformed\jetified-Android-ScalableVideoView-10e7b4da8b\res
+com.d9dating.app-jetified-play-services-base-18.1.0-36 C:\Users\Ahmed\.gradle\caches\transforms-3\d466d6799caf5c610390da4e98b6bec7\transformed\jetified-play-services-base-18.1.0\res
+com.d9dating.app-jetified-autofill-1.1.0-37 C:\Users\Ahmed\.gradle\caches\transforms-3\efede94302c2465bad1694572e2b17d9\transformed\jetified-autofill-1.1.0\res
+com.d9dating.app-transition-1.2.0-38 C:\Users\Ahmed\.gradle\caches\transforms-3\fd2fdfa8aecd8faa6a9d6603bc16abc4\transformed\transition-1.2.0\res
+com.d9dating.app-google-services-39 G:\React Native\D9Dating\android\app\build\generated\res\google-services\debug
+com.d9dating.app-pngs-40 G:\React Native\D9Dating\android\app\build\generated\res\pngs\debug
+com.d9dating.app-resValues-41 G:\React Native\D9Dating\android\app\build\generated\res\resValues\debug
+com.d9dating.app-rs-42 G:\React Native\D9Dating\android\app\build\generated\res\rs\debug
+com.d9dating.app-mergeDebugResources-43 G:\React Native\D9Dating\android\app\build\intermediates\incremental\debug\mergeDebugResources\merged.dir
+com.d9dating.app-mergeDebugResources-44 G:\React Native\D9Dating\android\app\build\intermediates\incremental\debug\mergeDebugResources\stripped.dir
+com.d9dating.app-merged_res-45 G:\React Native\D9Dating\android\app\build\intermediates\merged_res\debug
+com.d9dating.app-debug-46 G:\React Native\D9Dating\android\app\src\debug\res
+com.d9dating.app-main-47 G:\React Native\D9Dating\android\app\src\main\res
+com.d9dating.app-packaged_res-48 G:\React Native\D9Dating\node_modules\@react-native-async-storage\async-storage\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-49 G:\React Native\D9Dating\node_modules\@react-native-community\clipboard\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-50 G:\React Native\D9Dating\node_modules\@react-native-community\datetimepicker\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-51 G:\React Native\D9Dating\node_modules\@react-native-community\geolocation\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-52 G:\React Native\D9Dating\node_modules\@react-native-firebase\app\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-53 G:\React Native\D9Dating\node_modules\@react-native-firebase\messaging\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-54 G:\React Native\D9Dating\node_modules\@react-native-masked-view\masked-view\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-55 G:\React Native\D9Dating\node_modules\@react-native-picker\picker\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-56 G:\React Native\D9Dating\node_modules\react-native-bootsplash\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-57 G:\React Native\D9Dating\node_modules\react-native-date-picker\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-58 G:\React Native\D9Dating\node_modules\react-native-fs\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-59 G:\React Native\D9Dating\node_modules\react-native-geolocation-service\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-60 G:\React Native\D9Dating\node_modules\react-native-gesture-handler\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-61 G:\React Native\D9Dating\node_modules\react-native-get-location\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-62 G:\React Native\D9Dating\node_modules\react-native-image-picker\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-63 G:\React Native\D9Dating\node_modules\react-native-insta-story\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-64 G:\React Native\D9Dating\node_modules\react-native-linear-gradient\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-65 G:\React Native\D9Dating\node_modules\react-native-maps\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-66 G:\React Native\D9Dating\node_modules\react-native-permissions\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-67 G:\React Native\D9Dating\node_modules\react-native-photo-editor\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-68 G:\React Native\D9Dating\node_modules\react-native-push-notification\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-69 G:\React Native\D9Dating\node_modules\react-native-safe-area-context\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-70 G:\React Native\D9Dating\node_modules\react-native-screens\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-71 G:\React Native\D9Dating\node_modules\react-native-splash-screen\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-72 G:\React Native\D9Dating\node_modules\react-native-svg\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-73 G:\React Native\D9Dating\node_modules\react-native-vector-icons\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-74 G:\React Native\D9Dating\node_modules\react-native-video\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-75 G:\React Native\D9Dating\node_modules\react-native-webview\android\build\intermediates\packaged_res\debug
+com.d9dating.app-packaged_res-76 G:\React Native\D9Dating\node_modules\rn-fetch-blob\android\build\intermediates\packaged_res\debug
