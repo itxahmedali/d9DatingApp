@@ -29,6 +29,7 @@ import socket from '../../../../utils/socket';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {Loader} from '../../../../Components/Index';
 import {socketLike} from '../../../../Constants/Index';
+import { AppContext, useAppContext } from '../../../../Context/AppContext';
 const FunInteraction = ({}) => {
   const dispatch = useDispatch();
   const refRBSheet1 = useRef();
@@ -64,6 +65,7 @@ const FunInteraction = ({}) => {
   const route = useRoute();
   const flatListRef = useRef(null);
   const postID = route?.params?.data?.id;
+  const {setLiked} = useAppContext(AppContext);
   useEffect(() => {
     const socket = io(socket);
     setSoc(socket);
@@ -174,7 +176,7 @@ const FunInteraction = ({}) => {
                 console.log(userList,"hellouserList here","hello");
                 userList?.map(user => {
                   if (user?.id == myId) {
-                    console.log(user?.name,user?.last_name,myId, 'hellouserListdir');
+                    setLiked(true)
                     updatedPost.post_likes.push({
                       user_id: myId,
                       users:{

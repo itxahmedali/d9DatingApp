@@ -1,9 +1,5 @@
 import 'react-native-gesture-handler';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  PermissionsAndroid
-} from 'react-native';
+import {KeyboardAvoidingView, Platform, PermissionsAndroid} from 'react-native';
 import React, {useEffect} from 'react';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import {NavigationContainer} from '@react-navigation/native';
@@ -221,18 +217,20 @@ const App = () => {
       });
   };
   return (
-    <NativeBaseProvider>
-      <SafeAreaProvider>
-        <MyStatusBar backgroundColor="#000" barStyle="light-content" />
-        <KeyboardAvoidingView
-          style={{flex: 1}}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-          <NavigationContainer ref={navigationRef}>
-            {userToken === null ? <AuthStack /> : <BottomTabs />}
-          </NavigationContainer>
-        </KeyboardAvoidingView>
-      </SafeAreaProvider>
-    </NativeBaseProvider>
+    <AppProvider>
+      <NativeBaseProvider>
+        <SafeAreaProvider>
+          <MyStatusBar backgroundColor="#000" barStyle="light-content" />
+          <KeyboardAvoidingView
+            style={{flex: 1}}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+            <NavigationContainer ref={navigationRef}>
+              {userToken === null ? <AuthStack /> : <BottomTabs />}
+            </NavigationContainer>
+          </KeyboardAvoidingView>
+        </SafeAreaProvider>
+      </NativeBaseProvider>
+    </AppProvider>
   );
 };
 

@@ -9,6 +9,7 @@ import Antdesign from 'react-native-vector-icons/AntDesign';
 import axiosconfig from '../../../Providers/axios';
 import {useIsFocused} from '@react-navigation/native';
 import { Header, Loader } from '../../../Components/Index';
+import { AppContext, useAppContext } from '../../../Context/AppContext';
 
 const Notifications = ({navigation, route}) => {
   const dispatch = useDispatch();
@@ -27,10 +28,15 @@ const Notifications = ({navigation, route}) => {
     'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
   );
   const [index, setIndex] = useState('');
+  const {liked} = useAppContext(AppContext);
   useEffect(() => {
     setResponse('');
     getList();
   }, [isFocused]);
+  useEffect(() => {
+    getList()
+  }, [liked])
+  
   const id = route?.params?.data?.id;
   const matchId = () => {
     console.log('avg');

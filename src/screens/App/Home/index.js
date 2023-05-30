@@ -41,6 +41,7 @@ import {
 } from '../../../Redux/actions';
 import { requestCameraPermission, requestExternalWritePermission, socketLike, width } from '../../../Constants/Index';
 import { Loader } from '../../../Components/Index';
+import { AppContext, useAppContext } from '../../../Context/AppContext';
 
 const Organization = [
   {id: 'Alpha Phi Alpha Fraternity, Inc.', color: 'blue'},
@@ -82,6 +83,7 @@ const Home = ({navigation, route}) => {
   const [text, setText] = useState(null);
   const [funPostsData, setFunPostsData] = useState('');
   let userList = []
+  const {setLiked} = useAppContext(AppContext);
   const socketUsers = useSelector(state => state.reducer.socketUsers);
   const [dummyImage, setDummyImage] = useState(
     'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
@@ -93,7 +95,6 @@ const Home = ({navigation, route}) => {
     getAllUsers()
     getPosts();
     if (postID) {
-      console.log(postID, 'data id ');
       getPosts(postID);
     } else {
       console.log('ssssssssss');
@@ -329,10 +330,9 @@ const Home = ({navigation, route}) => {
                 updatedPost.post_likes.splice(myLikesIndex, 1);
               }
               if (userList) {
-                console.log(userList,"hellouserList here","hello");
                 userList?.map(user => {
                   if (user?.id == myId) {
-                    console.log(user?.name,user?.last_name,myId, 'hellouserListdir');
+                    setLiked(true)
                     updatedPost.post_likes.push({
                       user_id: myId,
                       users:{
