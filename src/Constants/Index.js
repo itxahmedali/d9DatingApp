@@ -1,91 +1,134 @@
-import {Dimensions} from 'react-native';
-// screen resolutions
-export const screenHeight = Dimensions.get('window').height;
-export const screenWidth = Dimensions.get('window').width;
-// colors
-export const black = 'black';
-export const white = 'white';
-export const primaryHeadingColor = '#151F3A';
-export const purple = '#A389D2';
-export const lightPurple = '#a389d2e0';
-export const lightestPurple = '#b6a3d9e0';
-export const gray = '#B1B1B1';
-export const lightGray = 'lightGray';
-export const darkGray = 'darkGray';
-export const yellow = 'yellow';
-export const green = '#0F9776';
-// fonts
-export const KumbhSansBlack = 'KumbhSans-Black';
-export const KumbhSansBold = 'KumbhSans-Bold';
-export const KumbhSansExtraBold = 'KumbhSans-ExtraBold';
-export const KumbhSansExtraLight = 'KumbhSans-ExtraLight';
-export const KumbhSansLight = 'KumbhSans-Light';
-export const KumbhSansExtraMedium = 'KumbhSans-ExtraMedium';
-export const KumbhSansExtraRegular = 'KumbhSans-ExtraRegular';
-export const KumbhSansExtraSemiBold = 'KumbhSans-ExtraSemiBold';
-export const KumbhSansExtraThin = 'KumbhSans-ExtraThin';
-// dummy array
-export const rides = [
-  {
-    id:1,
-    image: 'ride1.png',
-    package: 'Premium',
-    car: 'Prius 2022',
-    number: 'RE-796 ',
-    fare: '80',
-    selected:false
-  },
-  {
-    id:2,
-    image: 'ride2.png',
-    package: 'Basic',
-    car: 'Passo 2023',
-    number: 'RE-796 ',
-    fare: '55',
-    selected:false
-  }
+import {Dimensions, PermissionsAndroid} from 'react-native';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import RNFS from 'react-native-fs';
+import { moderateScale } from 'react-native-size-matters';
+export const emailReg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+export const passRegex =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
+export const width = Dimensions.get('window').width;
+export const height = Dimensions.get('window').height;
+export const Organization = [
+  {id: 'Alpha Phi Alpha Fraternity, Inc.', color: 'blue'},
+  {id: 'Alpha Kappa Alpha Sorority Inc.', color: 'green'},
+  {id: 'Omega Psi Phi Fraternity, Inc.', color: 'red'},
+  {id: 'Delta Sigma Theta Sorority Inc.', color: 'yellow'},
+  {id: 'Kappa Alpha Psi Fraternity, Inc.', color: 'orange'},
+  {id: 'Sigma Gamma Rho Sorority Inc.', color: 'brown'},
+  {id: 'Phi Beta Sigma Fraternity, Inc.', color: 'pink'},
+  {id: 'Zeta Phi Beta Sorority Inc.', color: 'purple'},
+  {id: 'Iota Phi Theta Fraternity, Inc.', color: 'blue'},
 ];
-export const cards = [
-  {
-    id:1,
-    name: 'Card 01',
-    number: '123**********7890',
-    type: 'MasterCard',
-    selected:false
-  },
-  {
-    id:2,
-    name: 'Card 02',
-    number: '123**********7890',
-    type: 'Visa',
-    selected:false
-  },
-  {
-    id:3,
-    name: 'Card 03',
-    number: '123**********7890',
-    type: 'Visa',
-    selected:false
-  },
-  {
-    id:4,
-    name: 'Card 04',
-    number: '123**********7890',
-    type: 'MasterCard',
-    selected:false
-  },
-  {
-    id:5,
-    name: 'Card 05',
-    number: '123**********7890',
-    type: 'MasterCard',
-    selected:false
-  },
-  {
-    id:6,
-    name: 'Card 06',
-    number: '123**********7890',
-    type: 'Visa',
-    selected:false
+export const captureImage = async (type, refRBSheet, setFilePath) => {
+  let options = {
+    mediaType: type,
+    maxWidth: moderateScale(300, 0.1),
+    maxHeight: moderateScale(270, 0.1),
+    quality: 1,
+    videoQuality: 'low',
+    durationLimit: 30,
+    saveToPhotos: true,
+  };
+  let isCameraPermitted = await requestCameraPermission();
+  let isStoragePermitted = await requestExternalWritePermission();
+  if (isCameraPermitted || isStoragePermitted) {
+    launchCamera(options, response => {
+      console.log('Response = ', response, setFilePath);
+
+      if (response.didCancel) {
+        alert('User cancelled camera picker');
+        return;
+      } else if (response.errorCode == 'camera_unavailable') {
+        alert('Camera not available on device');
+        return;
+      } else if (response.errorCode == 'permission') {
+        alert('Permission not satisfied');
+        return;
+      } else if (response.errorCode == 'others') {
+        alert(response.errorMessage);
+        return;
+      }
+
+      convertImage(response.assets[0].uri, setFilePath);
+      refRBSheet.current.close();
+      console.log(response, 'image');
+    });
   }
-];
+};
+const convertImage = async (image, setFilePath) => {
+  await RNFS.readFile(image, 'base64')
+    .then(res => {
+      let base64 = `data:image/png;base64,${res}`;
+      setFilePath(base64);
+    })
+    .catch(err => {
+      console.log(err);
+    });
+};
+const requestCameraPermission = async () => {
+  if (Platform.OS === 'android') {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: 'Camera Permission',
+          message: 'App needs camera permission',
+        },
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  } else return true;
+};
+
+const requestExternalWritePermission = async () => {
+  if (Platform.OS === 'android') {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'External Storage Write Permission',
+          message: 'App needs write permission',
+        },
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } catch (err) {
+      console.warn(err);
+      alert('Write permission err', err);
+    }
+    return false;
+  } else return true;
+};
+export const chooseFile = async (type, refRBSheet, setFilePath) => {
+  var options = {
+    title: 'Select Image',
+    customButtons: [
+      {
+        name: 'customOptionKey',
+        title: 'Choose file from Custom Option',
+      },
+    ],
+    storageOptions: {
+      skipBackup: true,
+      path: 'images',
+    },
+  };
+  launchImageLibrary(options, res => {
+    console.log('Response = ', res);
+    if (res.didCancel) {
+      console.log('User cancelled image picker');
+    } else if (res.error) {
+      console.log('ImagePicker Error: ', res.error);
+    } else if (res.customButton) {
+      console.log('User tapped custom button: ', res.customButton);
+      alert(res.customButton);
+    } else {
+      let source = res;
+      console.log(source.assets[0].uri, 'uri');
+
+      convertImage(source.assets[0].uri, setFilePath);
+      refRBSheet.current.close();
+    }
+  });
+};
