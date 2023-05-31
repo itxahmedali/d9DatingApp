@@ -21,7 +21,7 @@ import {dummyImage} from '../../../Constants/Index';
 const Message = ({navigation, route}) => {
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
-  const {token} = useAppContext(AppContext);
+  const {token, setMessageAlert, uniqueId} = useAppContext(AppContext);
   const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
@@ -38,6 +38,7 @@ const Message = ({navigation, route}) => {
     getData();
     userslist();
     latestMsg();
+    setMessageAlert(false)
   }, [isFocused]);
 
   useEffect(() => {
@@ -58,7 +59,21 @@ const Message = ({navigation, route}) => {
     const data = await AsyncStorage.getItem('userData');
     setUserData(JSON.parse(data));
   };
+  useEffect(() => {
+    const handleMessage =async ({from, to, message,time}) => {
+      await getData()
+      console.log(from, to, message,userData?.id,uniqueId,  'hello user frorom');
+      if (to == userData?.id || to == uniqueId) {
+        alert("heo")
+      }
+    };
 
+    socket.on('message', handleMessage);
+
+    return () => {
+      socket.off('message', handleMessage);
+    };
+  }, [socket]);
   const userslist = async () => {
     setLoader(true);
     await axiosconfig

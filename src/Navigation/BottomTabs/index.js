@@ -19,7 +19,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const Tab = createBottomTabNavigator();
 
 const BottomTabs = () => {
-  const {request, setRequest, uniqueId} = useAppContext(AppContext);
+  const {request, setRequest, uniqueId, messageAlert, setMessageAlert} =
+    useAppContext(AppContext);
   const [ids, setIds] = useState(null);
 
   async function fetchDataFromStorage() {
@@ -55,6 +56,24 @@ const BottomTabs = () => {
 
     fetchDataAndHandleRequest();
   }, [ids, socket]);
+  useEffect(() => {
+    async function fetchDataAndHandleMessage() {
+      await fetchDataFromStorage();
+      const handleMessage = ({from, to, message, time}) => {
+        if (to == ids || to == uniqueId) {
+          setMessageAlert(true);
+        }
+      };
+
+      socket.on('message', handleMessage);
+      return () => {
+        socket.off('message', handleMessage);
+      };
+    }
+
+    fetchDataAndHandleMessage();
+  }, [ids, socket]);
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -93,6 +112,9 @@ const BottomTabs = () => {
           tabBarVisible: false,
           tabBarIcon: ({focused}) => (
             <View>
+              {messageAlert ? (
+                <View style={styles.notificationAvailable}></View>
+              ) : null}
               <ChatIcon
                 name="md-chatbubble-ellipses"
                 color={focused ? '#FFD700' : '#F8F8F8'}

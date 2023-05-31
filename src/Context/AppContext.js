@@ -1,12 +1,19 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const AppContext = createContext();
 
-export const AppProvider = ({ children }) => {
+export const AppProvider = ({children}) => {
   const [token, setToken] = useState(null);
   const [liked, setLiked] = useState(false);
   const [request, setRequest] = useState(false);
+  const [messageAlert, setMessageAlert] = useState(false);
   const [uniqueId, setUniqueId] = useState(null);
 
   useEffect(() => {
@@ -55,11 +62,26 @@ export const AppProvider = ({ children }) => {
       setRequest,
       uniqueId,
       setUniqueId,
+      messageAlert,
+      setMessageAlert,
     }),
-    [token, setToken, liked, setLiked, request, setRequest, uniqueId, setUniqueId],
+    [
+      token,
+      setToken,
+      liked,
+      setLiked,
+      request,
+      setRequest,
+      uniqueId,
+      setUniqueId,
+      messageAlert,
+      setMessageAlert,
+    ],
   );
 
-  return <AppContext.Provider value={contextValues}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={contextValues}>{children}</AppContext.Provider>
+  );
 };
 
 export const useAppContext = () => useContext(AppContext);
