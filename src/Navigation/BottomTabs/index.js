@@ -1,5 +1,5 @@
 import {StyleSheet, Platform, View} from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {moderateScale} from 'react-native-size-matters';
 import HomeStack from '../Stacks/HomeStack';
@@ -12,32 +12,59 @@ import ChatIcon from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Home from 'react-native-vector-icons/Foundation';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import socket from '../../utils/socket';
+import {AppContext, useAppContext} from '../../Context/AppContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Tab = createBottomTabNavigator();
 
 const BottomTabs = () => {
+  const {request, setRequest, uniqueId} = useAppContext(AppContext);
+  const [ids, setIds] = useState(null);
+
+  async function fetchDataFromStorage() {
+    try {
+      const value = await AsyncStorage.getItem('userUniqueId1');
+      if (value) {
+        setIds(value);
+        console.log(value, 'idssss');
+      }
+    } catch (error) {
+      console.log('Error retrieving data from AsyncStorage:', error);
+    }
+  }
+
+  useEffect(() => {
+    async function fetchDataAndHandleRequest() {
+      await fetchDataFromStorage();
+
+      const handleRequest = ({from, to, type}) => {
+        if (type === 'connectRequest') {
+          console.log(to, ids, uniqueId, 'idssss');
+          if (to == ids || to == uniqueId) {
+            setRequest(true);
+          }
+        }
+      };
+
+      socket.on('request', handleRequest);
+      return () => {
+        socket.off('request', handleRequest);
+      };
+    }
+
+    fetchDataAndHandleRequest();
+  }, [ids, socket]);
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarHideOnKeyboard: Platform.OS !== 'ios',
-        tabBarStyle: [
-          {
-            display: 'flex',
-            backgroundColor: '#343434',
-            width: '100%',
-            height:
-              Platform.OS == 'ios'
-                ? moderateScale(90, 0.1)
-                : moderateScale(53, 0.1),
-            borderTopLeftRadius: moderateScale(15, 0.1),
-            borderTopRightRadius: moderateScale(15, 0.1),
-            elevation: 0,
-            position: 'absolute',
-          },
-          null,
-        ],
-
+        tabBarStyle: {
+          backgroundColor: '#343434',
+          position: 'relative',
+          borderWidth: 0,
+          borderColor: '#343434',
+        },
         tabBarShowLabel: false,
       }}>
       <Tab.Screen
@@ -64,7 +91,6 @@ const BottomTabs = () => {
             display: 'none',
           },
           tabBarVisible: false,
-
           tabBarIcon: ({focused}) => (
             <View>
               <ChatIcon
@@ -102,6 +128,9 @@ const BottomTabs = () => {
         options={{
           tabBarIcon: ({focused}) => (
             <View>
+              {request ? (
+                <View style={styles.notificationAvailable}></View>
+              ) : null}
               <AntDesign
                 name="heart"
                 color={focused ? '#FFD700' : '#F8F8F8'}
@@ -132,8 +161,6 @@ const BottomTabs = () => {
   );
 };
 
-export default BottomTabs;
-
 const styles = StyleSheet.create({
   addTab: {
     backgroundColor: '#FFD700',
@@ -141,7 +168,19 @@ const styles = StyleSheet.create({
     height: moderateScale(50, 0.1),
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: moderateScale(50, 0.1),
     borderRadius: moderateScale(25, 0.1),
+    position: 'absolute',
+    top: moderateScale(-25),
+  },
+  notificationAvailable: {
+    backgroundColor: 'red',
+    width: moderateScale(10),
+    height: moderateScale(10),
+    borderRadius: moderateScale(10),
+    position: 'absolute',
+    zIndex: 1,
+    left: moderateScale(0),
+    bottom: moderateScale(0),
   },
 });
+export default BottomTabs;

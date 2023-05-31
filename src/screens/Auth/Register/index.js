@@ -4,7 +4,7 @@ import {
   View,
   TouchableOpacity,
   Alert,
-  ScrollView
+  ScrollView,
 } from 'react-native';
 import React, {useRef, useState, useEffect} from 'react';
 import axiosconfig from '../../../provider/axios';
@@ -21,10 +21,12 @@ import moment from 'moment';
 import Entypo from 'react-native-vector-icons/Entypo';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import socket from '../../../utils/socket';
-import { Organization, emailReg } from '../../../Constants/Index';
-import { Header, OTPModal, Loader } from '../../../Components/Index';
+import {Organization, emailReg} from '../../../Constants/Index';
+import {Header, OTPModal, Loader} from '../../../Components/Index';
+import {AppContext, useAppContext} from '../../../Context/AppContext';
 
 const Register = ({navigation}) => {
+  const {setToken} = useAppContext(AppContext);
   const dispatch = useDispatch();
   const FCMtoken = useSelector(state => state.reducer.fToken);
   const phonenum = useRef();
@@ -219,7 +221,8 @@ const Register = ({navigation}) => {
         AsyncStorage.setItem('userToken', res?.data?.access_token);
         let id = res?.data?.userInfo.toString();
         AsyncStorage.setItem('id', id);
-        dispatch(setUserToken(res?.data?.access_token));
+        // dispatch(setUserToken(res?.data?.access_token));
+        setToken(res?.data?.access_token);
         fcmToken(res?.data?.access_token);
         socket.auth = {username: email};
         socket.connect();
@@ -259,10 +262,11 @@ const Register = ({navigation}) => {
     hideDatePicker();
   };
 
-  return (
+  return loader ? (
+    <Loader />
+  ) : (
     <SafeAreaView
       style={{flex: 1, backgroundColor: theme === 'dark' ? '#222222' : '#fff'}}>
-      {loader ? <Loader /> : null}
       <ScrollView>
         <View
           style={[
@@ -293,7 +297,7 @@ const Register = ({navigation}) => {
                 style={{
                   flex: 0.6,
                   flexDirection: 'row',
-                  alignItems: 'center'
+                  alignItems: 'center',
                 }}>
                 <View style={{flex: 0.5}}>
                   <Input
@@ -536,7 +540,7 @@ const Register = ({navigation}) => {
                               ? 'red'
                               : Textcolor,
                           paddingLeft: moderateScale(10, 0.1),
-                          alignItems: 'center'
+                          alignItems: 'center',
                         }}>
                         <Text
                           style={[
@@ -566,7 +570,7 @@ const Register = ({navigation}) => {
                   {Organization.map((v, i) => {
                     return (
                       <Menu.Item
-                      key={i}
+                        key={i}
                         style={{width: 400}}
                         onPress={() => {
                           setOrganization(v.id);

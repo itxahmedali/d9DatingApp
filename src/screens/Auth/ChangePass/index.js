@@ -4,19 +4,20 @@ import {
   View,
   ToastAndroid,
   TouchableOpacity,
-  Alert
+  Alert,
 } from 'react-native';
 import React, {useState} from 'react';
 import s from './style';
 import Feather from 'react-native-vector-icons/Feather';
-import {Input, Button,} from 'native-base';
+import {Input, Button} from 'native-base';
 import {moderateScale} from 'react-native-size-matters';
 import Icon2 from 'react-native-vector-icons/Fontisto';
 import {useDispatch, useSelector} from 'react-redux';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import axiosconfig from '../../../Providers/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Header, Loader } from '../../../Components/Index';
+import {Header, Loader} from '../../../Components/Index';
+import {AppContext, useAppContext} from '../../../Context/AppContext';
 
 const ChangePass = ({navigation, route}) => {
   const dispatch = useDispatch();
@@ -36,8 +37,7 @@ const ChangePass = ({navigation, route}) => {
   };
   const color = theme === 'dark' ? '#222222' : '#fff';
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
-  const userToken = useSelector(state => state.reducer.userToken);
-
+  const {token} = useAppContext(AppContext);
   const submit = () => {
     console.log('submit');
     setSubmitted(false);
@@ -84,7 +84,7 @@ const ChangePass = ({navigation, route}) => {
           screen == 'Reset'
             ? {
                 headers: {
-                  Authorization: `Bearer ${userToken}`,
+                  Authorization: `Bearer ${token}`,
                 },
               }
             : null,
@@ -109,10 +109,10 @@ const ChangePass = ({navigation, route}) => {
     }
   };
 
-  return (
+  return loader ? (
+    <Loader />
+  ) : (
     <SafeAreaView style={{flex: 1, backgroundColor: color}}>
-      {loader ? <Loader /> : null}
-
       <Header navigation={navigation} />
       <View style={[s.container, {backgroundColor: color}]}>
         <View style={{width: '100%', alignItems: 'center'}}>
@@ -201,8 +201,7 @@ const ChangePass = ({navigation, route}) => {
                 confirmPassword ? (
                   <View style={s.eye}>
                     <TouchableOpacity
-                      onPress={() => setShowConfPass(!showConfPass)}
-                    >
+                      onPress={() => setShowConfPass(!showConfPass)}>
                       <Feather
                         name={showConfPass ? 'eye' : 'eye-off'}
                         color={Textcolor}
@@ -234,8 +233,7 @@ const ChangePass = ({navigation, route}) => {
               borderRadius={50}
               w={moderateScale(140, 0.1)}
               h={moderateScale(35, 0.1)}
-              alignItems={'center'}
-            >
+              alignItems={'center'}>
               <Text style={s.btnText}>Save</Text>
             </Button>
           </View>

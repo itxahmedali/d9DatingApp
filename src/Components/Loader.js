@@ -1,22 +1,22 @@
 import React from 'react';
-import {StyleSheet, Text, View, Dimensions, Image} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {moderateScale} from 'react-native-size-matters';
-import {Spinner} from 'native-base';
-import { height, width } from '../Constants/Index';
+import {height, width} from '../Constants/Index';
+import { useSelector } from 'react-redux';
+import { ActivityIndicator } from 'react-native';
 
 const Loader = () => {
+  const theme = useSelector(state => state.reducer.theme);
+  const backgroundColor = theme === 'dark' ? '#000' : '#fff';
   return (
-    <View style={styles.container}>
-      <Spinner size="lg" colorScheme={'#F8F8F8'} />
+    <View style={[styles.container,{backgroundColor: backgroundColor}]}>
+      <ActivityIndicator size='large' color='#FFD700'/>
     </View>
   );
 };
 
-export default Loader;
-
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(0,0,0,0.6)',
     position: 'absolute',
     zIndex: 1,
     top: 0,
@@ -31,3 +31,4 @@ const styles = StyleSheet.create({
     height: moderateScale(128, 0.1),
   },
 });
+export default Loader;

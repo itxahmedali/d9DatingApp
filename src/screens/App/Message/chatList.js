@@ -1,17 +1,8 @@
-import {
-  TouchableOpacity,
-  Text,
-  SafeAreaView,
-  View,
-  Image,
-} from 'react-native';
+import {TouchableOpacity, Text, SafeAreaView, View, Image} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
-import {
-  addUsers,
-  addSocketUsers,
-} from '../../../Redux/actions';
+import {addUsers, addSocketUsers} from '../../../Redux/actions';
 import s from './style';
 import {FlatList} from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -24,11 +15,13 @@ import moment from 'moment';
 import {useIsFocused} from '@react-navigation/native';
 import Inicon from 'react-native-vector-icons/Ionicons';
 import {Loader} from '../../../Components/Index';
+import {AppContext, useAppContext} from '../../../Context/AppContext';
+import {dummyImage} from '../../../Constants/Index';
 
-const Message = ({navigation}) => {
+const Message = ({navigation, route}) => {
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
-  const userToken = useSelector(state => state.reducer.userToken);
+  const {token} = useAppContext(AppContext);
   const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
@@ -41,9 +34,6 @@ const Message = ({navigation}) => {
   const [user, setUser] = useState('');
   const organizations = useSelector(state => state.reducer.organization);
 
-  const [dummyImage, setDummyImage] = useState(
-    'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
-  );
   useEffect(() => {
     getData();
     userslist();
@@ -74,7 +64,7 @@ const Message = ({navigation}) => {
     await axiosconfig
       .get(`connected_users`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
@@ -91,7 +81,7 @@ const Message = ({navigation}) => {
     await axiosconfig
       .get(`message_index`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
@@ -161,10 +151,7 @@ const Message = ({navigation}) => {
     ) {
       return (
         <View style={s.card}>
-          <TouchableOpacity
-            onPress={() => {
-            }}
-            style={[s.dp]}>
+          <TouchableOpacity onPress={() => {}} style={[s.dp]}>
             <Image
               source={{
                 uri: elem.item?.image ? elem.item?.image : dummyImage,
@@ -205,9 +192,10 @@ const Message = ({navigation}) => {
       return;
     }
   };
-  return (
+  return loader ? (
+    <Loader />
+  ) : (
     <SafeAreaView style={{display: 'flex', flex: 1, backgroundColor: color}}>
-      {loader ? <Loader /> : null}
       {modalVisible ? (
         <UserListModal
           modalVisible={modalVisible}
@@ -217,8 +205,8 @@ const Message = ({navigation}) => {
         />
       ) : (
         <>
-          <ScrollView
-            contentContainerStyle={[s.container, {backgroundColor: color}]}>
+          <View
+            style={[s.container, {backgroundColor: color}]}>
             <View
               style={{
                 marginLeft: moderateScale(-5, 0.1),
@@ -226,8 +214,7 @@ const Message = ({navigation}) => {
                 alignItems: 'center',
                 flexDirection: 'row',
               }}>
-              <TouchableOpacity
-                onPress={() => navigation.goBack('')}>
+              <TouchableOpacity onPress={() => navigation.goBack('')}>
                 <Inicon
                   name="arrow-back-circle-outline"
                   size={moderateScale(30)}
@@ -261,7 +248,7 @@ const Message = ({navigation}) => {
               scrollEnabled={true}
               inverted
             />
-          </ScrollView>
+          </View>
         </>
       )}
     </SafeAreaView>

@@ -15,6 +15,8 @@ import {TouchableOpacity, Text} from 'react-native';
 import {useToast} from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {moderateScale} from 'react-native-size-matters';
+import Message from '../../../screens/App/Message/chatList';
+import Chat from '../../../screens/App/Message/Chat/chatInner';
 
 const Stack = createStackNavigator();
 
@@ -91,7 +93,6 @@ const HomeStack = () => {
       <Stack.Screen name="FunInteraction" component={FunInteraction} />
       <Stack.Screen name="Comments" component={Comments} />
       <Stack.Screen name="Likes" component={Likes} />
-      {/* <Stack.Screen name="Test" component={Test} /> */}
       <Stack.Screen name="createPost" component={CreatePost} />
       <Stack.Screen name="Map" component={Map} />
     </Stack.Navigator>

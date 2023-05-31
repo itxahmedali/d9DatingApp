@@ -10,7 +10,7 @@ import {
 import React, {useEffect, useState, useRef} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
-import {setUserToken, setTheme, setExist} from '../../../../Redux/actions';
+import {settoken, setTheme, setExist} from '../../../../Redux/actions';
 import s from './style';
 import Inicon from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/MaterialIcons';
@@ -27,18 +27,17 @@ import axiosconfig from '../../../../Providers/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useIsFocused} from '@react-navigation/native';
 import { Header, Loader } from '../../../../Components/Index';
+import { AppContext, useAppContext } from '../../../../Context/AppContext';
+import { dummyImage } from '../../../../Constants/Index';
 
 const Settings = ({navigation, route}) => {
   const dispatch = useDispatch();
-  const userToken = useSelector(state => state.reducer.userToken);
+  const {token} = useAppContext(AppContext);
   const userData = useSelector(state => state.reducer.userData);
   const isFocused = useIsFocused();
   const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
-  const [dummyImage, setDummyImage] = useState(
-    'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
-  );
   const refRBSheet = useRef();
 
   const [darkMode, setDarkMode] = useState(false);
@@ -50,7 +49,7 @@ const Settings = ({navigation, route}) => {
   const [showConfPass, setshowConfPass] = useState(true);
   const [loader, setLoader] = useState(false);
   const [submitted, setSubmitted] = useState();
-
+  const { setToken } = useAppContext(AppContext);
   useEffect(() => {}, []);
   const showToast = msg => {
     Alert.alert(msg);
@@ -78,17 +77,18 @@ const Settings = ({navigation, route}) => {
       await axiosconfig
         .post('account_delete', body, {
           headers: {
-            Authorization: `Bearer ${userToken}`,
+            Authorization: `Bearer ${token}`,
           },
         })
         .then(res => {
           console.log(res);
           console.log(res?.data?.message);
           alert(res?.data?.message);
-          AsyncStorage.removeItem('userToken');
+          AsyncStorage.removeItem('token');
           AsyncStorage.removeItem('userData');
 
-          dispatch(setUserToken(null));
+          dispatch(settoken(null))
+          setToken(null)
         })
         .catch(err => {
           console.log(err);
@@ -102,7 +102,7 @@ const Settings = ({navigation, route}) => {
     await axiosconfig
       .get('theme-mode', {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -118,12 +118,12 @@ const Settings = ({navigation, route}) => {
   };
 
   const LogoutApi = async () => {
-    console.log(userToken);
+    console.log(token);
     setLoader(true);
     await axiosconfig
       .get('logout', {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(async res => {
@@ -131,6 +131,7 @@ const Settings = ({navigation, route}) => {
         clearToken();
         let exist = await AsyncStorage.getItem('already');
         dispatch(setExist(exist));
+        setToken(null)
         console.log(res?.data, 'logoutToken');
       })
       .catch(err => {
@@ -139,8 +140,8 @@ const Settings = ({navigation, route}) => {
       });
   };
   const clearToken = async () => {
-    dispatch(setUserToken(null));
-    await AsyncStorage.removeItem('userToken');
+    dispatch(settoken(null));
+    await AsyncStorage.removeItem('token');
     await AsyncStorage.removeItem('password');
   };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   SafeAreaView,
   Text,
@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import { Input, Button } from 'native-base';
-import { moderateScale } from 'react-native-size-matters';
+import {Input, Button} from 'native-base';
+import {moderateScale} from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import Icon2 from 'react-native-vector-icons/Fontisto';
@@ -16,17 +16,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosconfig from '../../../provider/axios';
 import {Loader} from '../../../Components/Index';
 import socket from '../../../utils/socket';
-import { setUserToken } from '../../../Redux/actions';
-import { useDispatch, useSelector } from 'react-redux';
-import s from './style'
-import { height, width, } from '../../../Constants/Index';
+import {useDispatch, useSelector} from 'react-redux';
+import s from './style';
+import {height, width} from '../../../Constants/Index';
+import {AppContext, useAppContext} from '../../../Context/AppContext';
 
-const Login = ({ navigation }) => {
+const Login = ({navigation}) => {
   const dispatch = useDispatch();
   const FCMtoken = useSelector(state => state.reducer.fToken);
   const theme = useSelector(state => state.reducer.theme);
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
-
+  const {setToken, setUniqueId} = useAppContext(AppContext);
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
   const [submitted, setSubmitted] = useState(false);
@@ -55,14 +55,19 @@ const Login = ({ navigation }) => {
           console.log(err, 'errors');
         });
     },
-    [FCMtoken]
+    [FCMtoken],
   );
 
   const onSignInUser = useCallback(() => {
     console.log('submit');
     setSubmitted(false);
 
-    if (email === null || email === '' || password === null || password === '') {
+    if (
+      email === null ||
+      email === '' ||
+      password === null ||
+      password === ''
+    ) {
       setSubmitted(true);
       return;
     }
@@ -73,21 +78,28 @@ const Login = ({ navigation }) => {
       password: password,
     };
 
-    console.log({ data });
+    console.log({data});
 
     Keyboard.dismiss();
     axiosconfig
       .post('login', data)
       .then(res => {
+        console.log(res?.data, 'ellouserlogin');
         AsyncStorage.setItem('password', password);
-        console.log(res?.data?.userInfo, 'id');
         const id = res?.data?.userInfo.toString();
         AsyncStorage.setItem('id', id);
+        AsyncStorage.setItem(
+          'userUniqueId1',
+          JSON.stringify(res?.data?.userInfo),
+        );
+        setUniqueId(id);
         AsyncStorage.setItem('userToken', res?.data?.access_token);
+
         fcmToken(res?.data?.access_token);
-        socket.auth = { username: email };
+        socket.auth = {username: email};
         socket.connect();
-        dispatch(setUserToken(res?.data?.access_token));
+        // dispatch(setUserToken(res?.data?.access_token));
+        setToken(res?.data?.access_token);
         setLoader(false);
       })
       .catch(err => {
@@ -97,20 +109,20 @@ const Login = ({ navigation }) => {
       });
   }, [dispatch, email, password, fcmToken]);
 
-  return (
-    <SafeAreaView style={{ flex: 1, height: '100%' }}>
+  return loader ? (
+    <Loader />
+  ) : (
+    <SafeAreaView style={{flex: 1, height: '100%'}}>
       <View
         style={{
           width: width,
           height: height,
           backgroundColor: theme === 'dark' ? '#222222' : '#fff',
         }}>
-        {loader ? <Loader /> : null}
-
-        <View style={{ width: '100%', alignItems: 'center' }}>
+        <View style={{width: '100%', alignItems: 'center'}}>
           <View style={s.heading}>
-            <Text style={[s.headingText, { color: Textcolor }]}>
-              Sign <Text style={[s.headingText1, { color: Textcolor }]}>In</Text>
+            <Text style={[s.headingText, {color: Textcolor}]}>
+              Sign <Text style={[s.headingText1, {color: Textcolor}]}>In</Text>
             </Text>
           </View>
           <View style={s.input}>
@@ -160,7 +172,7 @@ const Login = ({ navigation }) => {
               }}
               variant="underlined"
               InputLeftElement={
-                <View style={[s.iconCircle, { borderColor: Textcolor }]}>
+                <View style={[s.iconCircle, {borderColor: Textcolor}]}>
                   <Icon2 name="locked" color={Textcolor} size={18} />
                 </View>
               }
@@ -231,9 +243,9 @@ const Login = ({ navigation }) => {
               size="md"
               variant={'link'}
               onPressIn={() => navigation.navigate('ForgetPassword')}>
-              <View style={{ flexDirection: 'row' }}>
-                <Text style={[s.forgetPass, { color: '#FFD700' }]}>Forgot </Text>
-                <Text style={[s.forgetPass, { color: Textcolor }]}>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={[s.forgetPass, {color: '#FFD700'}]}>Forgot </Text>
+                <Text style={[s.forgetPass, {color: Textcolor}]}>
                   Password?
                 </Text>
               </View>
@@ -249,12 +261,12 @@ const Login = ({ navigation }) => {
               color: Textcolor,
             }}
             onPressIn={() => navigation.navigate('Register')}>
-            <View style={{ flexDirection: 'row' }}>
-              <Text style={[s.forgetPass, { color: Textcolor }]}>
+            <View style={{flexDirection: 'row'}}>
+              <Text style={[s.forgetPass, {color: Textcolor}]}>
                 Don’t Have an Account?
               </Text>
               <Text
-                style={[s.forgetPass, { fontWeight: '700', color: '#FFD700' }]}>
+                style={[s.forgetPass, {fontWeight: '700', color: '#FFD700'}]}>
                 Sign up Now!
               </Text>
             </View>
@@ -269,7 +281,7 @@ const Login = ({ navigation }) => {
               <Text
                 style={[
                   s.forgetPass,
-                  { color: Textcolor, textDecorationLine: 'underline' },
+                  {color: Textcolor, textDecorationLine: 'underline'},
                 ]}>
                 Privacy Policy
               </Text>
@@ -277,14 +289,13 @@ const Login = ({ navigation }) => {
             <Text
               style={[
                 s.forgetPass,
-                { color: Textcolor, textDecorationLine: 'none' },
-              ]}>
-            </Text>
+                {color: Textcolor, textDecorationLine: 'none'},
+              ]}></Text>
             <TouchableOpacity>
               <Text
                 style={[
                   s.forgetPass,
-                  { color: Textcolor, textDecorationLine: 'underline' },
+                  {color: Textcolor, textDecorationLine: 'underline'},
                 ]}>
                 Terms & conditions
               </Text>

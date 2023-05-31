@@ -8,35 +8,53 @@ import {ScrollView} from 'react-native';
 import Antdesign from 'react-native-vector-icons/AntDesign';
 import axiosconfig from '../../../Providers/axios';
 import {useIsFocused} from '@react-navigation/native';
-import { Header, Loader } from '../../../Components/Index';
-import { AppContext, useAppContext } from '../../../Context/AppContext';
+import {Header, Loader} from '../../../Components/Index';
+import {AppContext, useAppContext} from '../../../Context/AppContext';
+import socket from '../../../utils/socket';
+import {dummyImage, socketRequest} from '../../../Constants/Index';
 
 const Notifications = ({navigation, route}) => {
   const dispatch = useDispatch();
   const flatListRef = useRef(null);
   const isFocused = useIsFocused();
   const theme = useSelector(state => state.reducer.theme);
-  const userToken = useSelector(state => state.reducer.userToken);
+  const {token, request, setRequest} = useAppContext(AppContext);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const [loader, setLoader] = useState(false);
   const [data, setData] = useState([]);
-  const [accept, setAccept] = useState(false);
-  const [decline, setDecline] = useState(false);
   const [response, setResponse] = useState('');
-  const [dummyImage, setDummyImage] = useState(
-    'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
-  );
   const [index, setIndex] = useState('');
-  const {liked} = useAppContext(AppContext);
   useEffect(() => {
     setResponse('');
-    getList();
+    getList(true);
+    if (request) {
+      setRequest(false);
+    }
   }, [isFocused]);
   useEffect(() => {
-    getList()
-  }, [liked])
-  
+    const handleLike = ({postId, postUserId, myId}) => {};
+    socket.on('like', handleLike);
+    return () => {
+      socket.off('like', handleLike);
+    };
+  }, [socket]);
+  useEffect(() => {
+    const handleRequest = ({from, to, type}) => {
+      if (type == 'connect' || type == 'connectRequest') {
+        getList(false);
+      }
+      if (type == 'connectRequest') {
+        if (request) {
+          setRequest(false);
+        }
+      }
+    };
+    socket.on('request', handleRequest);
+    return () => {
+      socket.off('request', handleRequest);
+    };
+  }, [socket]);
   const id = route?.params?.data?.id;
   const matchId = () => {
     console.log('avg');
@@ -60,41 +78,44 @@ const Notifications = ({navigation, route}) => {
     index,
   });
 
-  const getList = async () => {
-    setLoader(true);
+  const getList = async loader => {
+    if (loader) {
+      setLoader(true);
+    }
     axiosconfig
       .get(`request-list`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
-        console.log('elenenen', res.data);
         setData(res?.data);
         matchId();
-        setLoader(false);
+        if (loader) {
+          setLoader(false);
+        }
       })
       .catch(err => {
-        setLoader(false);
+        if (loader) {
+          setLoader(false);
+        }
         console.log(err);
       });
   };
-  const connectAccept = async id => {
+  const connectAccept = async connectId => {
     console.log('accept');
-    setIndex(id);
+    setIndex(connectId);
     setLoader(true);
     axiosconfig
-      .get(`connect-accept/${id}`, {
+      .get(`connect-accept/${connectId}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
-        console.log('data', res?.data);
-        setResponse('Connected');
-        setTimeout(() => {
-          getList();
-        }, 7000);
+        socketRequest(id, connectId, 'connect');
+        setRequest(false);
+        getList(true);
         setLoader(false);
       })
       .catch(err => {
@@ -102,21 +123,19 @@ const Notifications = ({navigation, route}) => {
         console.log(err);
       });
   };
-  const connectDecline = async id => {
+  const connectDecline = async connectId => {
     setLoader(true);
-    setIndex(id);
+    setIndex(connectId);
     axiosconfig
-      .get(`connect-remove/${id}`, {
+      .get(`connect-remove/${connectId}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
-        console.log('data', res?.data);
-        setResponse('Declined');
-        setTimeout(() => {
-          getList();
-        }, 7000);
+        socketRequest(id, connectId, 'disconnect');
+        setRequest(false);
+        getList(true);
         setLoader(false);
       })
       .catch(err => {
@@ -192,12 +211,13 @@ const Notifications = ({navigation, route}) => {
       </View>
     );
   };
-  return (
+  return loader ? (
+    <Loader />
+  ) : (
     <SafeAreaView style={{flex: 1, backgroundColor: color}}>
-      {loader ? <Loader /> : null}
       <Header navigation={navigation} />
-      <ScrollView
-        contentContainerStyle={[s.container, {backgroundColor: color}]}>
+      <View
+        style={[s.container, {backgroundColor: color}]}>
         <View>
           <Text style={[s.HeadingText, {color: textColor}]}>Notifications</Text>
         </View>
@@ -216,7 +236,7 @@ const Notifications = ({navigation, route}) => {
           keyExtractor={(item, index) => String(index)}
           scrollEnabled={true}
         />
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };

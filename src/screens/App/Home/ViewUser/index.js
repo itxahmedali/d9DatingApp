@@ -9,26 +9,13 @@ import {useDispatch, useSelector} from 'react-redux';
 import {setTheme} from '../../../../Redux/actions';
 import axiosconfig from '../../../../Providers/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useIsFocused} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import ImageView from 'react-native-image-viewing';
 import * as RootNavigation from '../../../../../RootNavigation';
-import { Header, Loader } from '../../../../Components/Index';
-const data = [
-  {
-    user_id: 1,
-    user_image:
-      'https://pbs.twimg.com/profile_images/1222140802475773952/61OmyINj.jpg',
-    user_name: 'Ahmet Çağlar Durmuş',
-    Designation: 'Fashion Designer',
-    location: ' California, USA',
-    caption:
-      'Julie Watson Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diamnonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry',
-    post: {
-      image: require('../../../../assets/images/png/dp.png'),
-      likes: 233,
-    },
-  },
-];
+import {Header, Loader} from '../../../../Components/Index';
+import {AppContext, useAppContext} from '../../../../Context/AppContext';
+import {dummyImage, socketRequest} from '../../../../Constants/Index';
+import socket from '../../../../utils/socket';
 
 const ViewUser = ({navigation, route}) => {
   const {post, screen} = route?.params;
@@ -39,26 +26,31 @@ const ViewUser = ({navigation, route}) => {
       ? route?.params?.data?.id
       : post?.user.id,
   );
-  const [dummyImage, setDummyImage] = useState(
-    'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
-  );
   const [loginId, setLoginId] = useState(null);
   const [previewImage, setPreviewImage] = useState('');
   const [imgView, setImgView] = useState(false);
   const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
-  const userToken = useSelector(state => state.reducer.userToken);
+  const {token} = useAppContext(AppContext);
   const [scroll, setScroll] = useState(false);
   const [loader, setLoader] = useState(false);
   const [userData, setUserData] = useState([]);
   const socketUsers = useSelector(state => state.reducer.socketUsers);
-
+  const navigations = useNavigation();
   useEffect(() => {
-    getData();
+    getData(true);
     getId();
   }, []);
-
+  useEffect(() => {
+    const handleRequest = ({from, to, type}) => {
+      getData(false);
+    };
+    socket.on('request', handleRequest);
+    return () => {
+      socket.off('request', handleRequest);
+    };
+  }, [socket]);
   const searchUserOnSocket = userData => {
     let temp = {backendUser: userData, socketUser: {}};
 
@@ -72,8 +64,10 @@ const ViewUser = ({navigation, route}) => {
   };
 
   const handleCreateRoom = user => {
-    console.log(user, 'handle');
-    RootNavigation.navigate('Chat', user);
+    navigations.navigate('MessageStack', {
+      screen: 'Chat',
+      params: {backendUser: user.backendUser},
+    });
   };
 
   const getId = async () => {
@@ -82,36 +76,40 @@ const ViewUser = ({navigation, route}) => {
     setLoginId(logInId);
   };
 
-  const getData = async => {
-    console.log('get data console');
-    setLoader(true);
+  const getData = async loader => {
+    if (loader) {
+      setLoader(true);
+    }
     axiosconfig
       .get(`user_view/${Userid}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
-        console.log('data11', res.data.user_details);
         setUserData(res?.data?.user_details);
-        setLoader(false);
+        if (loader) {
+          setLoader(false);
+        }
       })
       .catch(err => {
-        setLoader(false);
+        if (loader) {
+          setLoader(false);
+        }
       });
   };
   const connect = async () => {
     setLoader(true);
-
     await axiosconfig
       .get(`connect/${Userid}`, {
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
-        getData();
+        socketRequest(loginId, Userid, 'connectRequest');
+        getData(true);
         setLoader(false);
       })
       .catch(err => {
@@ -124,11 +122,12 @@ const ViewUser = ({navigation, route}) => {
       .get(`connect-remove/${Userid}`, {
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
-        getData();
+        socketRequest(loginId, Userid, 'disconnect');
+        getData(true);
         setLoader(false);
       })
       .catch(err => {
@@ -141,11 +140,12 @@ const ViewUser = ({navigation, route}) => {
       .get(`block/${Userid}`, {
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
-        getData();
+        socketRequest(loginId, Userid, 'block');
+        getData(true);
         setLoader(false);
       })
       .catch(err => {
@@ -158,11 +158,11 @@ const ViewUser = ({navigation, route}) => {
       .get(`block/${Userid}`, {
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
-        getData();
+        getData(true);
         setLoader(false);
       })
       .catch(err => {
@@ -170,9 +170,10 @@ const ViewUser = ({navigation, route}) => {
       });
   };
 
-  return (
+  return loader ? (
+    <Loader />
+  ) : (
     <View style={{flex: 1, backgroundColor: color}}>
-      {loader ? <Loader /> : null}
       <View style={[s.View1]}>
         <TouchableOpacity
           onPress={() => {

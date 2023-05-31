@@ -5,13 +5,17 @@ import Register from '../../../screens/Auth/Register';
 import StartScreen from '../../../screens/Auth/Start';
 import ChangePass from '../..//../screens/Auth/ChangePass';
 import Map from '../../../screens/Auth/Register/Map';
+import {AppContext, useAppContext} from '../../../Context/AppContext';
 
 const Stack = createStackNavigator();
 
 const AuthStack = () => {
+  const {token} = useAppContext(AppContext);
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="StartScreen" component={StartScreen} />
+      {token === null ? (
+        <Stack.Screen name="StartScreen" component={StartScreen} />
+      ) : null}
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Register" component={Register} />
       <Stack.Screen name="ForgetPassword" component={ForgetPassword} />

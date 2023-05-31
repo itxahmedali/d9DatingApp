@@ -1,10 +1,4 @@
-import {
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
+import {Text, View, Image, TouchableOpacity, Alert} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {moderateScale} from 'react-native-size-matters';
 import s from './style';
@@ -18,8 +12,9 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useIsFocused} from '@react-navigation/native';
 import axiosconfig from '../../../provider/axios';
-import { Header, Loader } from '../../../Components/Index';
-import { captureImage, chooseFile } from '../../../Constants/Index';
+import {Header, Loader} from '../../../Components/Index';
+import {captureImage, chooseFile, dummyImage, getColor} from '../../../Constants/Index';
+import {AppContext, useAppContext} from '../../../Context/AppContext';
 
 const CreatePost = ({navigation, route}) => {
   const privacy = route?.params?.elem?.privacy_option;
@@ -60,9 +55,6 @@ const CreatePost = ({navigation, route}) => {
   const [loader, setLoader] = useState(false);
   const isFocused = useIsFocused();
   const [userData, setUserData] = useState([]);
-  const [dummyImage, setDummyImage] = useState(
-    'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
-  );
 
   const [value, setValue] = useState([
     {
@@ -97,7 +89,7 @@ const CreatePost = ({navigation, route}) => {
   ]);
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
   const color = theme === 'dark' ? '#222222' : '#fff';
-  const userToken = useSelector(state => state.reducer.userToken);
+  const {token} = useAppContext(AppContext);
   const dispatch = useDispatch();
   const refRBSheet = useRef();
   const postLocation = useSelector(state => state.reducer.postLocation);
@@ -111,19 +103,6 @@ const CreatePost = ({navigation, route}) => {
       ? route?.params?.elem?.privacy_option
       : 'Public',
   );
-
-  const getColor = id => {
-    let color;
-
-    organization?.forEach(elem => {
-      if (elem.id == id) {
-        color = elem.color;
-      }
-    });
-    return color;
-  };
-
-  
 
   const onsubmit = () => {
     if (caption == '' || caption == null) {
@@ -154,7 +133,7 @@ const CreatePost = ({navigation, route}) => {
           data,
           {
             headers: {
-              Authorization: `Bearer ${userToken}`,
+              Authorization: `Bearer ${token}`,
             },
           },
         )
@@ -193,7 +172,7 @@ const CreatePost = ({navigation, route}) => {
     axiosconfig
       .get(`user_view/${SP}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
@@ -204,13 +183,13 @@ const CreatePost = ({navigation, route}) => {
         console.log(err);
       });
   };
-  return (
+  return loader ? (
+    <Loader />
+  ) : (
     <ScrollView
       style={{flex: 1, backgroundColor: theme == 'dark' ? '#222222' : '#fff'}}>
       <View>
         <View style={[s.container]}>
-          {loader ? <Loader /> : null}
-
           <View>
             <Header navigation={navigation} />
           </View>
@@ -444,7 +423,9 @@ const CreatePost = ({navigation, route}) => {
                   <Button
                     transparent
                     style={s.capturebtn}
-                    onPress={() => captureImage('photo', refRBSheet, setFilePath)}>
+                    onPress={() =>
+                      captureImage('photo', refRBSheet, setFilePath)
+                    }>
                     <View style={{flexDirection: 'row'}}>
                       <Ionicons name="camera" style={s.capturebtnicon} />
                       <Text style={s.capturebtntxt}>Open Camera</Text>
@@ -453,7 +434,9 @@ const CreatePost = ({navigation, route}) => {
                   <Button
                     transparent
                     style={s.capturebtn}
-                    onPress={() => chooseFile('photo', refRBSheet, setFilePath)}>
+                    onPress={() =>
+                      chooseFile('photo', refRBSheet, setFilePath)
+                    }>
                     <View style={{flexDirection: 'row'}}>
                       <Ionicons
                         name="md-image-outline"

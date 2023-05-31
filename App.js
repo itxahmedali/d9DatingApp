@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import {KeyboardAvoidingView, Platform, PermissionsAndroid} from 'react-native';
-import React, {useEffect} from 'react';
+import React, {memo, useEffect} from 'react';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import {NavigationContainer} from '@react-navigation/native';
 import {NativeBaseProvider, useToast} from 'native-base';
@@ -18,9 +18,11 @@ import socket from './src/utils/socket';
 import SplashScreen from 'react-native-splash-screen';
 import {navigationRef} from './RootNavigation';
 import {AppState} from 'react-native';
+import {AppContext, AppProvider, useAppContext} from './src/Context/AppContext';
 
 const App = () => {
   const dispatch = useDispatch();
+  
   const userToken = useSelector(state => state.reducer.userToken);
   async function requestUserPermission() {
     const authStatus = await messaging().requestPermission();
@@ -149,15 +151,16 @@ const App = () => {
     AppState.addEventListener('change', handleAppStateChange);
   }, []);
   const updateLastSeen = async () => {
-    let token = await AsyncStorage.getItem('userToken');
-    if (token) {
+    let tokens = await AsyncStorage.getItem('userToken');
+    console.log("hellosps", tokens);
+    if (tokens) {
       await axiosconfig
         .post(
           `last-seen`,
           {},
           {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${JSON.parse(tokens)}`,
             },
           },
         )
@@ -176,7 +179,7 @@ const App = () => {
     let userData = await AsyncStorage.getItem('userData');
     userData = JSON.parse(userData);
     dispatch(setExist(exist));
-    setThemeMode(token);
+    setThemeMode();
     if (token) {
       socket.auth = {username: userData?.email};
       socket.connect();
@@ -184,13 +187,14 @@ const App = () => {
     dispatch(setUserToken(token));
   };
 
-  const setThemeMode = async token => {
+  const setThemeMode = async () => {
     let SP = await AsyncStorage.getItem('id');
-
+    let tokens = await AsyncStorage.getItem('userToken');
+    console.log("hellosps", tokens);
     axiosconfig
       .get(`user_view/${SP}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${JSON.parse(tokens)}`,
         },
       })
       .then(res => {
@@ -211,27 +215,33 @@ const App = () => {
         if (Platform.OS == 'android') {
           setTimeout(() => {
             SplashScreen.hide();
-          }, 500);
+          }, 1000);
         }
         console.log('error', err);
       });
   };
   return (
     <AppProvider>
-      <NativeBaseProvider>
+      <AppContent />
+    </AppProvider>
+  );
+};
+const AppContent = memo(() => {
+  const {token} = useAppContext(AppContext);
+
+  return (
+    <NativeBaseProvider>
         <SafeAreaProvider>
           <MyStatusBar backgroundColor="#000" barStyle="light-content" />
           <KeyboardAvoidingView
             style={{flex: 1}}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
             <NavigationContainer ref={navigationRef}>
-              {userToken === null ? <AuthStack /> : <BottomTabs />}
+              {token === null ? <AuthStack /> : <BottomTabs />}
             </NavigationContainer>
           </KeyboardAvoidingView>
         </SafeAreaProvider>
       </NativeBaseProvider>
-    </AppProvider>
   );
-};
-
+});
 export default App;

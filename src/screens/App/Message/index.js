@@ -8,12 +8,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosconfig from '../../../Providers/axios';
 import firebase from 'firebase/app';
 import firestore from '@react-native-firebase/firestore';
+import { AppContext, useAppContext } from '../../../Context/AppContext';
 const Message = ({navigation}) => {
   const dispatch = useDispatch();
   const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
-  const userToken = useSelector(state => state.reducer.userToken);
+  const {token} = useAppContext(AppContext);
   const [users, setUsers] = useState([]);
   const [data, setData] = useState([]);
   const [id, setid] = useState(null);
@@ -22,7 +23,7 @@ const Message = ({navigation}) => {
     await axiosconfig
       .get('users-connect', {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -40,7 +41,7 @@ const Message = ({navigation}) => {
     axiosconfig
       .get(`user_view/${SP}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {

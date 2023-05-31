@@ -11,6 +11,7 @@ import Icon1 from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import axiosconfig from '../../../../Providers/axios';
 import { Header, Loader } from '../../../../Components/Index';
+import { AppContext, useAppContext } from '../../../../Context/AppContext';
 const Privacy = ({navigation}) => {
   const [loader, setLoader] = useState(false);
   const theme = useSelector(state => state.reducer.theme);
@@ -19,8 +20,7 @@ const Privacy = ({navigation}) => {
   const [story, setStory] = useState('Public');
   const [post, setPost] = useState('Public');
   const [connect, setConnect] = useState('Public');
-  const userToken = useSelector(state => state.reducer.userToken);
-
+  const {token} = useAppContext(AppContext);
   const userPrivacy = async () => {
     setLoader(true);
     const data = {
@@ -29,7 +29,7 @@ const Privacy = ({navigation}) => {
     await axiosconfig
       .post('user-privacy', data, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -51,7 +51,7 @@ const Privacy = ({navigation}) => {
     await axiosconfig
       .post('post-privacy', data, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })

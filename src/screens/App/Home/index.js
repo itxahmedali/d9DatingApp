@@ -39,9 +39,18 @@ import {
   setStories,
   addSocketUsers,
 } from '../../../Redux/actions';
-import { requestCameraPermission, requestExternalWritePermission, socketLike, width } from '../../../Constants/Index';
-import { Loader } from '../../../Components/Index';
-import { AppContext, useAppContext } from '../../../Context/AppContext';
+import {
+  dummyImage,
+  getColor,
+  requestCameraPermission,
+  requestExternalWritePermission,
+  socketComment,
+  socketLike,
+  width,
+} from '../../../Constants/Index';
+import {Loader} from '../../../Components/Index';
+import {AppContext, useAppContext} from '../../../Context/AppContext';
+import moment from 'moment';
 
 const Organization = [
   {id: 'Alpha Phi Alpha Fraternity, Inc.', color: 'blue'},
@@ -63,7 +72,7 @@ const Home = ({navigation, route}) => {
   const flatListRef = useRef(null);
   const isFocused = useIsFocused();
   const theme = useSelector(state => state.reducer.theme);
-  const userToken = useSelector(state => state.reducer.userToken);
+  const {token} = useAppContext(AppContext);
   const storyID = useSelector(state => state.reducer.storyID);
   const storiesData = useSelector(state => state.reducer.stories);
   const color = theme === 'dark' ? '#222222' : '#fff';
@@ -82,17 +91,14 @@ const Home = ({navigation, route}) => {
   const [userData, setUserData] = useState('');
   const [text, setText] = useState(null);
   const [funPostsData, setFunPostsData] = useState('');
-  let userList = []
+  let userList = [];
   const {setLiked} = useAppContext(AppContext);
   const socketUsers = useSelector(state => state.reducer.socketUsers);
-  const [dummyImage, setDummyImage] = useState(
-    'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
-  );
   const postID = route?.params?.data?.id;
 
   useEffect(() => {
     dispatch(setOrganization(Organization));
-    getAllUsers()
+    getAllUsers();
     getPosts();
     if (postID) {
       getPosts(postID);
@@ -110,13 +116,13 @@ const Home = ({navigation, route}) => {
     await axiosconfig
       .get('users-connect', {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
       .then(res => {
-        const sourceData = [...res?.data?.friends, ...res?.data?.public]
-        userList = sourceData
+        const sourceData = [...res?.data?.friends, ...res?.data?.public];
+        userList = sourceData;
       })
       .catch(err => {
         console.log(err);
@@ -131,7 +137,7 @@ const Home = ({navigation, route}) => {
       dispatch(addSocketUsers(users));
     });
   }, [socket]);
-  
+
   useEffect(() => {
     getID();
   }, []);
@@ -147,7 +153,7 @@ const Home = ({navigation, route}) => {
     axiosconfig
       .get(`user_view/${id}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
@@ -187,12 +193,13 @@ const Home = ({navigation, route}) => {
     await axiosconfig
       .get('user_details', {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
       .then(res => {
         setPosts(res?.data?.post_friends);
+        console.log(res?.data?.post_friends);
         if (pid) {
           matchId(res?.data?.post_friends, pid);
         } else {
@@ -210,7 +217,7 @@ const Home = ({navigation, route}) => {
     await axiosconfig
       .get('fun-interaction', {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -231,7 +238,7 @@ const Home = ({navigation, route}) => {
     await axiosconfig
       .post('post-report', data, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -249,7 +256,7 @@ const Home = ({navigation, route}) => {
     await axiosconfig
       .get(`post_action/${id}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -293,18 +300,15 @@ const Home = ({navigation, route}) => {
   };
 
   const hitLike = async (id, index, data) => {
-    // setLoader(true);
     await axiosconfig
       .get(`like/${id}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
       .then(res => {
-        // toggleLike(index);
         searchUserOnSocket(data);
-        // setLoader(false);
       })
       .catch(err => {
         setLoader(false);
@@ -332,13 +336,13 @@ const Home = ({navigation, route}) => {
               if (userList) {
                 userList?.map(user => {
                   if (user?.id == myId) {
-                    setLiked(true)
+                    setLiked(true);
                     updatedPost.post_likes.push({
                       user_id: myId,
-                      users:{
+                      users: {
                         name: user?.name,
                         last_name: user?.last_name,
-                      }
+                      },
                     });
                   }
                 });
@@ -355,6 +359,37 @@ const Home = ({navigation, route}) => {
 
     return () => {
       socket.off('like', handleLike);
+    };
+  }, [socket]);
+  useEffect(() => {
+    const handleComment = ({postId, postUserId, myId}) => {
+      setPosts(prevPosts => {
+        return prevPosts.map(post => {
+          if (post.id === postId) {
+            const updatedPost = {...post};
+            updatedPost.post_comments.push(myId);
+            return updatedPost;
+          }
+          return post;
+        });
+      });
+    };
+
+    socket.on('comment', handleComment);
+
+    return () => {
+      socket.off('comment', handleComment);
+    };
+  }, [socket]);
+  useEffect(() => {
+    const handleRequest = ({from, to, type}) => {
+      if (type == 'connect' || type == 'disconnect') {
+        getPosts();
+      }
+    };
+    socket.on('request', handleRequest);
+    return () => {
+      socket.off('request', handleRequest);
     };
   }, [socket]);
   const searchUserOnSocket = user => {
@@ -374,11 +409,6 @@ const Home = ({navigation, route}) => {
     } else {
       lastTap = now;
     }
-  };
-
-  const toggleLike = index => {
-    // getPosts();
-    setRefresh(!refresh);
   };
   const requestExternalReadPermission = async () => {
     if (Platform.OS === 'android') {
@@ -462,16 +492,6 @@ const Home = ({navigation, route}) => {
     });
   };
 
-  const getColor = id => {
-    let color;
-    Organization?.forEach(elem => {
-      if (elem.id == id) {
-        color = elem.color;
-      }
-    });
-    return color;
-  };
-
   const _onPress = async imageToeEdit => {
     setTimeout(() => {
       try {
@@ -497,8 +517,7 @@ const Home = ({navigation, route}) => {
             setMyStories(temp);
             dispatch(setStories([{...storiesData[0], stories: temp}]));
           },
-          onCancel: () => {
-          },
+          onCancel: () => {},
         });
       } catch (err) {
         console.log(err);
@@ -514,8 +533,7 @@ const Home = ({navigation, route}) => {
         .then(() => {
           _onPress();
         })
-        .catch(err => {
-        });
+        .catch(err => {});
     }
   };
 
@@ -525,8 +543,7 @@ const Home = ({navigation, route}) => {
         let base64 = `data:image/png;base64,${res}`;
         createStory(base64);
       })
-      .catch(err => {
-      });
+      .catch(err => {});
   };
 
   const createStory = async base64 => {
@@ -545,7 +562,7 @@ const Home = ({navigation, route}) => {
     await axiosconfig
       .post(`story_store`, data, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -579,7 +596,7 @@ const Home = ({navigation, route}) => {
     await axiosconfig
       .post(`comment_add`, data, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -600,7 +617,7 @@ const Home = ({navigation, route}) => {
     await axiosconfig
       .get('story_index', {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -640,13 +657,13 @@ const Home = ({navigation, route}) => {
     await axiosconfig
       .get(`story_delete/${storyID}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
       .then(res => {
         Alert.alert(res?.data?.message);
-        getStories(userToken);
+        getStories(token);
         id(false);
         setLoader(false);
       })
@@ -660,13 +677,13 @@ const Home = ({navigation, route}) => {
     await axiosconfig
       .get(`post_delete/${id}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
       .then(res => {
         Alert.alert(res?.data?.message);
-        getPosts(userToken);
+        getPosts(token);
         setLoader(false);
       })
       .catch(err => {
@@ -691,7 +708,6 @@ const Home = ({navigation, route}) => {
   };
 
   const renderItem = elem => {
-    console.log(elem,'he;lloemt');
     if (elem?.item?.privacy_option == '3' && elem?.item?.user?.id != userID) {
       return;
     }
@@ -937,6 +953,7 @@ const Home = ({navigation, route}) => {
                 <TouchableOpacity
                   onPress={() => {
                     addComment(elem?.item?.id, elem?.index);
+                    socketComment(elem?.item?.id, elem?.item?.user_id, userID);
                   }}
                   style={{marginRight: moderateScale(15, 0.1)}}>
                   <Feather
@@ -946,8 +963,7 @@ const Home = ({navigation, route}) => {
                   />
                 </TouchableOpacity>
               }
-              onEndEditing={() => {
-              }}
+              onEndEditing={() => {}}
               placeholder="Add Comment ..."
               placeholderTextColor={'grey'}
               value={current == elem.index ? comment : ''}
@@ -958,8 +974,12 @@ const Home = ({navigation, route}) => {
             />
           </View>
           <View>
-            <Text style={[s.textRegular, {color: 'grey', marginVertical: 0}]}>
-              {`${new Date(elem?.item?.created_at).toLocaleString()}`}
+            <Text
+              style={[
+                s.textRegular,
+                {color: 'grey', marginVertical: 0, textTransform: 'capitalize'},
+              ]}>
+              {`${moment(elem?.item?.created_at).fromNow()}`}
             </Text>
           </View>
         </View>
@@ -967,9 +987,10 @@ const Home = ({navigation, route}) => {
     );
   };
 
-  return (
+  return loader ? (
+    <Loader />
+  ) : (
     <SafeAreaView style={{display: 'flex', flex: 1, backgroundColor: color}}>
-      {loader ? <Loader /> : null}
       <View style={[s.container, s.col, {backgroundColor: color}]}>
         <ScrollView
           scrollEnabled
@@ -1058,8 +1079,7 @@ const Home = ({navigation, route}) => {
               }
               navigation={navigation}
             />
-          ) : 
-          null}
+          ) : null}
         </ScrollView>
 
         <TouchableOpacity
@@ -1126,6 +1146,7 @@ const Home = ({navigation, route}) => {
                 onRefresh={handleRefresh}
               />
             }
+            scrollEnabled={true}
             extraData={refresh}
             getItemLayout={getItemLayout}
           />

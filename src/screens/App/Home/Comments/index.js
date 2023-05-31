@@ -12,22 +12,21 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosconfig from '../../../../provider/axios';
 import Feather from 'react-native-vector-icons/Feather';
 import {Input} from 'native-base';
-import { Header, Loader } from '../../../../Components/Index';
+import {Header, Loader} from '../../../../Components/Index';
+import {AppContext, useAppContext} from '../../../../Context/AppContext';
+import {dummyImage, getColor} from '../../../../Constants/Index';
 
 const Comments = ({navigation, route}) => {
   const dispatch = useDispatch();
   const flatListRef = useRef(null);
   const {data} = route.params;
-  const userToken = useSelector(state => state.reducer.userToken);
+  const {token} = useAppContext(AppContext);
   const theme = useSelector(state => state.reducer.theme);
   const organizations = useSelector(state => state.reducer.organization);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const [comment, setComment] = useState('');
   const [commentID, setCommentID] = useState('');
-  const [dummyImage, setDummyImage] = useState(
-    'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
-  );
   const [comments, setComments] = useState(data?.post_comments);
   const [loader, setLoader] = useState(false);
   const [userID, setUserID] = useState('');
@@ -55,7 +54,7 @@ const Comments = ({navigation, route}) => {
     axiosconfig
       .get(`user_view/${id}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
@@ -72,17 +71,6 @@ const Comments = ({navigation, route}) => {
     const id = await AsyncStorage.getItem('id');
     setUserID(id);
     getUserData(id);
-  };
-
-  const getColor = id => {
-    let color;
-
-    organizations?.forEach(elem => {
-      if (elem.id == id) {
-        color = elem.color;
-      }
-    });
-    return color;
   };
 
   const getItemLayout = (data, index) => ({
@@ -124,7 +112,7 @@ const Comments = ({navigation, route}) => {
     await axiosconfig
       .post(edit ? 'comment_update' : 'comment_add', data, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -158,7 +146,7 @@ const Comments = ({navigation, route}) => {
     await axiosconfig
       .get(`comment-delete/${commentid}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -180,7 +168,7 @@ const Comments = ({navigation, route}) => {
     await axiosconfig
       .get('user_details', {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -197,7 +185,7 @@ const Comments = ({navigation, route}) => {
     await axiosconfig
       .get('fun-interaction', {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -295,10 +283,10 @@ const Comments = ({navigation, route}) => {
       </View>
     );
   };
-  return (
+  return loader ? (
+    <Loader />
+  ) : (
     <SafeAreaView style={{flex: 1, backgroundColor: color}}>
-      {loader ? <Loader /> : null}
-
       <View
         style={{
           alignItems: 'center',

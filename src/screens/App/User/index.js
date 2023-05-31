@@ -27,25 +27,28 @@ import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Input, Stack, Button, Pressable, Menu} from 'native-base';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import RadioButton from '../../../Components/Radio';
-import {
-  launchImageLibrary,
-} from 'react-native-image-picker';
+import {launchImageLibrary} from 'react-native-image-picker';
 import axiosconfig from '../../../Providers/axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import RNFS from 'react-native-fs';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import moment from 'moment';
 import {useIsFocused} from '@react-navigation/native';
-import { Header, Loader } from '../../../Components/Index';
-import { captureImage, chooseFile, width } from '../../../Constants/Index';
+import {Header, Loader} from '../../../Components/Index';
+import {
+  captureImage,
+  chooseFile,
+  dummyImage,
+  width,
+} from '../../../Constants/Index';
+import {AppContext, useAppContext} from '../../../Context/AppContext';
 
 const Profile = ({navigation, route}) => {
   const dispatch = useDispatch();
   const refRBSheet = useRef();
   const phonenum = useRef();
   const isFocused = useIsFocused();
-  const userToken = useSelector(state => state.reducer.userToken);
-
+  const {token} = useAppContext(AppContext);
   const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
@@ -66,7 +69,7 @@ const Profile = ({navigation, route}) => {
   const [date, setDate] = useState(null);
   const [id, setId] = useState('');
   const [borderColor, setBorderColor] = useState(greyColor);
-  const [filePath, setFilePath] = useState(null)
+  const [filePath, setFilePath] = useState(null);
   let formData = {
     id: '',
     name: '',
@@ -84,9 +87,6 @@ const Profile = ({navigation, route}) => {
 
   const [loader, setLoader] = useState(false);
   const [form, setForm] = useState(formData);
-  const [dummyImage, setDummyImage] = useState(
-    'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
-  );
   const [isSelected, setIsSelected] = useState([
     {
       id: 1,
@@ -145,7 +145,7 @@ const Profile = ({navigation, route}) => {
     axiosconfig
       .get(`user_view/${SP}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
@@ -202,7 +202,7 @@ const Profile = ({navigation, route}) => {
           : {...form, location: userLocation},
         {
           headers: {
-            Authorization: `Bearer ${userToken}`,
+            Authorization: `Bearer ${token}`,
           },
         },
       )
@@ -223,8 +223,8 @@ const Profile = ({navigation, route}) => {
 
   useEffect(() => {
     setForm({...form, image: filePath});
-  }, [filePath])
-  
+  }, [filePath]);
+
   const handleConfirm = datee => {
     check = moment(datee, 'YYYY/MM/DD');
     month = check.format('M');
@@ -236,9 +236,10 @@ const Profile = ({navigation, route}) => {
   };
   const maxDate = new Date();
   maxDate.setFullYear(maxDate.getFullYear() - 18);
-  return (
+  return loader ? (
+    <Loader />
+  ) : (
     <SafeAreaView style={{display: 'flex', flex: 1, backgroundColor: color}}>
-      {loader ? <Loader /> : null}
       <View
         style={{
           alignItems: 'center',
@@ -469,7 +470,7 @@ const Profile = ({navigation, route}) => {
                 {organization.map((v, i) => {
                   return (
                     <Menu.Item
-                    key={i}
+                      key={i}
                       onPress={() => {
                         setForm({...form, group: v.id});
                       }}>
@@ -530,7 +531,7 @@ const Profile = ({navigation, route}) => {
                 s.inputContainerStyle,
                 {
                   borderBottomColor: borderColor,
-                  borderBottomWidth: 1
+                  borderBottomWidth: 1,
                 },
               ]}>
               <PhoneInput
@@ -727,7 +728,9 @@ const Profile = ({navigation, route}) => {
               <Button
                 transparent
                 style={s.capturebtn}
-                onPressIn={() => captureImage('photo', refRBSheet ,setFilePath)}>
+                onPressIn={() =>
+                  captureImage('photo', refRBSheet, setFilePath)
+                }>
                 <View style={{flexDirection: 'row'}}>
                   <Ionicons name="camera" style={s.capturebtnicon} />
                   <Text style={s.capturebtntxt}>Open Camera</Text>
@@ -736,7 +739,7 @@ const Profile = ({navigation, route}) => {
               <Button
                 transparent
                 style={s.capturebtn}
-                onPressIn={() => chooseFile('photo', refRBSheet ,setFilePath)}>
+                onPressIn={() => chooseFile('photo', refRBSheet, setFilePath)}>
                 <View style={{flexDirection: 'row'}}>
                   <Ionicons name="md-image-outline" style={s.capturebtnicon} />
                   <Text style={s.capturebtntxt}>Open Gallery</Text>

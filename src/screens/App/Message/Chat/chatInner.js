@@ -1,52 +1,40 @@
+import React, {useEffect, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {moderateScale} from 'react-native-size-matters';
+import {Input, Menu, Pressable} from 'native-base';
 import {
-  StyleSheet,
   TouchableOpacity,
   Text,
   SafeAreaView,
   View,
   Image,
-  ScrollView,
   FlatList,
   Keyboard,
 } from 'react-native';
 import {CommonActions} from '@react-navigation/native';
-import React, {useEffect, useState, useLayoutEffect} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
-import {moderateScale} from 'react-native-size-matters';
 import s from './style';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Inicon from 'react-native-vector-icons/Ionicons';
-import Icon from 'react-native-vector-icons/FontAwesome5';
 import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons';
-import {Input, FormControl, Button, Menu, Pressable} from 'native-base';
 import socket from '../../../../utils/socket';
-import io from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Antdesign from 'react-native-vector-icons/AntDesign';
 import axiosconfig from '../../../../Providers/axios';
-import Loader from '../../../../Components/Index';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {addSocketUsers} from '../../../../Redux/actions';
 import moment from 'moment';
+import {AppContext, useAppContext} from '../../../../Context/AppContext';
+import {dummyImage, getColor} from '../../../../Constants/Index';
+import Loader from '../../../../Components/Loader';
 
 const Chat = ({navigation, route}) => {
   const dispatch = useDispatch();
-  console.log('getting data bachk', route?.params?.backendUser);
-
-  const userToken = useSelector(state => state.reducer.userToken);
+  const {token} = useAppContext(AppContext);
   const organizations = useSelector(state => state.reducer.organization);
-  const data = route?.params?.data;
-  const [dummyImage, setDummyImage] = useState(
-    'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
-  );
   const [chatMessages, setChatMessages] = useState([]);
   const [message, setMessage] = useState('');
   const [userData, setUserData] = useState('');
-  const [userId, setUserId] = useState('');
-  const [refresh, setRefresh] = useState(true);
   const [online, setOnline] = useState(true);
-  const [lastSeen, setLastSeen] = useState('');
   const socketUsers = useSelector(state => state.reducer.socketUsers);
   const [loader, setLoader] = useState(false);
   const theme = useSelector(state => state.reducer.theme);
@@ -56,7 +44,6 @@ const Chat = ({navigation, route}) => {
   const [socketUser, setSocketUser] = useState(route?.params?.socketUser);
 
   useEffect(() => {
-    console.log(backendUser, 'sasnas', socketUser);
     getMessages();
     getData();
     sendReadStatus();
@@ -123,7 +110,7 @@ const Chat = ({navigation, route}) => {
     await axiosconfig
       .get(`message_show/${backendUser?.id}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
@@ -136,57 +123,50 @@ const Chat = ({navigation, route}) => {
       });
   };
 
-  const getColor = id => {
-    let color;
-    organizations?.forEach(elem => {
-      if (elem.id == id) {
-        color = elem.color;
-      }
-    });
-    return color;
-  };
-
   const getData = async () => {
     const data = await AsyncStorage.getItem('userData');
     setUserData(JSON.parse(data));
   };
 
   const handleNewMessage = () => {
+    console.log(message,"hello mesage");
     Keyboard.dismiss();
-    const hour =
-      new Date().getHours() < 10
-        ? `0${new Date().getHours()}`
-        : `${new Date().getHours()}`;
-
-    const mins =
-      new Date().getMinutes() < 10
-        ? `0${new Date().getMinutes()}`
-        : `${new Date().getMinutes()}`;
-    let content = message;
-
-    if (socketUser) {
-      socket.emit('private_message', {
-        content,
-        to: socketUser.userID,
-        timestamp: {hour, mins},
-      });
-      setChatMessages([
-        ...chatMessages,
-        {
-          user_id: userData?.id,
-          reciever_id: backendUser?.id,
-          message,
+    if(message != '' ||message != null || message != undefined ){
+      const hour =
+        new Date().getHours() < 10
+          ? `0${new Date().getHours()}`
+          : `${new Date().getHours()}`;
+  
+      const mins =
+        new Date().getMinutes() < 10
+          ? `0${new Date().getMinutes()}`
+          : `${new Date().getMinutes()}`;
+      let content = message;
+  
+      if (socketUser) {
+        socket.emit('private_message', {
+          content,
+          to: socketUser.userID,
+          timestamp: {hour, mins},
+        });
+        setChatMessages([
+          ...chatMessages,
+          {
+            user_id: userData?.id,
+            reciever_id: backendUser?.id,
+            message,
+            fromSelf: true,
+            time: `${hour}:${mins}`,
+          },
+        ]);
+        storeMsg({
+          id: backendUser.id,
+          message: message,
           fromSelf: true,
           time: `${hour}:${mins}`,
-        },
-      ]);
-      storeMsg({
-        id: backendUser.id,
-        message: message,
-        fromSelf: true,
-        time: `${hour}:${mins}`,
-      });
-      setMessage('');
+        });
+        setMessage('');
+      }
     }
   };
 
@@ -197,7 +177,7 @@ const Chat = ({navigation, route}) => {
         {id: backendUser?.id},
         {
           headers: {
-            Authorization: `Bearer ${userToken}`,
+            Authorization: `Bearer ${token}`,
           },
         },
       )
@@ -213,14 +193,13 @@ const Chat = ({navigation, route}) => {
     await axiosconfig
       .post(`message_store`, msg, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
         console.log('message send', res.data);
       })
-      .catch(err => {
-      });
+      .catch(err => {});
   };
 
   const msgDlt = async id => {
@@ -228,7 +207,7 @@ const Chat = ({navigation, route}) => {
     await axiosconfig
       .delete(`message_delete/${id}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
@@ -244,7 +223,7 @@ const Chat = ({navigation, route}) => {
     await axiosconfig
       .delete(`clear_chat/${backendUser?.id}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
@@ -261,7 +240,7 @@ const Chat = ({navigation, route}) => {
     axiosconfig
       .get(`user_view/${backendUser?.id}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
@@ -284,7 +263,6 @@ const Chat = ({navigation, route}) => {
 
   const renderItem = elem => {
     const status = elem?.item?.user_id === userData.id;
-
     return (
       <View
         style={[
@@ -396,9 +374,10 @@ const Chat = ({navigation, route}) => {
     );
   };
 
-  return (
+  return loader ? (
+    <Loader />
+  ) : (
     <SafeAreaView style={{display: 'flex', flex: 1, backgroundColor: color}}>
-      {loader ? <Loader /> : null}
       <View style={[s.container, {backgroundColor: color}]}>
         <View style={s.header}>
           <TouchableOpacity
@@ -512,9 +491,9 @@ const Chat = ({navigation, route}) => {
             contentContainerStyle={{flexDirection: 'column-reverse'}}
             data={chatMessages}
             renderItem={renderItem}
-            key={(e,i) => i}
+            key={(e, i) => i}
             keyboardDismissMode="on-drag"
-            keyboardShouldPersistTaps={false}
+            keyboardShouldPersistTaps="never"
             showsVerticalScrollIndicator={true}
           />
         </View>

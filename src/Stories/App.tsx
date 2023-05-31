@@ -1,22 +1,18 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import {
   FlatList,
   Image,
   Modal,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { StoryType } from "./index";
-import { useSelector } from "react-redux";
 const { CubeNavigationHorizontal } = require("react-native-3dcube-navigation");
 import styles from "./styles";
 import StoryContainer from "./StoryContainer";
 
 const Stories = (props) => {
   const theme =props.theme;
-  const userToken = useSelector(state=> state.reducer.userToken)
   const color = theme === 'dark' ? '#fff' : '#222222';
 
   const [isModelOpen, setModel] = useState(false);

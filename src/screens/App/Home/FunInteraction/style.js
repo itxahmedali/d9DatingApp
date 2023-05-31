@@ -1,13 +1,9 @@
-import {Dimensions, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {moderateScale} from 'react-native-size-matters';
-
-const Poppins = '';
-const PoppinsBold = '';
 
 const styles = StyleSheet.create({
   container: {
     height: '100%',
-    paddingBottom: '15%',
   },
   stories: {
     alignItems: 'flex-start',
@@ -133,7 +129,7 @@ const styles = StyleSheet.create({
   textRegular: {
     fontSize: moderateScale(11, 0.1),
     lineHeight: moderateScale(14, 0.1),
-    marginVertical: moderateScale(5, 0.1),
+    marginVertical: moderateScale(5, 0.1)
   },
   img: {
     width: '100%',

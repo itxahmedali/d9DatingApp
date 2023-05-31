@@ -6,6 +6,7 @@ import socket from '../utils/socket';
 export const emailReg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 export const passRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
+export const dummyImage = 'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png'
 export const width = Dimensions.get('window').width;
 export const height = Dimensions.get('window').height;
 export const Organization = [
@@ -133,9 +134,33 @@ export const chooseFile = async (type, refRBSheet, setFilePath) => {
     }
   });
 };
+export const getColor = id => {
+  let color;
+  Organization?.forEach(elem => {
+    if (elem.id == id) {
+      color = elem.color;
+    }
+  });
+  return color;
+};
 // like functionality
 export const socketLike = (postId, postUserId, myId) => {
   socket.emit('like', {
+    postId:postId,
+    postUserId: postUserId,
+    myId: myId
+  });
+};
+export const socketRequest = (from, to, type) => {
+  socket.emit('request', {
+    from:from,
+    to: to,
+    type:type
+  });
+};
+export const socketComment = (postId, postUserId, myId) => {
+  console.log(postId, postUserId, myId,'comment');
+  socket.emit('comment', {
     postId:postId,
     postUserId: postUserId,
     myId: myId

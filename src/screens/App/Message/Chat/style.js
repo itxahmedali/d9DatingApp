@@ -6,18 +6,14 @@ const PoppinsBold = '';
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    paddingTop: moderateScale(20, 0.1),
+    flexDirection: 'column'
   },
   chatContainer: {
   },
   header: {
     paddingHorizontal: moderateScale(10, 0.1),
-
     flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: moderateScale(-20, 0.1),
+    alignItems: 'center'
   },
   HeadingText: {
     fontSize: moderateScale(20, 0.1),
@@ -145,8 +141,7 @@ const styles = StyleSheet.create({
     marginBottom: moderateScale(15, 0.1),
   },
   chat: {
-    maxHeight: '85%',
-    minHeight: '85%'
+    maxHeight: '85%'
   },
   textSmall1: {
     fontSize: moderateScale(10, 0.1),
@@ -169,7 +164,8 @@ const styles = StyleSheet.create({
   },
   messageInput: {
     paddingLeft: moderateScale(10, 0.1),
-    bottom: moderateScale(30, 0.1),
+    position:'absolute',
+    bottom: moderateScale(0),
     flexDirection: 'row',
     alignItems: 'center'
   },

@@ -17,6 +17,7 @@ import Inicon from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {addSocketUsers, addUsers} from '../Redux/actions';
+import { getColor } from '../Constants/Index';
 const Poppins = '';
 const PoppinsBold = '';
 const Users = [
@@ -160,17 +161,6 @@ const UserListModal = ({
 
       setSearchedList(searched);
     }
-  };
-
-  const getColor = id => {
-    let color;
-
-    organization?.forEach(elem => {
-      if (elem.id == id) {
-        color = elem.color;
-      }
-    });
-    return color;
   };
 
   const searchUserOnSocket = userData => {

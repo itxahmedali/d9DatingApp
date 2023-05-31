@@ -63,13 +63,9 @@ const messages = [
   },
 ];
 
-const Chat = ({navigation, route, chatId, id, user}) => {
+const Chat = ({route}) => {
   const theme = useSelector(state => state.reducer.theme);
-  const loginId = useSelector(state => state.reducer.userToken);
-  const color = theme === 'dark' ? '#222222' : '#fff';
-  const textColor = theme === 'light' ? '#000' : '#fff';
   const [userData, setUserData] = useState('');
-  const userToken = useSelector(state => state.reducer.userToken);
   console.log(route.params, 'id');
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState('');

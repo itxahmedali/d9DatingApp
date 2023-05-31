@@ -28,8 +28,14 @@ import io from 'socket.io-client';
 import socket from '../../../../utils/socket';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {Loader} from '../../../../Components/Index';
-import {socketLike} from '../../../../Constants/Index';
-import { AppContext, useAppContext } from '../../../../Context/AppContext';
+import {
+  dummyImage,
+  getColor,
+  socketComment,
+  socketLike,
+} from '../../../../Constants/Index';
+import {AppContext, useAppContext} from '../../../../Context/AppContext';
+import moment from 'moment';
 const FunInteraction = ({}) => {
   const dispatch = useDispatch();
   const refRBSheet1 = useRef();
@@ -52,20 +58,16 @@ const FunInteraction = ({}) => {
   const [current, setCurrent] = useState('');
   const [comment, setComment] = useState('');
   const [itemHeights, setItemHeights] = useState([]);
-  const [dummyImage, setDummyImage] = useState(
-    'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
-  );
   const [dataSource, setDataSource] = useState([]);
-  let userList = []
+  let userList = [];
   const [filtered, setFiltered] = useState(dataSource);
   const [searching, setSearching] = useState(false);
-  const userToken = useSelector(state => state.reducer.userToken);
+  const {token} = useAppContext(AppContext);
   const [soc, setSoc] = useState(null);
   const navigation = useNavigation();
   const route = useRoute();
   const flatListRef = useRef(null);
   const postID = route?.params?.data?.id;
-  const {setLiked} = useAppContext(AppContext);
   useEffect(() => {
     const socket = io(socket);
     setSoc(socket);
@@ -79,25 +81,39 @@ const FunInteraction = ({}) => {
   useEffect(() => {
     getID();
   }, [isFocused]);
-  const getAllUsers = async () => {
-    setLoader(true);
-    await axiosconfig
-      .get('users-connect', {
+  useEffect(() => {
+    const handleRequest = ({from, to, type}) => {
+      if (type == 'connect') {
+        getAllUsers(false);
+      }
+    };
+    socket.on('request', handleRequest);
+    return () => {
+      socket.off('request', handleRequest);
+    };
+  }, [socket]);
+  const getAllUsers = async loader => {
+    if (loader) {
+      setLoader(true);
+    }
+    try {
+      const res = await axiosconfig.get('users-connect', {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
-      })
-      .then(res => {
-        const sourceData = [...res?.data?.friends, ...res?.data?.public]
-        userList = sourceData
-        setDataSource(sourceData);
-        getPosts(true);
-      })
-      .catch(err => {
-        console.log(err);
       });
+      const sourceData = [...res?.data?.friends, ...res?.data?.public];
+      userList = sourceData;
+      setDataSource(sourceData);
+      getPosts(loader ? true : false);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoader(false);
+    }
   };
+
   const getPosts = async loader => {
     try {
       if (loader) {
@@ -105,7 +121,7 @@ const FunInteraction = ({}) => {
       }
       const response = await axiosconfig.get('fun-interaction', {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       });
@@ -115,32 +131,21 @@ const FunInteraction = ({}) => {
     } catch (err) {
       console.log(err);
     } finally {
-      if (loader) {
-        setLoader(false);
-      }
+      setLoader(false);
     }
   };
-  
+
   const getID = async () => {
     const id = await AsyncStorage.getItem('id');
     setUserID(id);
     getAllUsers();
-  };
-  const getColor = id => {
-    let color;
-    organizations?.forEach(elem => {
-      if (elem.id == id) {
-        color = elem.color;
-      }
-    });
-    return color;
   };
   const hitLike = async (id, userid, index) => {
     setMiniLoader(true);
     await axiosconfig
       .get(`like/${id}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -173,16 +178,15 @@ const FunInteraction = ({}) => {
                 updatedPost.post_likes.splice(myLikesIndex, 1);
               }
               if (userList) {
-                console.log(userList,"hellouserList here","hello");
+                console.log(userList, 'hellouserList here', 'hello');
                 userList?.map(user => {
                   if (user?.id == myId) {
-                    setLiked(true)
                     updatedPost.post_likes.push({
                       user_id: myId,
-                      users:{
+                      users: {
                         name: user?.name,
                         last_name: user?.last_name,
-                      }
+                      },
                     });
                   }
                 });
@@ -201,6 +205,26 @@ const FunInteraction = ({}) => {
       socket.off('like', handleLike);
     };
   }, [socket]);
+  useEffect(() => {
+    const handleComment = ({postId, postUserId, myId}) => {
+      setPublicPost(prevPosts => {
+        return prevPosts.map(post => {
+          if (post.id === postId) {
+            const updatedPost = {...post};
+            updatedPost.post_comments.push(myId);
+            return updatedPost;
+          }
+          return post;
+        });
+      });
+    };
+
+    socket.on('comment', handleComment);
+
+    return () => {
+      socket.off('comment', handleComment);
+    };
+  }, [socket]);
   var lastTap = null;
   const handleDoubleTap = (id, index) => {
     const now = Date.now();
@@ -216,7 +240,6 @@ const FunInteraction = ({}) => {
     // getPosts(false);
     setRefresh(!refresh);
   };
-
 
   const matchId = postId => {
     postId.map((post, index) => {
@@ -244,7 +267,7 @@ const FunInteraction = ({}) => {
     await axiosconfig
       .post('post-report', data, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -264,7 +287,7 @@ const FunInteraction = ({}) => {
     await axiosconfig
       .get(`post_action/${id}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -291,7 +314,7 @@ const FunInteraction = ({}) => {
     await axiosconfig
       .post(`comment_add`, data, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -313,13 +336,13 @@ const FunInteraction = ({}) => {
     await axiosconfig
       .get(`post_delete/${id}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
       .then(res => {
         Alert.alert(res?.data?.message);
-        getPosts(userToken);
+        getPosts(token);
         setLoader(false);
       })
       .catch(err => {
@@ -593,6 +616,7 @@ const FunInteraction = ({}) => {
                 <TouchableOpacity
                   onPress={() => {
                     addComment(elem?.item?.id, elem?.index);
+                    socketComment(elem?.item?.id, elem?.item?.user_id, userID);
                   }}
                   style={{marginRight: moderateScale(15, 0.1)}}>
                   <Feather
@@ -613,8 +637,12 @@ const FunInteraction = ({}) => {
             />
           </View>
           <View>
-            <Text style={[s.textRegular, {color: 'grey', marginVertical: 0}]}>
-              {`${new Date(elem?.item?.created_at).toLocaleString()}`}
+            <Text
+              style={[
+                s.textRegular,
+                {color: 'grey', marginVertical: 0, textTransform: 'capitalize'},
+              ]}>
+              {`${moment(elem?.item?.created_at).fromNow()}`}
             </Text>
           </View>
         </View>
@@ -675,10 +703,10 @@ const FunInteraction = ({}) => {
     setFiltered([]);
     setSearching(false);
   };
-  return (
+  return loader ? (
+    <Loader />
+  ) : (
     <SafeAreaView style={{display: 'flex', flex: 1, backgroundColor: color}}>
-      {loader ? <Loader /> : null}
-
       <View style={[s.container, s.col, {backgroundColor: color}]}>
         <View style={s.searchContainer}>
           <Input
@@ -726,7 +754,7 @@ const FunInteraction = ({}) => {
               data={filtered}
               renderItem={searchItem}
               keyExtractor={(item, index) => String(index)}
-              scrollEnabled
+              scrollEnabled={true}
               extraData={refresh}
             />
           </View>
@@ -763,6 +791,7 @@ const FunInteraction = ({}) => {
           data={publicPost}
           renderItem={elem => renderItem(elem)}
           keyExtractor={(item, index) => String(index)}
+          scrollEnabled={true}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }

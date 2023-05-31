@@ -13,7 +13,9 @@ import {useSelector} from 'react-redux';
 import axiosconfig from '../../../../Providers/axios';
 import s from './style';
 import {useIsFocused} from '@react-navigation/native';
-import { Header, Loader } from '../../../../Components/Index';
+import {Header, Loader} from '../../../../Components/Index';
+import {AppContext, useAppContext} from '../../../../Context/AppContext';
+import {dummyImage, getColor} from '../../../../Constants/Index';
 
 const Block = ({navigation}) => {
   const [loader, setLoader] = useState(false);
@@ -21,36 +23,23 @@ const Block = ({navigation}) => {
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const organizations = useSelector(state => state.reducer.organization);
-  const userToken = useSelector(state => state.reducer.userToken);
+  const {token} = useAppContext(AppContext);
   const [data, setData] = useState([]);
   const isFocused = useIsFocused();
-  const [dummyImage, setDummyImage] = useState(
-    'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
-  );
 
   useEffect(() => {
     block_list();
   }, [isFocused]);
 
-  const getColor = id => {
-    let color;
-    organizations?.forEach(elem => {
-      if (elem.id == id) {
-        color = elem.color;
-      }
-    });
-    return color;
-  };
-
   const unblock = async id => {
     console.log('aaaa');
     setLoader(true);
-    console.log(userToken, 'hgh');
+    console.log(token, 'hgh');
     await axiosconfig
       .get(`block/${id}`, {
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
@@ -68,7 +57,7 @@ const Block = ({navigation}) => {
     axiosconfig
       .get(`block-list`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => {
@@ -97,8 +86,7 @@ const Block = ({navigation}) => {
         <TouchableOpacity style={{flex: 0.7, alignSelf: 'center'}}>
           <View>
             <View
-              style={{flexDirection: 'row', width: moderateScale(200, 0.1)}}
-            >
+              style={{flexDirection: 'row', width: moderateScale(200, 0.1)}}>
               <Text style={[s.name, s.nameBold, {color: textColor}]}>
                 {elem?.item?.name}
                 {elem?.item?.last_name}
@@ -114,9 +102,10 @@ const Block = ({navigation}) => {
       </View>
     );
   };
-  return (
+  return loader ? (
+    <Loader />
+  ) : (
     <SafeAreaView style={{flex: 1, backgroundColor: color}}>
-      {loader ? <Loader /> : null}
       <View style={{flexDirection: 'row'}}>
         <View style={{flex: 0.4}}>
           <Header navigation={navigation} />
@@ -126,8 +115,7 @@ const Block = ({navigation}) => {
         </View>
       </View>
       <ScrollView
-        contentContainerStyle={[s.container, {backgroundColor: color}]}
-      >
+        contentContainerStyle={[s.container, {backgroundColor: color}]}>
         {data.length > 0 ? (
           <>
             <FlatList
@@ -141,8 +129,7 @@ const Block = ({navigation}) => {
           <>
             <View style={{justifyContent: 'center', alignItems: 'center'}}>
               <Text
-                style={{fontSize: moderateScale(16, 0.1), color: textColor}}
-              >
+                style={{fontSize: moderateScale(16, 0.1), color: textColor}}>
                 No blocked Users
               </Text>
             </View>
