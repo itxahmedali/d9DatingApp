@@ -1,12 +1,15 @@
 import {Dimensions, PermissionsAndroid} from 'react-native';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import RNFS from 'react-native-fs';
-import { moderateScale } from 'react-native-size-matters';
+import {moderateScale} from 'react-native-size-matters';
 import socket from '../utils/socket';
+import axiosconfig from '../Providers/axios';
+import moment from 'moment';
 export const emailReg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 export const passRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
-export const dummyImage = 'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png'
+export const dummyImage =
+  'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png';
 export const width = Dimensions.get('window').width;
 export const height = Dimensions.get('window').height;
 export const Organization = [
@@ -143,26 +146,61 @@ export const getColor = id => {
   });
   return color;
 };
-// like functionality
+// socket functionality
 export const socketLike = (postId, postUserId, myId) => {
   socket.emit('like', {
-    postId:postId,
+    postId: postId,
     postUserId: postUserId,
-    myId: myId
+    myId: myId,
   });
 };
 export const socketRequest = (from, to, type) => {
   socket.emit('request', {
-    from:from,
+    from: from,
     to: to,
-    type:type
+    type: type,
   });
 };
 export const socketComment = (postId, postUserId, myId) => {
-  console.log(postId, postUserId, myId,'comment');
+  console.log(postId, postUserId, myId, 'comment');
   socket.emit('comment', {
-    postId:postId,
+    postId: postId,
     postUserId: postUserId,
-    myId: myId
+    myId: myId,
   });
 };
+export const socketMessage = (from, to, message, time) => {
+  socket.emit('message', {
+    from: from,
+    to: to,
+    message: message,
+    time: time
+  });
+};
+export const storeMsg = async (msg,token) => {
+  console.log('storing',msg,token)
+  await axiosconfig.post('message_store', msg, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then(res => {
+      console.log('message send', res.data);
+    })
+    .catch(err => {
+      console.log(err)
+    });
+};
+export function formatTimestamp(timestamp) {
+  const now = moment();
+  const date = moment(timestamp);
+  if (now.isSame(date, 'day')) {
+    return date.format('h:mm A');
+  } else {
+    return date.format('DD/mm/yyyy');
+  }
+}
+export const Poppins = '';
+export const PoppinsBold = '';
+// chat render body
+

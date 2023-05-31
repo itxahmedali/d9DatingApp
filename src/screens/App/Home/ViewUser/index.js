@@ -219,7 +219,11 @@ const ViewUser = ({navigation, route}) => {
               {userData?.connected == 1 ? (
                 <TouchableOpacity
                   onPress={() => {
-                    searchUserOnSocket(userData);
+                    // searchUserOnSocket(userData);
+                    navigations.navigate('MessageStack', {
+                      screen: 'InnerChat',
+                      params: {userData: userData},
+                    });
                   }}
                   style={s.icon}>
                   <AntDesign
