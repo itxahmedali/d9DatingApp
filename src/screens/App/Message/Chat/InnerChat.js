@@ -48,13 +48,17 @@ const InnerChat = ({navigation, route}) => {
     }
   }, [userData]);
   useEffect(() => {
-    getData();
-  }, [myData]);
-  useEffect(() => {
-    const handleMessage = ({from, to, message,time}) => {
-      console.log(from, to, message, 'hello from user');
-      if (from === userData?.id) {
-        setChatMessages(chatMessages => [
+    const getData = async () => {
+      const data = await AsyncStorage.getItem('userData');
+      setMyData(JSON.parse(data));
+    };
+  
+    getData(); // Fetch myData from AsyncStorage on first render
+  
+    const handleMessage = ({ from, to, message, time }) => {
+      console.log(from, to, message, myData?.id, userData?.id, 'hello from user');
+      if (from === userData?.id && to === myData?.id) {
+        setChatMessages((chatMessages) => [
           ...chatMessages,
           {
             user_id: userData?.id,
@@ -64,19 +68,30 @@ const InnerChat = ({navigation, route}) => {
             time: time,
           },
         ]);
+      } else if (from === myData?.id && to === userData?.id) {
+        setChatMessages((chatMessages) => [
+          ...chatMessages,
+          {
+            user_id: myData?.id,
+            reciever_id: userData?.id,
+            message,
+            fromSelf: true,
+            time: time,
+          },
+        ]);
       }
     };
-
-    socket.on('message', handleMessage);
-
-    return () => {
-      socket.off('message', handleMessage);
+  
+    const handleSocketMessage = ({ from, to, message, time }) => {
+      handleMessage({ from, to, message, time });
     };
-  }, [socket]);
-  const getData = async () => {
-    const data = await AsyncStorage.getItem('userData');
-    setMyData(JSON.parse(data));
-  };
+  
+    socket.on('message', handleSocketMessage);
+  
+    return () => {
+      socket.off('message', handleSocketMessage);
+    };
+  }, [socket, myData]);
   const getMessages = async () => {
     setLoader(true);
     await axiosconfig
@@ -106,18 +121,8 @@ const InnerChat = ({navigation, route}) => {
         new Date().getMinutes() < 10
           ? `0${new Date().getMinutes()}`
           : `${new Date().getMinutes()}`;
-      let time = hour+':'+mins;
+      let time = hour + ':' + mins;
       socketMessage(myData?.id, userData?.id, message, time);
-      setChatMessages([
-        ...chatMessages,
-        {
-          user_id: myData?.id,
-          reciever_id: userData?.id,
-          message,
-          fromSelf: true,
-          time: `${hour}:${mins}`,
-        },
-      ]);
       storeMsg(
         {
           id: myData?.id,
@@ -127,20 +132,6 @@ const InnerChat = ({navigation, route}) => {
         },
         token,
       );
-      // if (socketUser) {
-      //   socket.emit('private_message', {
-      //     content,
-      //     to: socketUser.userID,
-      //     timestamp: {hour, mins},
-      //   });
-      //   storeMsg({
-      //     id: userData.id,
-      //     message: message,
-      //     fromSelf: true,
-      //     time: `${hour}:${mins}`,
-      //   });
-      //   setMessage('');
-      // }
     }
   };
   const msgDlt = async id => {
