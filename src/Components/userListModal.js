@@ -98,9 +98,6 @@ const UserListModal = ({
   const textColor = theme === 'light' ? '#000' : '#fff';
   const [searchText, setSearchText] = useState('');
   const [searchedList, setSearchedList] = useState([]);
-  const [socketUser, setSocketUser] = useState({});
-  const [backendUser, setBackendUser] = useState({});
-
   const [user, setUser] = useState({});
 
   const organization = useSelector(state => state.reducer.organization);
@@ -133,19 +130,6 @@ const UserListModal = ({
     dispatch(addSocketUsers(temp));
   };
 
-  const getUsername = async () => {
-    try {
-      const value = await AsyncStorage.getItem('username');
-      if (value !== null) {
-        console.log(value);
-        setUser(value);
-        filterUser(value);
-      }
-    } catch (e) {
-      console.error('Error while loading username!');
-    }
-  };
-
   const handleChange = text => {
     setSearchText(text);
     if (!text) {
@@ -162,16 +146,6 @@ const UserListModal = ({
       setSearchedList(searched);
     }
   };
-
-  const searchUserOnSocket = userData => {
-    setUser({backendUser: userData, socketUser: {}});
-    socketUsers.findLast((elem, index) => {
-      if (elem?.username == userData?.email) {
-        console.log('found', index);
-        setUser({backendUser: userData, socketUser: elem});
-      }
-    });
-  };
   const renderItem = (elem, i) => {
     return (
       <TouchableOpacity
@@ -179,7 +153,8 @@ const UserListModal = ({
         onPress={() => {
           setSearchText(`${elem?.item?.name} ${elem?.item?.last_name}`);
           setDisable(true);
-          searchUserOnSocket(elem?.item);
+          setModalVisible(!modalVisible);
+          navigation.navigate('InnerChat', {userData:elem?.item});
         }}>
         <View
           style={[
