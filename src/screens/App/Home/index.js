@@ -95,16 +95,16 @@ const Home = ({navigation, route}) => {
   const {setLiked} = useAppContext(AppContext);
   const socketUsers = useSelector(state => state.reducer.socketUsers);
   const postID = route?.params?.data?.id;
-
+  const [myData, setMyData] = useState('');
   useEffect(() => {
     dispatch(setOrganization(Organization));
     getAllUsers();
-    getPosts();
+    getPosts(null,true);
     if (postID) {
-      getPosts(postID);
+      getPosts(postID,true);
     } else {
       console.log('ssssssssss');
-      getPosts();
+      getPosts(null,true);
     }
     getStories();
     getID();
@@ -188,28 +188,36 @@ const Home = ({navigation, route}) => {
     index,
   });
 
-  const getPosts = async pid => {
-    setLoader(true);
-    await axiosconfig
-      .get('user_details', {
+  const getPosts = async (pid, loaderCondition) => {
+    if (loaderCondition) {
+      setLoader(true);
+    }
+
+    try {
+      const response = await axiosconfig.get('user_details', {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
-      })
-      .then(res => {
-        setPosts(res?.data?.post_friends);
-        console.log(res?.data?.post_friends);
-        if (pid) {
-          matchId(res?.data?.post_friends, pid);
-        } else {
-          console.log('no data from params');
-        }
-        setOtherStoriesData(res?.data?.stories);
-      })
-      .catch(err => {
-        setLoader(false);
       });
+
+      setPosts(response?.data?.post_friends);
+      console.log(response?.data?.post_friends);
+
+      if (pid) {
+        matchId(response?.data?.post_friends, pid);
+      } else {
+        console.log('no data from params');
+      }
+
+      setOtherStoriesData(response?.data?.stories);
+    } catch (error) {
+      // Handle error
+    } finally {
+      if (loaderCondition) {
+        setLoader(false);
+      }
+    }
   };
 
   const funPosts = async () => {
@@ -243,7 +251,7 @@ const Home = ({navigation, route}) => {
         },
       })
       .then(res => {
-        getPosts();
+        getPosts(null, true);
         refRBSheet1.current.close();
         setLoader(false);
       })
@@ -262,7 +270,7 @@ const Home = ({navigation, route}) => {
       })
       .then(res => {
         console.log('Post hide', res.data);
-        getPosts();
+        getPosts(null,true);
         setLoader(false);
       })
       .catch(err => {
@@ -382,16 +390,26 @@ const Home = ({navigation, route}) => {
     };
   }, [socket]);
   useEffect(() => {
+    const getData = async () => {
+      const data = await AsyncStorage.getItem('userData');
+      setMyData(JSON.parse(data));
+    };
+    getData();
     const handleRequest = ({from, to, type}) => {
-      if (type == 'connect' || type == 'disconnect') {
-        getPosts();
+      if (to == myData?.id && (type == 'connect' || type == 'disconnect')) {
+        getPosts(null,false);
       }
     };
-    socket.on('request', handleRequest);
-    return () => {
-      socket.off('request', handleRequest);
+
+    const handleSocketRequest = ({from, to, type}) => {
+      handleRequest({from, to, type});
     };
-  }, [socket]);
+    socket.on('request', handleSocketRequest);
+
+    return () => {
+      socket.off('request', handleSocketRequest);
+    };
+  }, [socket, myData]);
   const searchUserOnSocket = user => {
     socketUsers.findLast((elem, index) => {
       if (elem?.username == user?.email) {
@@ -602,7 +620,7 @@ const Home = ({navigation, route}) => {
       })
       .then(res => {
         setComment('');
-        getPosts();
+        getPosts(null,true);
         setRefresh(!refresh);
         setLoader(false);
       })
@@ -683,7 +701,7 @@ const Home = ({navigation, route}) => {
       })
       .then(res => {
         Alert.alert(res?.data?.message);
-        getPosts(token);
+        getPosts(token,true);
         setLoader(false);
       })
       .catch(err => {

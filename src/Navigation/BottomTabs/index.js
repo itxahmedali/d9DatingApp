@@ -21,59 +21,40 @@ const Tab = createBottomTabNavigator();
 const BottomTabs = () => {
   const {request, setRequest, uniqueId, messageAlert, setMessageAlert} =
     useAppContext(AppContext);
-  const [ids, setIds] = useState(null);
+  const [myData, setMyData] = useState('');
+  useEffect(() => {
+    const getData = async () => {
+      const data = await AsyncStorage.getItem('userData');
+      setMyData(JSON.parse(data));
+    };
+    getData();
 
-  async function fetchDataFromStorage() {
-    try {
-      const value = await AsyncStorage.getItem('userUniqueId1');
-      if (value) {
-        setIds(value);
-        console.log(value, 'idssss');
+    const handleMessage = ({from, to, message, time}) => {
+      if (to == myData?.id) {
+        setMessageAlert(true);
       }
-    } catch (error) {
-      console.log('Error retrieving data from AsyncStorage:', error);
-    }
-  }
+    };
 
-  useEffect(() => {
-    async function fetchDataAndHandleRequest() {
-      await fetchDataFromStorage();
+    const handleSocketMessage = ({from, to, message, time}) => {
+      handleMessage({from, to, message, time});
+    };
+    const handleRequest = ({from, to, type}) => {
+      if (to == myData?.id && type == 'connectRequest') {
+        setRequest(true);
+      }
+    };
 
-      const handleRequest = ({from, to, type}) => {
-        if (type === 'connectRequest') {
-          console.log(to, ids, uniqueId, 'idssss');
-          if (to == ids || to == uniqueId) {
-            setRequest(true);
-          }
-        }
-      };
+    const handleSocketRequest = ({from, to, type}) => {
+      handleRequest({from, to, type});
+    };
+    socket.on('message', handleSocketMessage);
+    socket.on('request', handleSocketRequest);
 
-      socket.on('request', handleRequest);
-      return () => {
-        socket.off('request', handleRequest);
-      };
-    }
-
-    fetchDataAndHandleRequest();
-  }, [ids, socket]);
-  useEffect(() => {
-    async function fetchDataAndHandleMessage() {
-      await fetchDataFromStorage();
-      const handleMessage = ({from, to, message, time}) => {
-        if (to == ids || to == uniqueId) {
-          setMessageAlert(true);
-        }
-      };
-
-      socket.on('message', handleMessage);
-      return () => {
-        socket.off('message', handleMessage);
-      };
-    }
-
-    fetchDataAndHandleMessage();
-  }, [ids, socket]);
-
+    return () => {
+      socket.off('message', handleSocketMessage);
+      socket.off('request', handleSocketRequest);
+    };
+  }, [socket, myData]);
   return (
     <Tab.Navigator
       screenOptions={{

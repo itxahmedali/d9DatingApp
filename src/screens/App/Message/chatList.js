@@ -33,19 +33,13 @@ const Message = ({navigation, route}) => {
   const [rooms, setRooms] = useState([]);
   const [user, setUser] = useState('');
   const organizations = useSelector(state => state.reducer.organization);
-
+  const [myData, setMyData] = useState('');
   useEffect(() => {
     getData();
     userslist();
     latestMsg();
     setMessageAlert(false)
-  }, [isFocused]);
-
-  useEffect(() => {
-    socket.on('private_message', ({content, from, time}) => {
-      latestMsg();
-    });
-  }, [socket]);
+  }, [isFocused]);  
   useEffect(() => {
     socket.on('users', users => {
       users.forEach(user => {
@@ -64,7 +58,7 @@ const Message = ({navigation, route}) => {
       await getData()
       console.log(from, to, message,userData?.id,uniqueId,  'hello user frorom');
       if (to == userData?.id || to == uniqueId) {
-        alert("heo")
+        latestMsg();
       }
     };
 
@@ -135,7 +129,7 @@ const Message = ({navigation, route}) => {
 
   const handleCreateRoom = user => {
     console.log(user, 'handle');
-    navigation.navigate('Chat', user);
+    navigation.navigate('InnerChat', user);
     setModalVisible(false);
   };
 
@@ -177,7 +171,11 @@ const Message = ({navigation, route}) => {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              searchUserOnSocket(elem?.item);
+              console.log(elem?.item);
+              navigation.navigate('MessageStack', {
+                screen: 'InnerChat',
+                params: {userData: elem?.item},
+              });
             }}
             style={[s.col, {flex: 0.6, justifyContent: 'flex-end'}]}>
             <View>

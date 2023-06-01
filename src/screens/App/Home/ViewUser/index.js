@@ -30,48 +30,41 @@ const ViewUser = ({navigation, route}) => {
   const [previewImage, setPreviewImage] = useState('');
   const [imgView, setImgView] = useState(false);
   const theme = useSelector(state => state.reducer.theme);
-  const color = theme === 'dark' ? '#222222' : '#fff';
-  const textColor = theme === 'light' ? '#000' : '#fff';
+  const color = theme == 'dark' ? '#222222' : '#fff';
+  const textColor = theme == 'light' ? '#000' : '#fff';
   const {token} = useAppContext(AppContext);
   const [scroll, setScroll] = useState(false);
   const [loader, setLoader] = useState(false);
   const [userData, setUserData] = useState([]);
   const socketUsers = useSelector(state => state.reducer.socketUsers);
   const navigations = useNavigation();
+  const [myData, setMyData] = useState('');
   useEffect(() => {
     getData(true);
     getId();
   }, []);
   useEffect(() => {
+    const getMyData = async () => {
+      const data = await AsyncStorage.getItem('userData');
+      setMyData(JSON.parse(data));
+    };
+    getMyData();
     const handleRequest = ({from, to, type}) => {
-      getData(false);
-    };
-    socket.on('request', handleRequest);
-    return () => {
-      socket.off('request', handleRequest);
-    };
-  }, [socket]);
-  const searchUserOnSocket = userData => {
-    let temp = {backendUser: userData, socketUser: {}};
-
-    socketUsers.findLast((elem, index) => {
-      if (elem?.username == userData?.email) {
-        console.log('found', index);
-        temp = {backendUser: userData, socketUser: elem};
+      if (to == myData?.id) {
+        getData(true);
       }
-    });
-    handleCreateRoom(temp);
-  };
+    };
 
-  const handleCreateRoom = user => {
-    navigations.navigate('MessageStack', {
-      screen: 'Chat',
-      params: {backendUser: user.backendUser},
-    });
-  };
+    const handleSocketRequest = ({from, to, type}) => {
+      handleRequest({from, to, type});
+    };
+    socket.on('request', handleSocketRequest);
 
+    return () => {
+      socket.off('request', handleSocketRequest);
+    };
+  }, [socket, myData]);
   const getId = async () => {
-    console.log('id console');
     const logInId = await AsyncStorage.getItem('id');
     setLoginId(logInId);
   };
@@ -87,6 +80,7 @@ const ViewUser = ({navigation, route}) => {
         },
       })
       .then(res => {
+        console.log(res?.data?.user_details, 'userdetails');
         setUserData(res?.data?.user_details);
         if (loader) {
           setLoader(false);
@@ -98,6 +92,7 @@ const ViewUser = ({navigation, route}) => {
         }
       });
   };
+
   const connect = async () => {
     setLoader(true);
     await axiosconfig
@@ -107,10 +102,11 @@ const ViewUser = ({navigation, route}) => {
           Authorization: `Bearer ${token}`,
         },
       })
-      .then(res => {
-        socketRequest(loginId, Userid, 'connectRequest');
-        getData(true);
-        setLoader(false);
+      .then(async res => {
+        const myId = await AsyncStorage.getItem('id');
+        await socketRequest(myId, Userid, 'connectRequest');
+        await getData(true);
+        await setLoader(false);
       })
       .catch(err => {
         setLoader(false);
@@ -125,10 +121,11 @@ const ViewUser = ({navigation, route}) => {
           Authorization: `Bearer ${token}`,
         },
       })
-      .then(res => {
-        socketRequest(loginId, Userid, 'disconnect');
-        getData(true);
-        setLoader(false);
+      .then(async res => {
+        const myId = await AsyncStorage.getItem('id');
+        await socketRequest(myId, Userid, 'disconnect');
+        await getData(true);
+        await setLoader(false);
       })
       .catch(err => {
         setLoader(false);
@@ -143,12 +140,15 @@ const ViewUser = ({navigation, route}) => {
           Authorization: `Bearer ${token}`,
         },
       })
-      .then(res => {
-        socketRequest(loginId, Userid, 'block');
-        getData(true);
-        setLoader(false);
+      .then(async res => {
+        console.log(res);
+        const myId = await AsyncStorage.getItem('id');
+        await socketRequest(myId, Userid, 'block');
+        await getData(true);
+        await setLoader(false);
       })
       .catch(err => {
+        console.log(err);
         setLoader(false);
       });
   };
@@ -162,14 +162,73 @@ const ViewUser = ({navigation, route}) => {
         },
       })
       .then(res => {
+        console.log(res);
         getData(true);
         setLoader(false);
       })
       .catch(err => {
+        console.log(err);
         setLoader(false);
       });
   };
+  const renderBlockButton = () => {
+    if (userData) {
+      if (userData.block_status == 1) {
+        return (
+          <TouchableOpacity onPress={() => unblock()}>
+            <View style={s.btn}>
+              <Text style={[s.btnTxt]}>Unblock</Text>
+            </View>
+          </TouchableOpacity>
+        );
+      }
+      if (userData.block_status == 0) {
+        return (
+          <TouchableOpacity onPress={() => block()}>
+            <View style={s.btn}>
+              <Text style={[s.btnTxt]}>Block</Text>
+            </View>
+          </TouchableOpacity>
+        );
+      }
+    }
 
+    return null;
+  };
+  const renderConnectButton = () => {
+    console.log(userData, 'hellouser');
+    if (userData) {
+      if (userData.connected == 1) {
+        return (
+          <TouchableOpacity onPress={() => pending()}>
+            <View style={s.btn}>
+              <Text style={[s.btnTxt]}>Pending</Text>
+            </View>
+          </TouchableOpacity>
+        );
+      }
+      if (userData.connected == 2) {
+        return (
+          <TouchableOpacity onPress={() => Disconnect()}>
+            <View style={s.btn}>
+              <Text style={[s.btnTxt]}>Connected</Text>
+            </View>
+          </TouchableOpacity>
+        );
+      }
+      if (userData.connected == 0) {
+        return (
+          <TouchableOpacity onPress={() => connect()}>
+            <View style={s.btn}>
+              <Text style={[s.btnTxt]}>Connect</Text>
+            </View>
+          </TouchableOpacity>
+        );
+      }
+    }
+
+    return null;
+  };
   return loader ? (
     <Loader />
   ) : (
@@ -178,7 +237,6 @@ const ViewUser = ({navigation, route}) => {
         <TouchableOpacity
           onPress={() => {
             setPreviewImage(userData?.image ? userData?.image : dummyImage);
-
             setImgView(!imgView);
           }}
           style={{width: '100%', height: moderateScale(260, 0.1)}}>
@@ -216,10 +274,9 @@ const ViewUser = ({navigation, route}) => {
               <Text style={[s.headerTxt, {color: textColor}]}>
                 {userData?.name} {userData?.last_name}
               </Text>
-              {userData?.connected == 1 ? (
+              {userData?.connected === 1 && (
                 <TouchableOpacity
                   onPress={() => {
-                    // searchUserOnSocket(userData);
                     navigations.navigate('MessageStack', {
                       screen: 'InnerChat',
                       params: {userData: userData},
@@ -234,7 +291,7 @@ const ViewUser = ({navigation, route}) => {
                     size={moderateScale(22, 0.1)}
                   />
                 </TouchableOpacity>
-              ) : null}
+              )}
             </View>
             <View style={s.row1}>
               <View>
@@ -247,7 +304,6 @@ const ViewUser = ({navigation, route}) => {
               </View>
               <Text style={s.location}>{userData?.location} </Text>
             </View>
-
             <View style={s.about}>
               <Text style={[s.aboutTxt, {color: textColor}]}>About</Text>
               <View style={s.abTxt}>
@@ -261,52 +317,44 @@ const ViewUser = ({navigation, route}) => {
               </View>
             </View>
           </View>
-          {Userid != loginId ? (
+          {userData && (
             <>
-              {userData?.connected ? (
-                <>
-                  <View style={s.connected}>
-                    <TouchableOpacity
-                      onPress={() =>
-                        userData?.connected == 2 ? null : Disconnect()
-                      }>
-                      <View style={s.btn}>
-                        <Text style={[s.btnTxt]}>
-                          {userData?.connected == 2 ? 'Pending' : 'Disconnect'}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                    {userData?.block_status == 0 && userData?.connected == 1 ? (
-                      <>
-                        <TouchableOpacity onPress={() => block()}>
-                          <View style={s.btn}>
-                            <Text style={[s.btnTxt]}>{'Block'}</Text>
-                          </View>
-                        </TouchableOpacity>
-                      </>
-                    ) : null}
-                  </View>
-                </>
-              ) : (
-                <>
-                  <TouchableOpacity
-                    onPress={() =>
-                      userData?.connected == 0 && userData?.block_status == 0
-                        ? connect()
-                        : unblock()
-                    }>
+              {userData.block_status === 0 ? (
+                userData.connected === 2 ? (
+                  <TouchableOpacity onPress={() => pending()}>
                     <View style={s.btn}>
-                      <Text style={[s.btnTxt]}>
-                        {userData?.connected == 0 && userData?.block_status == 0
-                          ? 'Connect'
-                          : 'Unblock'}
-                      </Text>
+                      <Text style={[s.btnTxt]}>Pending</Text>
                     </View>
                   </TouchableOpacity>
-                </>
-              )}
+                ) : userData.connected === 1 ? (
+                  <TouchableOpacity onPress={() => Disconnect()}>
+                    <View style={s.btn}>
+                      <Text style={[s.btnTxt]}>Connected</Text>
+                    </View>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity onPress={() => connect()}>
+                    <View style={s.btn}>
+                      <Text style={[s.btnTxt]}>Connect</Text>
+                    </View>
+                  </TouchableOpacity>
+                )
+              ) : null}
+              {userData.block_status === 1 ? (
+                <TouchableOpacity onPress={() => unblock()}>
+                  <View style={s.btn}>
+                    <Text style={[s.btnTxt]}>Unblock</Text>
+                  </View>
+                </TouchableOpacity>
+              ) : userData.connected === 1 ? (
+                <TouchableOpacity onPress={() => block()}>
+                  <View style={s.btn}>
+                    <Text style={[s.btnTxt]}>Block</Text>
+                  </View>
+                </TouchableOpacity>
+              ) : null}
             </>
-          ) : null}
+          )}
         </View>
       </ScrollView>
       <ImageView

@@ -57,13 +57,9 @@ const Notifications = ({navigation, route}) => {
   }, [socket]);
   const id = route?.params?.data?.id;
   const matchId = () => {
-    console.log('avg');
     data.map((v, index) => {
-      console.log('ids', v.user_id);
       if (v.user_id == id) {
-        console.log('abc');
         const matchedId = v.user_id;
-        console.log(matchedId, index, 'mat');
         if (index !== -1 && flatListRef.current) {
           flatListRef.current.scrollToIndex({index, animated: true});
         }

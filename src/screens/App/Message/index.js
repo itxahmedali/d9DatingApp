@@ -122,7 +122,7 @@ const Message = ({navigation}) => {
 
           <TouchableOpacity
             onPress={() =>
-              navigation.navigate('Chat', {
+              navigation.navigate('InnerChat', {
                 id: elem.item.id,
                 name: elem.item.name,
               })

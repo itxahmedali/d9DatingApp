@@ -169,12 +169,13 @@ export const socketComment = (postId, postUserId, myId) => {
     myId: myId,
   });
 };
-export const socketMessage = (from, to, message, time) => {
+export const socketMessage = (from, to, message, time, socketUniqueId) => {
   socket.emit('message', {
     from: from,
     to: to,
     message: message,
-    time: time
+    time: time,
+    socketUniqueId:socketUniqueId
   });
 };
 export const storeMsg = async (msg,token) => {
@@ -202,5 +203,8 @@ export function formatTimestamp(timestamp) {
 }
 export const Poppins = '';
 export const PoppinsBold = '';
-// chat render body
-
+export const generateRandomId = () => {
+  const timestamp = Date.now().toString(36);
+  const randomString = Math.random().toString(36).substring(2);
+  return timestamp + randomString;
+};

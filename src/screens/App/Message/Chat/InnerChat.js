@@ -1,29 +1,18 @@
 import React, {useEffect, useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import {useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
-import {Input, Menu, Pressable} from 'native-base';
-import {
-  TouchableOpacity,
-  Text,
-  SafeAreaView,
-  View,
-  Image,
-  FlatList,
-  Keyboard,
-  StyleSheet,
-} from 'react-native';
-import Entypo from 'react-native-vector-icons/Entypo';
-import Inicon from 'react-native-vector-icons/Ionicons';
-import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons';
+import {Menu, Pressable} from 'native-base';
+import {Text, View, Image, FlatList, Keyboard, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Antdesign from 'react-native-vector-icons/AntDesign';
 import ChatHeader from '../../../../Components/ChatHeader';
 import axiosconfig from '../../../../Providers/axios';
 import {AppContext, useAppContext} from '../../../../Context/AppContext';
+import {v4 as uuidv4} from 'uuid';
 import {
-  color,
   dummyImage,
   formatTimestamp,
+  generateRandomId,
   getColor,
   socketMessage,
   storeMsg,
@@ -31,7 +20,6 @@ import {
 import ChatFooter from '../../../../Components/ChatFooter';
 import socket from '../../../../utils/socket';
 const Poppins = '';
-const PoppinsBold = '';
 const InnerChat = ({navigation, route}) => {
   const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
@@ -42,23 +30,24 @@ const InnerChat = ({navigation, route}) => {
   const [chatMessages, setChatMessages] = useState([]);
   const [message, setMessage] = useState('');
   const {token} = useAppContext(AppContext);
+
   useEffect(() => {
     if (route.params) {
       setUserData(route.params?.userData);
+      getMessages();
     }
   }, [userData]);
+
   useEffect(() => {
     const getData = async () => {
       const data = await AsyncStorage.getItem('userData');
       setMyData(JSON.parse(data));
     };
-  
-    getData(); // Fetch myData from AsyncStorage on first render
-  
-    const handleMessage = ({ from, to, message, time }) => {
-      console.log(from, to, message, myData?.id, userData?.id, 'hello from user');
-      if (from === userData?.id && to === myData?.id) {
-        setChatMessages((chatMessages) => [
+    getData();
+
+    const handleMessage = ({from, to, message, time, socketUniqueId}) => {
+      if (from === userData?.id && to == myData?.id) {
+        setChatMessages(chatMessages => [
           ...chatMessages,
           {
             user_id: userData?.id,
@@ -69,7 +58,7 @@ const InnerChat = ({navigation, route}) => {
           },
         ]);
       } else if (from === myData?.id && to === userData?.id) {
-        setChatMessages((chatMessages) => [
+        setChatMessages(chatMessages => [
           ...chatMessages,
           {
             user_id: myData?.id,
@@ -77,79 +66,80 @@ const InnerChat = ({navigation, route}) => {
             message,
             fromSelf: true,
             time: time,
+            socketUniqueId: socketUniqueId,
           },
         ]);
       }
+      console.log(chatMessages, 'messages');
     };
-  
-    const handleSocketMessage = ({ from, to, message, time }) => {
-      handleMessage({ from, to, message, time });
+
+    const handleSocketMessage = ({from, to, message, time, socketUniqueId}) => {
+      handleMessage({from, to, message, time, socketUniqueId});
     };
-  
+
     socket.on('message', handleSocketMessage);
-  
     return () => {
       socket.off('message', handleSocketMessage);
     };
   }, [socket, myData]);
+
   const getMessages = async () => {
     setLoader(true);
-    await axiosconfig
-      .get(`message_show/${userData?.id}`, {
+    try {
+      const res = await axiosconfig.get(`message_show/${userData?.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-      .then(res => {
-        setChatMessages(res?.data);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err, 'message show API err');
       });
+      setChatMessages(res?.data);
+      setLoader(false);
+    } catch (err) {
+      setLoader(false);
+      console.log(err, 'message show API err');
+    }
   };
-  const handleNewMessage = () => {
-    Keyboard.dismiss();
-    if (message != '' || message != null || message != undefined) {
-      const hour =
-        new Date().getHours() < 10
-          ? `0${new Date().getHours()}`
-          : `${new Date().getHours()}`;
 
-      const mins =
-        new Date().getMinutes() < 10
-          ? `0${new Date().getMinutes()}`
-          : `${new Date().getMinutes()}`;
-      let time = hour + ':' + mins;
-      socketMessage(myData?.id, userData?.id, message, time);
-      storeMsg(
+  const handleNewMessage = async () => {
+    if (message != '') {
+      const hour = await new Date().getHours().toString().padStart(2, '0');
+      const mins = await new Date().getMinutes().toString().padStart(2, '0');
+      const time = `${hour}:${mins}`;
+      const socketUniqueId = await generateRandomId();
+      await socketMessage(
+        myData?.id,
+        userData?.id,
+        message,
+        time,
+        socketUniqueId,
+      );
+      await storeMsg(
         {
-          id: myData?.id,
+          id: userData.id,
           message: message,
           fromSelf: true,
           time: `${hour}:${mins}`,
+          socketUniqueId: socketUniqueId,
         },
         token,
       );
+      await setMessage('');
     }
   };
+
   const msgDlt = async id => {
-    setLoader(true);
-    await axiosconfig
-      .delete(`message_delete/${id}`, {
+    console.log('deleting message');
+    try {
+      await axiosconfig.delete(`message_delete/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-      .then(res => {
-        getMessages();
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
       });
+      getMessages();
+    } catch (err) {
+      console.log(err);
+    }
   };
+
   const chatRenderItem = elem => {
     const status = elem?.item?.user_id === myData.id;
     return (
@@ -180,7 +170,7 @@ const InnerChat = ({navigation, route}) => {
                   : dummyImage,
               }}
               style={s.dp1}
-              resizeMode={'cover'}
+              resizeMode="cover"
             />
           </View>
         ) : null}
@@ -195,7 +185,7 @@ const InnerChat = ({navigation, route}) => {
           <View style={[s.options]}>
             <Menu
               borderWidth={moderateScale(1, 0.1)}
-              borderColor={'grey'}
+              borderColor="grey"
               backgroundColor={color}
               marginRight={moderateScale(15, 0.1)}
               marginTop={moderateScale(25, 0.1)}
@@ -209,6 +199,9 @@ const InnerChat = ({navigation, route}) => {
                       right: moderateScale(8, 0.1),
                     }}>
                     <View style={status ? s.textFrom : s.textTo}>
+                      {elem?.item?.socketUniqueId ? (
+                        <Text>{elem?.item?.socketUniqueId}</Text>
+                      ) : null}
                       <Text style={s.textSmall1}>{elem?.item?.message}</Text>
                       <Text style={[s.textSmall1, {textAlign: 'right'}]}>
                         {formatTimestamp(elem?.item?.created_at)}
@@ -223,7 +216,7 @@ const InnerChat = ({navigation, route}) => {
                 }}>
                 <View style={s.optionView}>
                   <Antdesign
-                    name={'delete'}
+                    name="delete"
                     color={textColor}
                     size={moderateScale(13, 0.1)}
                     style={{flex: 0.3}}
@@ -255,13 +248,14 @@ const InnerChat = ({navigation, route}) => {
                   : dummyImage,
               }}
               style={s.dp1}
-              resizeMode={'cover'}
+              resizeMode="cover"
             />
           </View>
         ) : null}
       </View>
     );
   };
+
   return (
     <View style={[s.container, {backgroundColor: color}]}>
       <ChatHeader
@@ -276,8 +270,7 @@ const InnerChat = ({navigation, route}) => {
           contentContainerStyle={{flexDirection: 'column-reverse'}}
           data={chatMessages}
           renderItem={chatRenderItem}
-          key={(e, i) => i}
-          keyboardDismissMode="on-drag"
+          keyExtractor={(item, index) => index.toString()}
           keyboardShouldPersistTaps="never"
           showsVerticalScrollIndicator={true}
         />
