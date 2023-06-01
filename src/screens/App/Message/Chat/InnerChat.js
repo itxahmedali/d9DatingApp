@@ -92,6 +92,7 @@ const InnerChat = ({navigation, route}) => {
         },
       });
       setChatMessages(res?.data);
+      console.log(res?.data);
       setLoader(false);
     } catch (err) {
       setLoader(false);
@@ -101,6 +102,7 @@ const InnerChat = ({navigation, route}) => {
 
   const handleNewMessage = async () => {
     if (message != '') {
+      await setMessage('');
       const hour = await new Date().getHours().toString().padStart(2, '0');
       const mins = await new Date().getMinutes().toString().padStart(2, '0');
       const time = `${hour}:${mins}`;
@@ -122,19 +124,21 @@ const InnerChat = ({navigation, route}) => {
         },
         token,
       );
-      await setMessage('');
     }
   };
 
   const msgDlt = async id => {
-    console.log('deleting message');
+    console.log("deleetin")
     try {
-      await axiosconfig.delete(`message_delete/${id}`, {
+      await axiosconfig.get(`message_delete/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
-      getMessages();
+      }).then((res)=>{
+    console.log("deleted")
+        console.log(res,"ello res");
+        getMessages();
+      })
     } catch (err) {
       console.log(err);
     }
@@ -199,9 +203,6 @@ const InnerChat = ({navigation, route}) => {
                       right: moderateScale(8, 0.1),
                     }}>
                     <View style={status ? s.textFrom : s.textTo}>
-                      {elem?.item?.socketUniqueId ? (
-                        <Text>{elem?.item?.socketUniqueId}</Text>
-                      ) : null}
                       <Text style={s.textSmall1}>{elem?.item?.message}</Text>
                       <Text style={[s.textSmall1, {textAlign: 'right'}]}>
                         {formatTimestamp(elem?.item?.created_at)}
@@ -212,7 +213,7 @@ const InnerChat = ({navigation, route}) => {
               }}>
               <Menu.Item
                 onPress={() => {
-                  msgDlt(elem?.item?.id);
+                  msgDlt(elem?.item?.socketUniqueId)
                 }}>
                 <View style={s.optionView}>
                   <Antdesign

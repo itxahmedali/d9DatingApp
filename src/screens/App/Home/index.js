@@ -602,11 +602,8 @@ const Home = ({navigation, route}) => {
   };
 
   const addComment = async (id, index) => {
+    if (comment) {
     setLoader(true);
-    if (!comment) {
-      setLoader(false);
-      return;
-    }
     const data = {
       text: comment,
       post_id: id,
@@ -620,7 +617,7 @@ const Home = ({navigation, route}) => {
       })
       .then(res => {
         setComment('');
-        getPosts(null,true);
+        // getPosts(null,true);
         setRefresh(!refresh);
         setLoader(false);
       })
@@ -628,6 +625,7 @@ const Home = ({navigation, route}) => {
         setLoader(false);
         setComment('');
       });
+    }
   };
 
   const getStories = async token => {

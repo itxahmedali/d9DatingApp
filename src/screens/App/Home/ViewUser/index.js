@@ -11,7 +11,6 @@ import axiosconfig from '../../../../Providers/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import ImageView from 'react-native-image-viewing';
-import * as RootNavigation from '../../../../../RootNavigation';
 import {Header, Loader} from '../../../../Components/Index';
 import {AppContext, useAppContext} from '../../../../Context/AppContext';
 import {dummyImage, socketRequest} from '../../../../Constants/Index';
@@ -51,7 +50,7 @@ const ViewUser = ({navigation, route}) => {
     getMyData();
     const handleRequest = ({from, to, type}) => {
       if (to == myData?.id) {
-        getData(true);
+        getData(false);
       }
     };
 

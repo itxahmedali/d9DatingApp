@@ -17,7 +17,6 @@ import {useToast} from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {moderateScale} from 'react-native-size-matters';
 import {useEffect, useState} from 'react';
-import * as RootNavigation from '../../../../RootNavigation';
 import CreatePost from '../../../screens/App/CreatePost';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const Stack = createStackNavigator();

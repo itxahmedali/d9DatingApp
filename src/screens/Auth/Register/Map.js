@@ -1,30 +1,12 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {
-  Button,
-  Image,
-  TextInput,
-  TouchableOpacity,
-  Dimensions,
-  Platform,
-  PermissionsAndroid,
-} from 'react-native';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-  Alert,
-} from 'react-native';
+import {TouchableOpacity, Platform, PermissionsAndroid} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import {setLocation, setUserLoc} from '../../../Redux/actions';
 import {setPostLocation} from '../../../Redux/actions';
 import {useSelector, useDispatch} from 'react-redux';
-import {Marker} from 'react-native-maps';
-import MapView, {PROVIDER_GOOGLE, animateToRegion} from 'react-native-maps';
+import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
-import Geolocation from 'react-native-geolocation-service';
+import Geolocation from '@react-native-community/geolocation';
 import Geocoder from 'react-native-geocoding';
 import {moderateScale} from 'react-native-size-matters';
 import Modal from 'react-native-modal';
@@ -38,8 +20,8 @@ const Map = ({navigation, route}) => {
   const isFocused = useIsFocused();
   const screen1 = route.params;
   const userLocation = useSelector(state => state.reducer.userLoc);
-  console.log(locat, 'user locationnn');
   const locat = useSelector(state => state.reducer.location);
+  console.log(locat, 'user locationnn');
   const [position, setPosition] = useState({
     latitude: 51.50853,
     longitude: -0.12574,
@@ -65,7 +47,7 @@ const Map = ({navigation, route}) => {
       var addressComponent = json.results[0].address_components;
       console.log(json.results, 'acc');
       setLoc(
-        addressComponent[1].short_name + ' ' + addressComponent[2].short_name,
+        addressComponent[1]?.short_name + ' ' + addressComponent[2]?.short_name,
       );
     });
   };
@@ -92,31 +74,31 @@ const Map = ({navigation, route}) => {
             console.log('You can use the geolocation');
             Geolocation.getCurrentPosition(pos => {
               setPosition({
-                latitude: pos.coords.latitude,
-                longitude: pos.coords.longitude,
+                latitude: pos?.coords?.latitude,
+                longitude: pos?.coords?.longitude,
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
               });
               setMarkerPosition({
-                latitude: pos.coords.latitude,
-                longitude: pos.coords.longitude,
+                latitude: pos?.coords?.latitude,
+                longitude: pos?.coords?.longitude,
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
               });
               mapRef.current.animateToRegion({
-                latitude: pos.coords.latitude,
-                longitude: pos.coords.longitude,
+                latitude: pos?.coords?.latitude,
+                longitude: pos?.coords?.longitude,
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
               });
-              Geocoder.from(pos.coords.latitude, pos.coords.longitude).then(
+              Geocoder.from(pos?.coords?.latitude, pos?.coords?.longitude).then(
                 json => {
                   var addressComponent = json.results[0].address_components;
                   console.log(json.results, 'current location address');
                   setLoc(
-                    addressComponent[1].short_name +
+                    addressComponent[1]?.short_name +
                       ' ' +
-                      addressComponent[2].short_name,
+                      addressComponent[2]?.short_name,
                   );
                 },
               );
@@ -126,31 +108,31 @@ const Map = ({navigation, route}) => {
         } else {
           Geolocation.getCurrentPosition(pos => {
             setPosition({
-              latitude: pos.coords.latitude,
-              longitude: pos.coords.longitude,
+              latitude: pos?.coords?.latitude,
+              longitude: pos?.coords?.longitude,
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
             });
             setMarkerPosition({
-              latitude: pos.coords.latitude,
-              longitude: pos.coords.longitude,
+              latitude: pos?.coords?.latitude,
+              longitude: pos?.coords?.longitude,
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
             });
             mapRef.current.animateToRegion({
-              latitude: pos.coords.latitude,
-              longitude: pos.coords.longitude,
+              latitude: pos?.coords?.latitude,
+              longitude: pos?.coords?.longitude,
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
             });
-            Geocoder.from(pos.coords.latitude, pos.coords.longitude).then(
+            Geocoder.from(pos?.coords?.latitude, pos?.coords?.longitude).then(
               json => {
                 var addressComponent = json.results[0].address_components;
                 console.log(json.results, 'current location address');
                 setLoc(
-                  addressComponent[1].short_name +
+                  addressComponent[1]?.short_name +
                     ' ' +
-                    addressComponent[2].short_name,
+                    addressComponent[2]?.short_name,
                 );
               },
             );
@@ -172,31 +154,31 @@ const Map = ({navigation, route}) => {
         console.log('You can use the geolocation');
         Geolocation.getCurrentPosition(pos => {
           setPosition({
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
+            latitude: pos?.coords?.latitude,
+            longitude: pos?.coords?.longitude,
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           });
           setMarkerPosition({
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
+            latitude: pos?.coords?.latitude,
+            longitude: pos?.coords?.longitude,
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           });
           mapRef.current.animateToRegion({
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
+            latitude: pos?.coords?.latitude,
+            longitude: pos?.coords?.longitude,
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           });
-          Geocoder.from(pos.coords.latitude, pos.coords.longitude).then(
+          Geocoder.from(pos?.coords?.latitude, pos?.coords?.longitude).then(
             json => {
               var addressComponent = json.results[0].address_components;
               console.log(json.results, 'current location address');
               setLoc(
-                addressComponent[1].short_name +
+                addressComponent[1]?.short_name +
                   ' ' +
-                  addressComponent[2].short_name,
+                  addressComponent[2]?.short_name,
               );
             },
           );
@@ -297,7 +279,8 @@ const Map = ({navigation, route}) => {
         rotateEnabled={true}>
         <Marker
           draggable
-          coordinate={markerPosition}
+          coordinate={markerPosition ? markerPosition : {latitude: 37.78825,
+            longitude: -122.4324}}
           title={loc}
           onPress={() => {
             console.log(markerPosition, 'before');
@@ -386,7 +369,7 @@ const Map = ({navigation, route}) => {
           }}
           query={{
             key: 'AIzaSyCYvOXB3SFyyeR0usVOgnLyoDiAd2XDunU',
-            language: 'en'
+            language: 'en',
           }}
           GooglePlacesDetailsQuery={{
             fields: 'geometry',
@@ -405,7 +388,7 @@ const Map = ({navigation, route}) => {
           bottom: moderateScale(120, 0.1),
           backgroundColor: 'rgba(255, 255, 0, 0.4)',
           right: moderateScale(20, 0.1),
-          borderRadius: moderateScale(40, 0.1) / 2
+          borderRadius: moderateScale(40, 0.1) / 2,
         }}>
         <TouchableOpacity onPress={() => requestGeolocationPermission()}>
           <MaterialIcon
@@ -476,7 +459,7 @@ const Map = ({navigation, route}) => {
               </Text>
               <View
                 style={{
-                  marginRight: moderateScale(-50, 0.1)
+                  marginRight: moderateScale(-50, 0.1),
                 }}>
                 <Inicon
                   name="location"
