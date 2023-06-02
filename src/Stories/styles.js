@@ -7,13 +7,15 @@ const styles = new StyleSheet.create({
   ItemSeparator: {height: 1, backgroundColor: '#ccc'},
   container: {
     flex: 1,
+    // backgroundColor: 'rgba(255,255,255,255)',
     paddingBottom: 5,
   },
   circle: {
     width: moderateScale(65, 0.1),
     height: moderateScale(65, 0.1),
     borderRadius: moderateScale(65 / 2, 0.1),
-    borderWidth: moderateScale(3, 0.1)
+    borderWidth: moderateScale(3, 0.1),
+    // borderColor: '#FFF',
   },
   superCircle: {
     borderWidth: 3,

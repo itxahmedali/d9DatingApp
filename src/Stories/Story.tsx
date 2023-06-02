@@ -1,12 +1,14 @@
+/* eslint-disable react/no-unused-prop-types */
 import React, {useState, useEffect} from 'react';
 import {Dimensions, Image, StyleSheet, View} from 'react-native';
 import Video from 'react-native-video';
+// import Image from 'react-native-scalable-image';
 import PropTypes from 'prop-types';
 import {StoryType} from '.';
 import { moderateScale } from 'react-native-size-matters';
 import { useSelector, useDispatch } from 'react-redux';
 import { setStoryID } from '../Redux/actions';
-import { width } from '../Constants/Index';
+const ScreenWidth = Dimensions.get('window').width;
 
 type Props = {
   story: StoryType;
@@ -16,41 +18,48 @@ type Props = {
   isLoaded?: boolean;
   isNewStory?: boolean;
 };
-const Story = (props: any) => {
+const Story = (props: Props) => {
   const {story} = props;
   const dispatch = useDispatch();
   const {url, type, id} = story || {};
   const [isPortation, setIsPortation] = useState(false);
   const [heightScaled, setHeightScaled] = useState(moderateScale(231,0.1));
-  const storyID:any = useSelector((state:any)=> state.reducer.storyID)
+  const storyID = useSelector(state=> state.reducer.storyID)
 
   useEffect(()=> {
+    // console.log(setStoryID)
     dispatch(setStoryID(id))
     console.log(storyID)
   },[])
 
   return (
     <View style={styles.container}>
+      {/* {!props.isLoaded && (
+      <View style={styles.loading}>
+        <ActivityIndicator color="white" />
+      </View>
+      )} */}
       {type === 'image' ? (
         <Image
           source={{uri: url}}
           onLoadEnd={props.onImageLoaded}
           style={styles.content}
           resizeMode="contain"
+          // width={ScreenWidth}
         />
       ) : (
         <Video
           source={{uri: url}}
           paused={props.pause || props.isNewStory}
           onLoad={item => {
-            const {Width, height}:any = item.naturalSize;
-            const heightScaled = height * (width / Width);
-            let isPortrait = height > Width;
-            setIsPortation(height > Width);
+            const {width, height} = item.naturalSize;
+            const heightScaled = height * (ScreenWidth / width);
+            let isPortrait = height > width;
+            setIsPortation(height > width);
             setHeightScaled(heightScaled);
             props.onVideoLoaded(item);
 
-            console.warn(Width, height, heightScaled);
+            console.warn(width, height, heightScaled);
             console.warn('É PAISAGEM?', isPortrait);
           }}
           style={
@@ -68,6 +77,9 @@ const Story = (props: any) => {
 Story.propTypes = {
   story: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
 };
+
+//  720 405 231.42857142857142
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -78,13 +90,17 @@ const styles = StyleSheet.create({
   },
   content: {width: '100%', height: '100%', flex: 1},
   contentVideo: {
-    width: width + 20,
+    width: ScreenWidth + 20,
+    //aspectRatio: 1,
     backgroundColor: '#000',
+    //flex: 1,
     height: 231,
   },
   contentVideoPortation: {
-    width: width + 20,
+    width: ScreenWidth + 20,
+    //aspectRatio: 1,
     backgroundColor: '#000',
+    //flex: 1,
     height: 231,
   },
   imageContent: {

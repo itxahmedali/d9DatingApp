@@ -1,18 +1,23 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   FlatList,
   Image,
   Modal,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { StoryType } from "./index";
+import { useSelector } from "react-redux";
 const { CubeNavigationHorizontal } = require("react-native-3dcube-navigation");
 import styles from "./styles";
 import StoryContainer from "./StoryContainer";
 
 const Stories = (props) => {
+  alert('hello')
   const theme =props.theme;
+  const userToken = useSelector(state=> state.reducer.userToken)
   const color = theme === 'dark' ? '#fff' : '#222222';
 
   const [isModelOpen, setModel] = useState(false);
@@ -21,6 +26,11 @@ const Stories = (props) => {
   const [currentScrollValue, setCurrentScrollValue] = useState(0);
   const [storyColor, setStoryColor] = useState('green');
   const modalScroll = useRef(null);
+
+  // useEffect(()=> {
+
+  // }, [])
+
   const onStorySelect = (index) => {
     setCurrentUserIndex(index);
     setModel(true);
@@ -35,6 +45,7 @@ const Stories = (props) => {
     if (props.data.length - 1 > currentUserIndex) {
       setCurrentUserIndex(newIndex);
       if (!isScroll) {
+        //erro aqui
         try {
           modalScroll?.current?.scrollTo(newIndex, true);
         } catch (e) {
@@ -74,7 +85,7 @@ const Stories = (props) => {
       <FlatList
         data={props.data}
         horizontal
-        keyExtractor={(item, index) => String(index)}
+        keyExtractor={(item) => item.title}
         renderItem={({ item, index }) => (
           <View style={styles.boxStory}>
             <TouchableOpacity onPress={() => {
@@ -119,7 +130,7 @@ const Stories = (props) => {
         >
           {props.data.map((item, index) => (
             <StoryContainer
-              key={index}
+              key={item.title}
               onClose={onStoryClose}
               onStoryNext={onStoryNext}
               onStoryPrevious={onStoryPrevious}

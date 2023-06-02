@@ -233,13 +233,9 @@ const AppContent = memo(() => {
     <NativeBaseProvider>
         <SafeAreaProvider>
           <MyStatusBar backgroundColor="#000" barStyle="light-content" />
-          {/* <KeyboardAvoidingView
-            style={{flex: 1}}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}> */}
             <NavigationContainer ref={navigationRef}>
               {token === null ? <AuthStack /> : <BottomTabs />}
             </NavigationContainer>
-          {/* </KeyboardAvoidingView> */}
         </SafeAreaProvider>
       </NativeBaseProvider>
   );
