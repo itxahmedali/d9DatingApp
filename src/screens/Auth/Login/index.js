@@ -47,7 +47,6 @@ const Login = ({navigation}) => {
           },
         })
         .then(res => {
-          console.log(res, 'token');
           setLoader(false);
         })
         .catch(err => {
@@ -59,9 +58,7 @@ const Login = ({navigation}) => {
   );
 
   const onSignInUser = useCallback(() => {
-    console.log('submit');
     setSubmitted(false);
-
     if (
       email === null ||
       email === '' ||
@@ -77,14 +74,10 @@ const Login = ({navigation}) => {
       email: email,
       password: password,
     };
-
-    console.log({data});
-
     Keyboard.dismiss();
     axiosconfig
       .post('login', data)
       .then(res => {
-        console.log(res?.data, 'ellouserlogin');
         AsyncStorage.setItem('password', password);
         const id = res?.data?.userInfo.toString();
         AsyncStorage.setItem('id', id);

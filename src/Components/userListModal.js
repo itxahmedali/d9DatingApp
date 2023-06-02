@@ -17,7 +17,7 @@ import Inicon from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {addSocketUsers, addUsers} from '../Redux/actions';
-import { getColor } from '../Constants/Index';
+import { dummyImage, getColor } from '../Constants/Index';
 const Poppins = '';
 const PoppinsBold = '';
 const Users = [
@@ -126,7 +126,6 @@ const UserListModal = ({
         return elem;
       }
     });
-    console.log(temp, 'temp');
     dispatch(addSocketUsers(temp));
   };
 
@@ -137,7 +136,6 @@ const UserListModal = ({
     } else {
       let searched = users.filter(item => {
         let itm = `${item?.name} ${item?.last_name}`;
-        console.log('item', itm, text);
         if (itm?.toLowerCase().trim().includes(text.toLowerCase().trim())) {
           return item;
         }
@@ -164,7 +162,7 @@ const UserListModal = ({
             },
           ]}>
           <Image
-            source={{uri: elem?.item?.image}}
+            source={{uri: elem?.item?.image ? elem?.item?.image : dummyImage}}
             style={styles.dp1}
             resizeMode={'cover'}
           />
@@ -243,19 +241,6 @@ const UserListModal = ({
             />
           )}
         </View>
-        <TouchableOpacity
-          onPress={() => {
-            if (searchText && disable == true) {
-              console.log('start chat');
-              console.log(user);
-              handleCreateRoom(user);
-            } else {
-              Alert.alert('select a user to chat');
-            }
-          }}
-          style={styles.btn}>
-          <Text style={[styles.btnTxt]}>Start Chat</Text>
-        </TouchableOpacity>
       </View>
     </Modal>
   );

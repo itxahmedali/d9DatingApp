@@ -31,9 +31,9 @@ const ViewUser = ({navigation, route}) => {
   const theme = useSelector(state => state.reducer.theme);
   const color = theme == 'dark' ? '#222222' : '#fff';
   const textColor = theme == 'light' ? '#000' : '#fff';
-  const {token} = useAppContext(AppContext);
+  const {token, setRequest} = useAppContext(AppContext);
   const [scroll, setScroll] = useState(false);
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
   const [userData, setUserData] = useState([]);
   const socketUsers = useSelector(state => state.reducer.socketUsers);
   const navigations = useNavigation();
@@ -79,7 +79,6 @@ const ViewUser = ({navigation, route}) => {
         },
       })
       .then(res => {
-        console.log(res?.data?.user_details, 'userdetails');
         setUserData(res?.data?.user_details);
         if (loader) {
           setLoader(false);
@@ -108,6 +107,7 @@ const ViewUser = ({navigation, route}) => {
         await setLoader(false);
       })
       .catch(err => {
+        console.log(err);
         setLoader(false);
       });
   };
@@ -127,6 +127,7 @@ const ViewUser = ({navigation, route}) => {
         await setLoader(false);
       })
       .catch(err => {
+        console.log(err);
         setLoader(false);
       });
   };
@@ -140,7 +141,6 @@ const ViewUser = ({navigation, route}) => {
         },
       })
       .then(async res => {
-        console.log(res);
         const myId = await AsyncStorage.getItem('id');
         await socketRequest(myId, Userid, 'block');
         await getData(true);
@@ -161,7 +161,6 @@ const ViewUser = ({navigation, route}) => {
         },
       })
       .then(res => {
-        console.log(res);
         getData(true);
         setLoader(false);
       })
@@ -170,63 +169,43 @@ const ViewUser = ({navigation, route}) => {
         setLoader(false);
       });
   };
-  const renderBlockButton = () => {
-    if (userData) {
-      if (userData.block_status == 1) {
-        return (
-          <TouchableOpacity onPress={() => unblock()}>
-            <View style={s.btn}>
-              <Text style={[s.btnTxt]}>Unblock</Text>
-            </View>
-          </TouchableOpacity>
-        );
-      }
-      if (userData.block_status == 0) {
-        return (
-          <TouchableOpacity onPress={() => block()}>
-            <View style={s.btn}>
-              <Text style={[s.btnTxt]}>Block</Text>
-            </View>
-          </TouchableOpacity>
-        );
-      }
-    }
-
-    return null;
+  const connectAccept = async connectId => {
+    setLoader(true);
+    axiosconfig
+      .get(`connect-accept/${connectId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(res => {
+        socketRequest(id, connectId, 'connect');
+        setRequest(false);
+        getData(true);
+        setLoader(false);
+      })
+      .catch(err => {
+        setLoader(false);
+        console.log(err);
+      });
   };
-  const renderConnectButton = () => {
-    console.log(userData, 'hellouser');
-    if (userData) {
-      if (userData.connected == 1) {
-        return (
-          <TouchableOpacity onPress={() => pending()}>
-            <View style={s.btn}>
-              <Text style={[s.btnTxt]}>Pending</Text>
-            </View>
-          </TouchableOpacity>
-        );
-      }
-      if (userData.connected == 2) {
-        return (
-          <TouchableOpacity onPress={() => Disconnect()}>
-            <View style={s.btn}>
-              <Text style={[s.btnTxt]}>Connected</Text>
-            </View>
-          </TouchableOpacity>
-        );
-      }
-      if (userData.connected == 0) {
-        return (
-          <TouchableOpacity onPress={() => connect()}>
-            <View style={s.btn}>
-              <Text style={[s.btnTxt]}>Connect</Text>
-            </View>
-          </TouchableOpacity>
-        );
-      }
-    }
-
-    return null;
+  const connectDecline = async connectId => {
+    setLoader(true);
+    axiosconfig
+      .get(`connect-remove/${connectId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(res => {
+        socketRequest(id, connectId, 'disconnect');
+        setRequest(false);
+        getData(true);
+        setLoader(false);
+      })
+      .catch(err => {
+        setLoader(false);
+        console.log(err);
+      });
   };
   return loader ? (
     <Loader />
@@ -319,8 +298,22 @@ const ViewUser = ({navigation, route}) => {
           {userData && (
             <>
               {userData.block_status === 0 ? (
+                userData.connected === 2 && userData.accept === 0 ? (
+                  <View>
+                  <TouchableOpacity onPress={() => connectAccept(Userid)}>
+                    <View style={s.btn}>
+                      <Text style={[s.btnTxt]}>Accept</Text>
+                    </View>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => connectDecline(Userid)}>
+                    <View style={s.btn}>
+                      <Text style={[s.btnTxt]}>Decline</Text>
+                    </View>
+                  </TouchableOpacity>
+                  </View>
+                ) :
                 userData.connected === 2 ? (
-                  <TouchableOpacity onPress={() => pending()}>
+                  <TouchableOpacity disabled>
                     <View style={s.btn}>
                       <Text style={[s.btnTxt]}>Pending</Text>
                     </View>

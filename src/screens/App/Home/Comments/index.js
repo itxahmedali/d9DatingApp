@@ -28,7 +28,7 @@ const Comments = ({navigation, route}) => {
   const [comment, setComment] = useState('');
   const [commentID, setCommentID] = useState('');
   const [comments, setComments] = useState(data?.post_comments);
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
   const [userID, setUserID] = useState('');
   const [edit, setEdit] = useState(false);
   const [refresh, setRefresh] = useState(false);

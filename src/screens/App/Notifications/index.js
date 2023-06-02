@@ -1,9 +1,16 @@
-import {TouchableOpacity, Text, SafeAreaView, View, Image} from 'react-native';
+import {
+  TouchableOpacity,
+  Text,
+  SafeAreaView,
+  View,
+  Image,
+  ActivityIndicator,
+  FlatList,
+} from 'react-native';
 import React, {useEffect, useState, useRef} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
 import s from './style';
-import {FlatList} from 'react-native';
 import {ScrollView} from 'react-native';
 import Antdesign from 'react-native-vector-icons/AntDesign';
 import axiosconfig from '../../../Providers/axios';
@@ -11,20 +18,23 @@ import {useIsFocused} from '@react-navigation/native';
 import {Header, Loader} from '../../../Components/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
 import socket from '../../../utils/socket';
-import {dummyImage, socketRequest} from '../../../Constants/Index';
+import {dummyImage, socketRequest, width} from '../../../Constants/Index';
+import moment from 'moment';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Notifications = ({navigation, route}) => {
-  const dispatch = useDispatch();
   const flatListRef = useRef(null);
   const isFocused = useIsFocused();
   const theme = useSelector(state => state.reducer.theme);
   const {token, request, setRequest} = useAppContext(AppContext);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
   const [data, setData] = useState([]);
+  const [notificationdata, setNotificationData] = useState([]);
   const [response, setResponse] = useState('');
   const [index, setIndex] = useState('');
+  const [myData, setMyData] = useState('');
   useEffect(() => {
     setResponse('');
     getList(true);
@@ -33,28 +43,56 @@ const Notifications = ({navigation, route}) => {
     }
   }, [isFocused]);
   useEffect(() => {
-    const handleLike = ({postId, postUserId, myId}) => {};
-    socket.on('like', handleLike);
-    return () => {
-      socket.off('like', handleLike);
+    const getData = async () => {
+      const data = await AsyncStorage.getItem('userData');
+      setMyData(JSON.parse(data));
     };
-  }, [socket]);
-  useEffect(() => {
+    getData();
+
+    const handleLike = ({postId, postUserId, myId}) => {
+      console.log(postUserId, myData?.id, 'idssso flike');
+      if (postUserId == myData?.id) {
+        getNotification();
+      }
+    };
+
+    const handleSocketLike = ({postId, postUserId, myId}) => {
+      handleLike({postId, postUserId, myId});
+    };
+    const handleComment = ({postId, postUserId, myId}) => {
+      console.log(postUserId, myData?.id, 'idssso flike');
+      if (postUserId == myData?.id) {
+        getNotification();
+      }
+    };
+
+    const handleSocketComment = ({postId, postUserId, myId}) => {
+      handleComment({postId, postUserId, myId});
+    };
     const handleRequest = ({from, to, type}) => {
-      if (type == 'connect' || type == 'connectRequest') {
+      if (to == myData?.id && (type == 'connect' || type == 'connectRequest')) {
         getList(false);
       }
-      if (type == 'connectRequest') {
+      if (to == myData?.id && type == 'connectRequest') {
         if (request) {
           setRequest(false);
         }
       }
     };
-    socket.on('request', handleRequest);
-    return () => {
-      socket.off('request', handleRequest);
+
+    const handleSocketRequest = ({from, to, type}) => {
+      handleRequest({from, to, type});
     };
-  }, [socket]);
+    socket.on('request', handleSocketRequest);
+    socket.on('like', handleSocketLike);
+    socket.on('comment', handleSocketComment);
+
+    return () => {
+      socket.off('request', handleSocketRequest);
+      socket.off('like', handleSocketLike);
+      socket.off('comment', handleSocketComment);
+    };
+  }, [socket, myData]);
   const id = route?.params?.data?.id;
   const matchId = () => {
     data.map((v, index) => {
@@ -64,7 +102,6 @@ const Notifications = ({navigation, route}) => {
           flatListRef.current.scrollToIndex({index, animated: true});
         }
       } else {
-        console.log('false');
       }
     });
   };
@@ -78,28 +115,44 @@ const Notifications = ({navigation, route}) => {
     if (loader) {
       setLoader(true);
     }
-    axiosconfig
-      .get(`request-list`, {
+
+    try {
+      const res = await axiosconfig.get('request-list', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-      .then(res => {
-        setData(res?.data);
-        matchId();
-        if (loader) {
-          setLoader(false);
-        }
-      })
-      .catch(err => {
-        if (loader) {
-          setLoader(false);
-        }
-        console.log(err);
       });
+
+      const {data} = res;
+      setData(data);
+      matchId();
+      await getNotification();
+    } catch (err) {
+      if (loader) {
+        setLoader(false);
+      }
+      console.log(err);
+    }
+  };
+
+  const getNotification = async () => {
+    try {
+      const res = await axiosconfig.get('get-notification', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setNotificationData(res?.data);
+      console.log(res?.data, 'helloers');
+      setTimeout(() => {
+        setLoader(false);
+      }, 0);
+    } catch (err) {
+      setLoader(false);
+      console.log(err);
+    }
   };
   const connectAccept = async connectId => {
-    console.log('accept');
     setIndex(connectId);
     setLoader(true);
     axiosconfig
@@ -207,23 +260,64 @@ const Notifications = ({navigation, route}) => {
       </View>
     );
   };
+  const NotificationRenderItem = (notification, i) => {
+    return (
+      <View key={i} style={s.card}>
+        <View style={s.dp}>
+          <Image
+            source={{
+              uri: notification?.item?.users?.image
+                ? notification?.item?.users?.image
+                : dummyImage,
+            }}
+            style={s.dp1}
+            resizeMode={'cover'}
+          />
+        </View>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('ViewUser', {
+              screen: 'search',
+              post: {id: notification?.item?.users?.id},
+            });
+          }}
+          style={{flex: 1, alignSelf: 'center'}}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{flex: 1}}>
+              <Text style={[s.name, s.nameBold, {color: textColor}]}>
+                {notification?.item?.users?.name}{' '}
+                {notification?.item?.users?.last_name}
+              </Text>
+              <Text style={s.name1}>
+                {notification?.item?.type == 'Like'
+                  ? 'like your post'
+                  : 'comment on your post'}
+              </Text>
+            </View>
+            <Text style={s.name1}>{moment(notification?.item?.created_at).fromNow()}</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+  const renderEmptyComponent = () => {
+    return !data?.length ? (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <Text style={{color: 'white', fontSize: moderateScale(16, 0.1)}}>
+          No notifications
+        </Text>
+      </View>
+    ) : null;
+  };
   return loader ? (
     <Loader />
   ) : (
     <SafeAreaView style={{flex: 1, backgroundColor: color}}>
       <Header navigation={navigation} />
-      <View
-        style={[s.container, {backgroundColor: color}]}>
+      <View style={[s.container, {backgroundColor: color}]}>
         <View>
           <Text style={[s.HeadingText, {color: textColor}]}>Notifications</Text>
         </View>
-        <View style={s.txtView}>
-          <Text style={s.hTxt}>See New Activity</Text>
-        </View>
-        <View style={s.hView}>
-          <Text style={s.hTxt1}>This Week</Text>
-        </View>
-
         <FlatList
           ref={flatListRef}
           data={data}
@@ -231,6 +325,15 @@ const Notifications = ({navigation, route}) => {
           getItemLayout={getItemLayout}
           keyExtractor={(item, index) => String(index)}
           scrollEnabled={true}
+        />
+        <FlatList
+          ref={flatListRef}
+          data={notificationdata}
+          renderItem={NotificationRenderItem}
+          getItemLayout={getItemLayout}
+          keyExtractor={(item, index) => String(index)}
+          scrollEnabled={true}
+          ListEmptyComponent={renderEmptyComponent}
         />
       </View>
     </SafeAreaView>

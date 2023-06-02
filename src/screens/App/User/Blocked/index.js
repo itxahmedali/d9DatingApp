@@ -18,7 +18,7 @@ import {AppContext, useAppContext} from '../../../../Context/AppContext';
 import {dummyImage, getColor} from '../../../../Constants/Index';
 
 const Block = ({navigation}) => {
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
   const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
@@ -32,9 +32,7 @@ const Block = ({navigation}) => {
   }, [isFocused]);
 
   const unblock = async id => {
-    console.log('aaaa');
     setLoader(true);
-    console.log(token, 'hgh');
     await axiosconfig
       .get(`block/${id}`, {
         headers: {
@@ -43,7 +41,6 @@ const Block = ({navigation}) => {
         },
       })
       .then(res => {
-        console.log('block', res);
         block_list();
         setLoader(false);
       })
@@ -61,7 +58,6 @@ const Block = ({navigation}) => {
         },
       })
       .then(res => {
-        console.log('data', res.data);
         setData(res?.data);
         setLoader(false);
       })
@@ -71,7 +67,6 @@ const Block = ({navigation}) => {
       });
   };
   const renderItem = (elem, i) => {
-    console.log(elem.item, 'a');
     return (
       <View style={s.card}>
         <View style={[s.dp, {borderColor: getColor(elem?.item?.group)}]}>

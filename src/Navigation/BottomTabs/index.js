@@ -47,12 +47,36 @@ const BottomTabs = () => {
     const handleSocketRequest = ({from, to, type}) => {
       handleRequest({from, to, type});
     };
+    const handleLike = ({postId, postUserId, myId}) => {
+      console.log(postUserId, myData?.id, 'idssso flike');
+      if (postUserId == myData?.id) {
+        setRequest(true);
+      }
+    };
+
+    const handleSocketLike = ({postId, postUserId, myId}) => {
+      handleLike({postId, postUserId, myId});
+    };
+    const handleComment = ({postId, postUserId, myId}) => {
+      console.log(postUserId, myData?.id, 'idssso flike');
+      if (postUserId == myData?.id) {
+        setRequest(true);
+      }
+    };
+
+    const handleSocketComment = ({postId, postUserId, myId}) => {
+      handleComment({postId, postUserId, myId});
+    };
     socket.on('message', handleSocketMessage);
     socket.on('request', handleSocketRequest);
+    socket.on('like', handleSocketLike);
+    socket.on('comment', handleSocketComment);
 
     return () => {
       socket.off('message', handleSocketMessage);
       socket.off('request', handleSocketRequest);
+      socket.off('like', handleSocketLike);
+    socket.off('comment', handleSocketComment);
     };
   }, [socket, myData]);
   return (

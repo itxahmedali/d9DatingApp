@@ -37,8 +37,6 @@ export const captureImage = async (type, refRBSheet, setFilePath) => {
   let isStoragePermitted = await requestExternalWritePermission();
   if (isCameraPermitted || isStoragePermitted) {
     launchCamera(options, response => {
-      console.log('Response = ', response, setFilePath);
-
       if (response.didCancel) {
         alert('User cancelled camera picker');
         return;
@@ -55,7 +53,6 @@ export const captureImage = async (type, refRBSheet, setFilePath) => {
 
       convertImage(response.assets[0].uri, setFilePath);
       refRBSheet.current.close();
-      console.log(response, 'image');
     });
   }
 };
@@ -120,18 +117,12 @@ export const chooseFile = async (type, refRBSheet, setFilePath) => {
     },
   };
   launchImageLibrary(options, res => {
-    console.log('Response = ', res);
     if (res.didCancel) {
-      console.log('User cancelled image picker');
     } else if (res.error) {
-      console.log('ImagePicker Error: ', res.error);
     } else if (res.customButton) {
-      console.log('User tapped custom button: ', res.customButton);
       alert(res.customButton);
     } else {
       let source = res;
-      console.log(source.assets[0].uri, 'uri');
-
       convertImage(source.assets[0].uri, setFilePath);
       refRBSheet.current.close();
     }
@@ -162,7 +153,6 @@ export const socketRequest = (from, to, type) => {
   });
 };
 export const socketComment = (postId, postUserId, myId) => {
-  console.log(postId, postUserId, myId, 'comment');
   socket.emit('comment', {
     postId: postId,
     postUserId: postUserId,
@@ -179,7 +169,6 @@ export const socketMessage = (from, to, message, time, socketUniqueId) => {
   });
 };
 export const storeMsg = async (msg,token) => {
-  console.log('storing',msg,token)
   await axiosconfig.post('message_store', msg, {
       headers: {
         Authorization: `Bearer ${token}`,

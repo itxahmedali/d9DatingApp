@@ -110,7 +110,6 @@ const ProfileStack = () => {
       <Stack.Screen name="About" component={About} />
       <Stack.Screen name="Block" component={Block} />
       <Stack.Screen name="HiddenPosts" component={HiddenPosts} />
-      <Stack.Screen name="CreatePost" component={CreatePost} />
       <Stack.Screen name="Map" component={Map} />
       <Stack.Screen name="Login" component={Login} />
     </Stack.Navigator>

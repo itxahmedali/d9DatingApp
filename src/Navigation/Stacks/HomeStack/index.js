@@ -42,15 +42,20 @@ const HomeStack = () => {
       onRegister: function (token) {},
 
       onNotification: async (notification, props) => {
-        const userData = JSON.parse(notification.data?.userData);
-        console.log(notification,userData, 'hello notificatioon');
-        if (notification.data.screen == 'InnerChat') {
+        const userData = JSON.parse(notification?.data?.userData);
+        if (notification?.data?.screen == 'InnerChat') {
           navigator.navigate('MessageStack', {
             screen: 'InnerChat',
             params: {userData:userData}
           });
+        }
+        if (notification?.data?.screen == 'Notification') {
+          navigator.navigate('Notification', {
+            screen: 'Notification',
+            params: {userData:userData}
+          });
         } else {
-          RootNavigation.navigate(notification.data.screen, {
+          RootNavigation.navigate(notification?.data?.screen, {
             data: data,
           });
         }

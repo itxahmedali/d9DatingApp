@@ -20,9 +20,7 @@ import {Header, Loader} from '../../../Components/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
 
 const ChangePass = ({navigation, route}) => {
-  const dispatch = useDispatch();
   const screen = route?.params?.screen;
-  console.log(screen);
   const [email, setEmail] = useState(route.params.email);
   const [otp, setOtp] = useState(route.params.otp);
   const [password, setPassword] = useState(null);
@@ -39,7 +37,6 @@ const ChangePass = ({navigation, route}) => {
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
   const {token} = useAppContext(AppContext);
   const submit = () => {
-    console.log('submit');
     setSubmitted(false);
     let sub = false;
     if (confirmPassword == null || confirmPassword == '') {
@@ -62,13 +59,11 @@ const ChangePass = ({navigation, route}) => {
         email: email,
         password: password,
       };
-      console.log({data});
       if (screen == 'reset') {
         var data = {
           password: password,
         };
       } else {
-        console.log(email, otp);
         var data = {
           email: email,
           password: password,
@@ -91,7 +86,6 @@ const ChangePass = ({navigation, route}) => {
         )
         .then(res => {
           setLoader(false);
-          console.log(res?.data, 'change password data');
           Alert.alert(res?.data?.message);
           {
             screen == 'Reset'

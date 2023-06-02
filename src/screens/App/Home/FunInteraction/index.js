@@ -37,21 +37,16 @@ import {
 import {AppContext, useAppContext} from '../../../../Context/AppContext';
 import moment from 'moment';
 const FunInteraction = ({}) => {
-  const dispatch = useDispatch();
   const refRBSheet1 = useRef();
-  const scrollViewRef = useRef();
   const isFocused = useIsFocused();
-  const organizations = useSelector(state => state.reducer.organization);
   const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [postId, setPostId] = useState(null);
-  const [userId, setUserId] = useState(null);
   const [refresh, setRefresh] = useState(true);
   const [loader, setLoader] = useState(true);
-  const [miniLoader, setMiniLoader] = useState(false);
   const [publicPost, setPublicPost] = useState([]);
   const [text, setText] = useState(null);
   const [userID, setUserID] = useState('');
@@ -63,39 +58,14 @@ const FunInteraction = ({}) => {
   const [filtered, setFiltered] = useState(dataSource);
   const [searching, setSearching] = useState(false);
   const {token} = useAppContext(AppContext);
-  const [soc, setSoc] = useState(null);
   const navigation = useNavigation();
   const route = useRoute();
   const flatListRef = useRef(null);
   const postID = route?.params?.data?.id;
   useEffect(() => {
-    const socket = io(socket);
-    setSoc(socket);
-    setUserId(userID);
-    return () => {
-      socket.disconnect();
-      setSoc(null);
-      setUserId(null);
-    };
-  }, []);
-  useEffect(() => {
     getID();
   }, [isFocused]);
-  useEffect(() => {
-    const handleRequest = ({from, to, type}) => {
-      if (type == 'connect') {
-        getAllUsers(false);
-      }
-    };
-    socket.on('request', handleRequest);
-    return () => {
-      socket.off('request', handleRequest);
-    };
-  }, [socket]);
   const getAllUsers = async loader => {
-    if (loader) {
-      setLoader(true);
-    }
     try {
       const res = await axiosconfig.get('users-connect', {
         headers: {
@@ -106,10 +76,9 @@ const FunInteraction = ({}) => {
       const sourceData = [...res?.data?.friends, ...res?.data?.public];
       userList = sourceData;
       setDataSource(sourceData);
-      getPosts(loader ? true : false);
+      getPosts();
     } catch (err) {
       console.log(err);
-    } finally {
       setLoader(false);
     }
   };
@@ -125,12 +94,14 @@ const FunInteraction = ({}) => {
           Accept: 'application/json',
         },
       });
-      const postData = response?.data?.post_public;
-      setPublicPost(postData);
-      matchId(postData);
+      const postData = await response?.data?.post_public;
+      await setPublicPost(postData);
+      await matchId(postData);
+      await setTimeout(async () => {
+        await setLoader(false);
+      }, 0);
     } catch (err) {
       console.log(err);
-    } finally {
       setLoader(false);
     }
   };
@@ -141,7 +112,6 @@ const FunInteraction = ({}) => {
     getAllUsers();
   };
   const hitLike = async (id, userid, index) => {
-    setMiniLoader(true);
     await axiosconfig
       .get(`like/${id}`, {
         headers: {
@@ -151,17 +121,14 @@ const FunInteraction = ({}) => {
       })
       .then(res => {
         toggleLike(index);
-        setMiniLoader(false);
       })
       .catch(err => {
-        setMiniLoader(false);
         console.log(err);
       });
   };
   useEffect(() => {
     const handleLike = ({postId, postUserId, myId}) => {
       setPublicPost(prevPosts => {
-        console.log(prevPosts);
         return prevPosts.map(post => {
           if (post.id === postId) {
             const updatedPost = {...post};
@@ -178,7 +145,6 @@ const FunInteraction = ({}) => {
                 updatedPost.post_likes.splice(myLikesIndex, 1);
               }
               if (userList) {
-                console.log(userList, 'hellouserList here', 'hello');
                 userList?.map(user => {
                   if (user?.id == myId) {
                     updatedPost.post_likes.push({
@@ -237,7 +203,6 @@ const FunInteraction = ({}) => {
   };
 
   const toggleLike = index => {
-    // getPosts(false);
     setRefresh(!refresh);
   };
 
@@ -302,33 +267,31 @@ const FunInteraction = ({}) => {
   };
 
   const addComment = async (id, index) => {
-    setLoader(true);
-    if (!comment) {
-      setLoader(false);
-      return;
+    if (comment) {
+      setLoader(true);
+      const data = {
+        text: comment,
+        post_id: id,
+      };
+      await axiosconfig
+        .post(`comment_add`, data, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        })
+        .then(res => {
+          setComment('');
+          getPosts(true);
+          setRefresh(!refresh);
+          setLoader(false);
+        })
+        .catch(err => {
+          setLoader(false);
+          setComment('');
+          console.log(err);
+        });
     }
-    const data = {
-      text: comment,
-      post_id: id,
-    };
-    await axiosconfig
-      .post(`comment_add`, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        setComment('');
-        getPosts(true);
-        setRefresh(!refresh);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        setComment('');
-        console.log(err);
-      });
   };
 
   const deletePost = async id => {
@@ -568,7 +531,6 @@ const FunInteraction = ({}) => {
               marginBottom: moderateScale(5, 0.1),
             }}>
             <Text style={[s.name, {color: textColor}]}>
-              {/* {console.log(elem?.item?.user)} */}
               {elem?.item?.user?.name}
               {elem?.item?.user?.last_name}{' '}
               <Text style={[s.textRegular, {color: textColor}]}>
@@ -614,6 +576,7 @@ const FunInteraction = ({}) => {
               }
               InputRightElement={
                 <TouchableOpacity
+                  disabled={comment == ''}
                   onPress={() => {
                     addComment(elem?.item?.id, elem?.index);
                     socketComment(elem?.item?.id, elem?.item?.user_id, userID);

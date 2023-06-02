@@ -75,8 +75,6 @@ const Register = ({navigation}) => {
   const color = theme === 'dark' ? '#222222' : '#fff';
   const userLocation = useSelector(state => state.reducer.location);
   const [location, setLocation] = useState(userLocation);
-  console.log(FCMtoken, 'fcmToken');
-
   useEffect(() => {}, []);
   const onRadioBtnClick = item => {
     let updatedState = isSelected.map(isSelectedItem =>
@@ -86,7 +84,6 @@ const Register = ({navigation}) => {
     );
     setIsSelected(updatedState);
     setGender(item.name);
-    console.log(item.name);
   };
 
   const maxDate = new Date();
@@ -156,7 +153,6 @@ const Register = ({navigation}) => {
       .then(res => {
         if (modalVisible == false) {
           Alert.alert(res?.data?.message);
-          console.log(res, 'signup data ');
           setTimeout(() => {
             setModalVisible(!modalVisible);
           }, 3000);
@@ -173,13 +169,10 @@ const Register = ({navigation}) => {
       });
   };
   const fcmToken = token => {
-    console.log('fcm token');
     setLoader(true);
     var data = {
       device_token: FCMtoken,
     };
-    console.log(token, 'access token');
-    console.log(data, 'devive token data');
     axiosconfig
       .post('device-token', data, {
         headers: {
@@ -187,7 +180,6 @@ const Register = ({navigation}) => {
         },
       })
       .then(res => {
-        console.log(res, 'token');
         setLoader(false);
       })
       .catch(err => {
@@ -212,7 +204,6 @@ const Register = ({navigation}) => {
       date: date,
       type: 'user',
     };
-    console.log(data, 'data');
     axiosconfig
       .post('register', data)
       .then(res => {
@@ -256,7 +247,6 @@ const Register = ({navigation}) => {
     setM(month);
     setY(year);
     setD(dateex);
-    console.log(year, 'year');
     setDate(`${month}/${dateex}/${year}`);
 
     hideDatePicker();

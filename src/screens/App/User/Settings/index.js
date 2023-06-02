@@ -10,7 +10,7 @@ import {
 import React, {useEffect, useState, useRef} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
-import {settoken, setTheme, setExist} from '../../../../Redux/actions';
+import {setTheme, setExist} from '../../../../Redux/actions';
 import s from './style';
 import Inicon from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/MaterialIcons';
@@ -32,7 +32,7 @@ import { dummyImage } from '../../../../Constants/Index';
 
 const Settings = ({navigation, route}) => {
   const dispatch = useDispatch();
-  const {token} = useAppContext(AppContext);
+  const {token, setToken} = useAppContext(AppContext);
   const userData = useSelector(state => state.reducer.userData);
   const isFocused = useIsFocused();
   const theme = useSelector(state => state.reducer.theme);
@@ -49,14 +49,12 @@ const Settings = ({navigation, route}) => {
   const [showConfPass, setshowConfPass] = useState(true);
   const [loader, setLoader] = useState(false);
   const [submitted, setSubmitted] = useState();
-  const { setToken } = useAppContext(AppContext);
   useEffect(() => {}, []);
   const showToast = msg => {
     Alert.alert(msg);
   };
 
   const deleteAccount = async () => {
-    console.log('submit');
     setSubmitted(true);
     let sub = true;
 
@@ -70,7 +68,6 @@ const Settings = ({navigation, route}) => {
     }
 
     if (sub) {
-      console.log('avvv');
       const body = {
         old_password: password,
       };
@@ -81,13 +78,11 @@ const Settings = ({navigation, route}) => {
           },
         })
         .then(res => {
-          console.log(res);
-          console.log(res?.data?.message);
           alert(res?.data?.message);
           AsyncStorage.removeItem('token');
           AsyncStorage.removeItem('userData');
 
-          dispatch(settoken(null))
+          // dispatch(settoken(null))
           setToken(null)
         })
         .catch(err => {
@@ -107,7 +102,6 @@ const Settings = ({navigation, route}) => {
         },
       })
       .then(res => {
-        console.log('data', res?.data);
         dispatch(setTheme(theme));
         setLoader(false);
       })
@@ -118,7 +112,6 @@ const Settings = ({navigation, route}) => {
   };
 
   const LogoutApi = async () => {
-    console.log(token);
     setLoader(true);
     await axiosconfig
       .get('logout', {
@@ -132,7 +125,6 @@ const Settings = ({navigation, route}) => {
         let exist = await AsyncStorage.getItem('already');
         dispatch(setExist(exist));
         setToken(null)
-        console.log(res?.data, 'logoutToken');
       })
       .catch(err => {
         setLoader(false);
@@ -140,7 +132,8 @@ const Settings = ({navigation, route}) => {
       });
   };
   const clearToken = async () => {
-    dispatch(settoken(null));
+    // dispatch(settoken(null));
+    setToken(null)
     await AsyncStorage.removeItem('token');
     await AsyncStorage.removeItem('password');
   };
@@ -175,7 +168,6 @@ const Settings = ({navigation, route}) => {
         <View style={s.inputSection}>
           <TouchableOpacity
             onPress={() => {
-              console.log('hiii');
               navigation.navigate('Privacy');
             }}
             style={s.input}
@@ -490,11 +482,8 @@ const Settings = ({navigation, route}) => {
               onValueChange={() => {
                 setDarkMode(!darkMode);
                 if (theme === 'dark') {
-                  console.log('hi1');
                   setThemeApi('light');
                 } else {
-                  console.log('hi2');
-
                   setThemeApi('dark');
                 }
               }}

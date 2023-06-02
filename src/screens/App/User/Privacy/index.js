@@ -13,7 +13,7 @@ import axiosconfig from '../../../../Providers/axios';
 import { Header, Loader } from '../../../../Components/Index';
 import { AppContext, useAppContext } from '../../../../Context/AppContext';
 const Privacy = ({navigation}) => {
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
   const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
@@ -34,7 +34,6 @@ const Privacy = ({navigation}) => {
         },
       })
       .then(res => {
-        console.log('data', res.data);
         setLoader(false);
       })
       .catch(err => {
@@ -47,7 +46,6 @@ const Privacy = ({navigation}) => {
     const data = {
       privacy_option: post == 'Public' ? '1' : post == 'Friends' ? '2' : '3',
     };
-    console.log(data, 'dataa');
     await axiosconfig
       .post('post-privacy', data, {
         headers: {
@@ -56,7 +54,6 @@ const Privacy = ({navigation}) => {
         },
       })
       .then(res => {
-        console.log('data', res.data);
         setLoader(false);
       })
       .catch(err => {

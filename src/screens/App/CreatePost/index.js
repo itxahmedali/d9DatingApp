@@ -21,18 +21,11 @@ const CreatePost = ({navigation, route}) => {
   const organization = useSelector(state => state.reducer.organization);
 
   useEffect(() => {
-    console.log('sefsst', route?.params?.elem);
     if (privacy == '1') {
-      console.log(privacy, 'aaaaa');
-
       setStory('Public');
     } else if (privacy == '2') {
-      console.log(privacy, 'aaaaa');
-
       setStory('Friends');
-    } else {
-      console.log(privacy, 'aaaaa');
-
+    } else {s
       setStory('Only Me');
     }
   }, []);
@@ -109,7 +102,6 @@ const CreatePost = ({navigation, route}) => {
       alert('please write caption');
       return;
     } else if (filePath == '' || filePath == null) {
-      console.log('h11ea');
       alert('please select an image');
       return;
     } else {
@@ -123,7 +115,6 @@ const CreatePost = ({navigation, route}) => {
             ? route.params.elem.location
             : postLocation,
       };
-      console.log(data, 'dataaaa');
       setLoader(true);
       axiosconfig
         .post(
@@ -140,7 +131,6 @@ const CreatePost = ({navigation, route}) => {
         .then(res => {
           setLoader(false);
           alert(res?.data?.message);
-          console.log(res, 'post');
           setFilePath(null);
           setCaption(null);
           dispatch(setPostLocation(null));
@@ -149,7 +139,6 @@ const CreatePost = ({navigation, route}) => {
         })
         .catch(err => {
           setLoader(false);
-          console.log(err, 'aaa');
           Alert.alert(err?.response?.data?.message);
         });
     }
@@ -167,7 +156,6 @@ const CreatePost = ({navigation, route}) => {
   }, []);
 
   const getData = async () => {
-    console.log('get data ');
     let SP = await AsyncStorage.getItem('id');
     axiosconfig
       .get(`user_view/${SP}`, {
@@ -176,7 +164,6 @@ const CreatePost = ({navigation, route}) => {
         },
       })
       .then(res => {
-        console.log('data user', res?.data?.user_details);
         setUserData(res?.data?.user_details);
       })
       .catch(err => {
@@ -357,7 +344,6 @@ const CreatePost = ({navigation, route}) => {
                     if (route?.params?.from == 'Home') {
                       return;
                     } else {
-                      console.log('here');
                       refRBSheet.current.open();
                     }
                   }}>

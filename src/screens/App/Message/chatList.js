@@ -29,7 +29,7 @@ const Message = ({navigation, route}) => {
   const socketUsers = useSelector(state => state.reducer.socketUsers);
   const [userData, setUserData] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
   const [rooms, setRooms] = useState([]);
   const [user, setUser] = useState('');
   const organizations = useSelector(state => state.reducer.organization);
@@ -56,7 +56,6 @@ const Message = ({navigation, route}) => {
   useEffect(() => {
     const handleMessage =async ({from, to, message,time}) => {
       await getData()
-      console.log(from, to, message,userData?.id,uniqueId,  'hello user frorom');
       if (to == userData?.id || to == uniqueId) {
         latestMsg();
       }
@@ -94,7 +93,6 @@ const Message = ({navigation, route}) => {
         },
       })
       .then(res => {
-        console.log('getrooms', res?.data);
         setRooms(res.data);
         setLoader(false);
       })
@@ -114,21 +112,7 @@ const Message = ({navigation, route}) => {
     }
   }
 
-  const searchUserOnSocket = userData => {
-    let temp = {backendUser: userData, socketUser: {}};
-    setUser({backendUser: userData, socketUser: {}});
-    socketUsers.findLast((elem, index) => {
-      if (elem?.username == userData?.email) {
-        console.log('found', index);
-        temp = {backendUser: userData, socketUser: elem};
-        setUser({backendUser: userData, socketUser: elem});
-      }
-    });
-    handleCreateRoom(temp);
-  };
-
   const handleCreateRoom = user => {
-    console.log(user, 'handle');
     navigation.navigate('InnerChat', user);
     setModalVisible(false);
   };
@@ -171,7 +155,6 @@ const Message = ({navigation, route}) => {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              console.log(elem?.item);
               navigation.navigate('MessageStack', {
                 screen: 'InnerChat',
                 params: {userData: elem?.item},

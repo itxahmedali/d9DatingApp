@@ -21,7 +21,7 @@ import {dummyImage, getColor} from '../../../../Constants/Index';
 const Likes = ({navigation, route}) => {
   const organizations = useSelector(state => state.reducer.organization);
 
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
   const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';

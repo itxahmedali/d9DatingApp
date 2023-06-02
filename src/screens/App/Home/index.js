@@ -72,7 +72,7 @@ const Home = ({navigation, route}) => {
   const flatListRef = useRef(null);
   const isFocused = useIsFocused();
   const theme = useSelector(state => state.reducer.theme);
-  const {token} = useAppContext(AppContext);
+  const {token, storyLoader} = useAppContext(AppContext);
   const storyID = useSelector(state => state.reducer.storyID);
   const storiesData = useSelector(state => state.reducer.stories);
   const color = theme === 'dark' ? '#222222' : '#fff';
@@ -81,7 +81,7 @@ const Home = ({navigation, route}) => {
   const [refreshing, setRefreshing] = useState(false);
   const [myStories, setMyStories] = useState([]);
   const [storyCircle, setStoryCircle] = useState('green');
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
   const [posts, setPosts] = useState([]);
   const [userID, setUserID] = useState('');
   const [comment, setComment] = useState('');
@@ -99,12 +99,11 @@ const Home = ({navigation, route}) => {
   useEffect(() => {
     dispatch(setOrganization(Organization));
     getAllUsers();
-    getPosts(null,true);
+    getPosts(null, true);
     if (postID) {
-      getPosts(postID,true);
+      getPosts(postID, true);
     } else {
-      console.log('ssssssssss');
-      getPosts(null,true);
+      getPosts(null, true);
     }
     getStories();
     getID();
@@ -133,7 +132,6 @@ const Home = ({navigation, route}) => {
       users.forEach(user => {
         user.self = user.userID === socket.id;
       });
-      console.log(users, 'client');
       dispatch(addSocketUsers(users));
     });
   }, [socket]);
@@ -167,18 +165,13 @@ const Home = ({navigation, route}) => {
       });
   };
   const matchId = (postId, id) => {
-    console.log(id, 'postID');
-    console.log('avg', postId);
     postId.map((post, index) => {
-      console.log('post id', post.id, id);
       if (post.id == postID) {
         const matchedId = post.id;
-        console.log(matchedId, index, 'mat');
         if (index !== -1 && flatListRef.current) {
           flatListRef.current.scrollToIndex({index, animated: true});
         }
       } else {
-        console.log('false a');
       }
     });
   };
@@ -202,17 +195,14 @@ const Home = ({navigation, route}) => {
       });
 
       setPosts(response?.data?.post_friends);
-      console.log(response?.data?.post_friends);
-
       if (pid) {
         matchId(response?.data?.post_friends, pid);
       } else {
-        console.log('no data from params');
       }
 
       setOtherStoriesData(response?.data?.stories);
+      myStoryData(response?.data?.myStories);
     } catch (error) {
-      // Handle error
     } finally {
       if (loaderCondition) {
         setLoader(false);
@@ -269,8 +259,7 @@ const Home = ({navigation, route}) => {
         },
       })
       .then(res => {
-        console.log('Post hide', res.data);
-        getPosts(null,true);
+        getPosts(null, true);
         setLoader(false);
       })
       .catch(err => {
@@ -315,9 +304,7 @@ const Home = ({navigation, route}) => {
           Accept: 'application/json',
         },
       })
-      .then(res => {
-        searchUserOnSocket(data);
-      })
+      .then(res => {})
       .catch(err => {
         setLoader(false);
       });
@@ -397,7 +384,7 @@ const Home = ({navigation, route}) => {
     getData();
     const handleRequest = ({from, to, type}) => {
       if (to == myData?.id && (type == 'connect' || type == 'disconnect')) {
-        getPosts(null,false);
+        getPosts(null, false);
       }
     };
 
@@ -410,14 +397,6 @@ const Home = ({navigation, route}) => {
       socket.off('request', handleSocketRequest);
     };
   }, [socket, myData]);
-  const searchUserOnSocket = user => {
-    socketUsers.findLast((elem, index) => {
-      if (elem?.username == user?.email) {
-        console.log('found', index);
-      }
-    });
-  };
-
   var lastTap = null;
   const handleDoubleTap = (id, index, data) => {
     const now = Date.now();
@@ -522,7 +501,9 @@ const Home = ({navigation, route}) => {
           colors: undefined,
           onDone: res => {
             convertToBase64(`file://${res}`);
-            let temp = storiesData[0].stories;
+            let temp = storiesData?.[0]?.stories
+              ? storiesData[0].stories
+              : storiesData;
             temp.push({
               id: storiesData[0]?.stories?.length + 1,
               url: `file://${res}`,
@@ -532,7 +513,7 @@ const Home = ({navigation, route}) => {
               url_readmore: 'https://github.com/iguilhermeluis',
               created: new Date(),
             });
-            setMyStories(temp);
+            // setMyStories(temp);
             dispatch(setStories([{...storiesData[0], stories: temp}]));
           },
           onCancel: () => {},
@@ -603,28 +584,28 @@ const Home = ({navigation, route}) => {
 
   const addComment = async (id, index) => {
     if (comment) {
-    setLoader(true);
-    const data = {
-      text: comment,
-      post_id: id,
-    };
-    await axiosconfig
-      .post(`comment_add`, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        setComment('');
-        // getPosts(null,true);
-        setRefresh(!refresh);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        setComment('');
-      });
+      setLoader(true);
+      const data = {
+        text: comment,
+        post_id: id,
+      };
+      await axiosconfig
+        .post(`comment_add`, data, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        })
+        .then(res => {
+          setComment('');
+          // getPosts(null,true);
+          setRefresh(!refresh);
+          setLoader(false);
+        })
+        .catch(err => {
+          setLoader(false);
+          setComment('');
+        });
     }
   };
 
@@ -697,16 +678,42 @@ const Home = ({navigation, route}) => {
           Accept: 'application/json',
         },
       })
-      .then(res => {
+      .then(async (res) => {
         Alert.alert(res?.data?.message);
-        getPosts(token,true);
-        setLoader(false);
+        await getPosts(token, true);
+        setTimeout(() => {
+          setLoader(false);
+        },0);
       })
       .catch(err => {
         setLoader(false);
       });
   };
-
+  const myStoryData = elem => {
+    console.log(elem, 'elemelem');
+    let temp = [
+      {
+        user_id: elem.id,
+        profile: elem.image ? elem?.image : dummyImage,
+        group: elem.organization,
+        username: elem.name + ' ' + elem.last_name,
+        title: elem.name + ' ' + elem.last_name,
+        stories: elem.user_stories.map(item => {
+          return {
+            id: item.id,
+            url: item.image,
+            type: 'image',
+            duration: 10,
+            isReadMore: true,
+            url_readmore: 'https://github.com/iguilhermeluis',
+            created: elem.created_at,
+          };
+        }),
+      },
+    ];
+    console.log(temp, 'temptemp');
+    setMyStories(temp);
+  };
   const deleteAlert = (title, text, id) => {
     Alert.alert(
       title,
@@ -967,6 +974,7 @@ const Home = ({navigation, route}) => {
               }
               InputRightElement={
                 <TouchableOpacity
+                disabled={comment == ''}
                   onPress={() => {
                     addComment(elem?.item?.id, elem?.index);
                     socketComment(elem?.item?.id, elem?.item?.user_id, userID);
@@ -1017,7 +1025,7 @@ const Home = ({navigation, route}) => {
             marginVertical: moderateScale(20, 0.1),
             flexDirection: 'row',
           }}>
-          {storiesData[0]?.stories?.length ? (
+          {myStories?.length ? (
             <View>
               <TouchableOpacity
                 onPress={() => {
@@ -1035,13 +1043,12 @@ const Home = ({navigation, route}) => {
                 />
               </TouchableOpacity>
               <Stories
-                data={storiesData}
+                data={myStories}
                 theme={theme}
-                deleteFunc={func =>
+                deleteFunc={() =>
                   deleteAlert(
                     'Delete Story',
                     'Are you sure you want to delete this story?',
-                    func,
                   )
                 }
                 color={storyCircle}

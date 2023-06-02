@@ -66,7 +66,6 @@ const messages = [
 const Chat = ({route}) => {
   const theme = useSelector(state => state.reducer.theme);
   const [userData, setUserData] = useState('');
-  console.log(route.params, 'id');
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState('');
 
@@ -77,7 +76,6 @@ const Chat = ({route}) => {
   const getData = async () => {
     const data = await AsyncStorage.getItem('userData');
     setUserData(JSON.parse(data));
-    console.log(userData, 'dtaatsa');
   };
 
   return (

@@ -15,7 +15,7 @@ const Help = ({navigation}) => {
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'dark' ? '#fff' : '#222222';
   const {token} = useAppContext(AppContext);
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
   const [fname, setFname] = useState(null);
   const [lastname, setLastname] = useState(null);
   const [email, setEmail] = useState(null);
@@ -30,7 +30,6 @@ const Help = ({navigation}) => {
 
   const getData = async () => {
     let SP = await AsyncStorage.getItem('id');
-    console.log(SP, 'id');
     setId(SP);
     setLoader(true);
     axiosconfig
@@ -40,7 +39,6 @@ const Help = ({navigation}) => {
         },
       })
       .then(res => {
-        console.log('data', JSON.stringify(res.data));
         if (res.data.user_details) {
           setFname(res?.data?.user_details?.name);
           setLastname(res?.data?.user_details?.last_name);
@@ -79,7 +77,6 @@ const Help = ({navigation}) => {
           },
         })
         .then(res => {
-          console.log('data', res.data);
           Alert.alert(res?.data?.message);
           setLoader(false);
           setTimeout(() => {

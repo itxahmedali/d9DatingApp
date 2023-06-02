@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   ActivityIndicator,
-  Dimensions,
   NativeTouchEvent,
   StyleSheet,
   View,
@@ -9,7 +8,6 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-import { WebView } from "react-native-webview";
 import Modal from "react-native-modalbox";
 import GestureRecognizer from "react-native-swipe-gestures";
 import Story from "./Story";
@@ -18,8 +16,7 @@ import Readmore from "./Readmore";
 import ProgressArray from "./ProgressArray";
 import { StoriesType, StoryType } from ".";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const SCREEN_WIDTH = Dimensions.get("window").width;
+import { width } from "../Constants/Index";
 
 type Props = {
   dataStories: StoriesType;
@@ -34,7 +31,7 @@ type Props = {
 
 const StoryContainer: React.FC<Props> = (props: Props) => {
   const { dataStories } = props;
-  const { stories = [] } = dataStories || {};
+  const { stories = [] }:any = dataStories || {};
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isModelOpen, setModel] = useState(false);
   const [isPause, setIsPause] = useState(false);
@@ -44,17 +41,13 @@ const StoryContainer: React.FC<Props> = (props: Props) => {
   const story = stories.length ? stories[currentIndex] : {};
   const { isReadMore }: StoryType = story || {};
 
-  // const onVideoLoaded = (length) => {
-  //   props.onVideoLoaded(length.duration);
-  // };
-
   useEffect(()=> {
 getID()
   },[])
 
   const changeStory = (evt: NativeTouchEvent) => {
 
-    if (evt.locationX > SCREEN_WIDTH / 2) {
+    if (evt.locationX > width / 2) {
       nextStory();
     } else {
       prevStory();
@@ -62,14 +55,13 @@ getID()
   };
 
    const getID = async () => {
-    const id = await AsyncStorage.getItem('id');
+    const id:any = await AsyncStorage.getItem('id');
     setUserID(id)
   };
   const nextStory = () => {
     if (stories.length - 1 > currentIndex) {
       setCurrentIndex(currentIndex + 1);
       setLoaded(false);
-      // setDuration(10);
     } else {
       setCurrentIndex(0);
       props.onStoryNext(false);
@@ -80,7 +72,6 @@ getID()
     if (currentIndex > 0 && stories.length) {
       setCurrentIndex(currentIndex - 1);
       setLoaded(false)
-      // setDuration(10);
     } else {
       setCurrentIndex(0);
       props.onStoryPrevious(false);
@@ -143,7 +134,6 @@ getID()
 
   const onSwipeUp = () => {
     if (!isModelOpen && isReadMore) {
-      // setModel(true);
     }
   };
 
@@ -222,8 +212,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     justifyContent: "flex-start",
-    alignItems: "center",
-    // paddingTop: 30,
+    alignItems: "center"
   },
   progressBarArray: {
     flexDirection: "row",

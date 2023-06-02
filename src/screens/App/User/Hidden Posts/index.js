@@ -29,7 +29,7 @@ const HiddenPosts = ({navigation, route}) => {
   const isFocused = useIsFocused();
   const {token} = useAppContext(AppContext);
   const [hiddenPosts, setHiddenPosts] = useState();
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
   const [userID, setUserID] = useState('');
   const [userData, setUserData] = useState('');
 
@@ -53,7 +53,6 @@ const HiddenPosts = ({navigation, route}) => {
         },
       })
       .then(res => {
-        console.log('Posts', res.data);
         setHiddenPosts(res?.data);
         setLoader(false);
       })
@@ -64,7 +63,6 @@ const HiddenPosts = ({navigation, route}) => {
   };
 
   const unhide = async id => {
-    console.log('get data');
     setLoader(true);
     let connected;
     await axiosconfig
@@ -74,7 +72,6 @@ const HiddenPosts = ({navigation, route}) => {
         },
       })
       .then(res => {
-        console.log('data', res.data);
         getPosts();
         setLoader(false);
       })

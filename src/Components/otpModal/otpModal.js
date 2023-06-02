@@ -62,7 +62,6 @@ const OTPModal = ({
             codeInputFieldStyle={s.underlineStyleBase}
             codeInputHighlightStyle={s.underlineStyleHighLighted}
             onCodeFilled={code => {
-              console.log(`Code is ${code}, you are good to go!`);
             }}
             onCodeChanged={code => {
               setOtp(code);

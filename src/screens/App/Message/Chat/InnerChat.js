@@ -69,7 +69,6 @@ const InnerChat = ({navigation, route}) => {
           },
         ]);
       }
-      console.log(chatMessages, 'messages');
     };
 
     const handleSocketMessage = ({from, to, message, time, socketUniqueId}) => {
@@ -328,6 +327,12 @@ const s = StyleSheet.create({
     padding: moderateScale(15, 0.1),
     backgroundColor: '#333232',
     borderRadius: moderateScale(5, 0.1),
+  },
+  textSmall1: {
+    fontSize: moderateScale(10, 0.1),
+    lineHeight: moderateScale(15, 0.1),
+    marginVertical: moderateScale(2, 0.1),
+    color: '#fff',
   },
 });
 export default InnerChat;

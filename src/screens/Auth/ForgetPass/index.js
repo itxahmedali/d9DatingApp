@@ -53,7 +53,6 @@ const ForgetPassword = ({navigation}) => {
     }
   };
   const OtpSubmit = () => {
-    console.log(email, otp);
     var data = {
       email: email,
       token: otp,
@@ -63,7 +62,6 @@ const ForgetPassword = ({navigation}) => {
       .post('otp_password', data)
       .then(res => {
         setLoader(false);
-        console.log(res, 'email');
         Alert.alert(res?.data);
         navigation.navigate('ChangePass', {email, otp});
       })

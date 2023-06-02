@@ -7,7 +7,7 @@ const PoppinsBold = '';
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: moderateScale(12, 0.1),
-    paddingBottom: moderateScale(70, 0.1),
+    paddingBottom: moderateScale(100, 0.1),
   },
   HeadingText: {
     fontSize: moderateScale(20, 0.1),
@@ -27,7 +27,6 @@ const styles = StyleSheet.create({
     lineHeight: moderateScale(18, 0.1),
   },
   dp: {
-    flex: 0.15,
     width: moderateScale(53, 0.1),
     height: moderateScale(53, 0.1),
     borderRadius: moderateScale(53 / 2, 0.1),

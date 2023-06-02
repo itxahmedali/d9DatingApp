@@ -28,7 +28,6 @@ const Message = ({navigation}) => {
         },
       })
       .then(res => {
-        console.log('All Users', JSON.stringify(res.data.public));
         setUsers(res.data.public);
       })
       .catch(err => {
@@ -45,7 +44,6 @@ const Message = ({navigation}) => {
         },
       })
       .then(res => {
-        console.log('data1', res.data);
         if (res.data.user_details) {
           setData(res.data.user_details);
         }
@@ -55,8 +53,6 @@ const Message = ({navigation}) => {
       });
   };
   useEffect(() => {
-    alert('hi');
-    console.log('abc');
     getId();
     getAllUsers();
   }, []);
@@ -73,7 +69,6 @@ const Message = ({navigation}) => {
 
   const getId = async () => {
     let SP = await AsyncStorage.getItem('id');
-    console.log(SP, 'SP');
     setid(SP);
   };
   function onChatPress(otherUser) {
@@ -92,7 +87,6 @@ const Message = ({navigation}) => {
     navigation.navigate('ChatRoom', {chatId, currentUser, otherUser});
   }
   const renderItem = (elem, i) => {
-    console.log(id, 'user');
     if (elem.item.id != id) {
       return (
         <View style={s.card}>

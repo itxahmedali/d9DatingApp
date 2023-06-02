@@ -34,7 +34,7 @@ const ChatFooter = ({message, setMessage, handleNewMessage}) => {
           />
         </View>
       </View>
-      <TouchableOpacity onPress={handleSendPress} style={s.sendBtn}>
+      <TouchableOpacity disabled={message == ''} onPress={handleSendPress} style={s.sendBtn}>
         <Inicon name="md-send" color="#8F8A8A" size={moderateScale(20, 0.1)} />
       </TouchableOpacity>
     </View>

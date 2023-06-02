@@ -85,7 +85,7 @@ const Profile = ({navigation, route}) => {
     image: '',
   };
 
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
   const [form, setForm] = useState(formData);
   const [isSelected, setIsSelected] = useState([
     {

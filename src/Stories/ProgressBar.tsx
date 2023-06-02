@@ -73,7 +73,6 @@ const ProgressBar = (props: Props) => {
         setStartTime(Date.now());
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.pause]);
 
   return (

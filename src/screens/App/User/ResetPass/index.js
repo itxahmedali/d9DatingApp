@@ -57,10 +57,8 @@ const Resetpass = ({navigation}) => {
         setLoader(false);
         if (res.data.error) {
           alert('invalid credentials');
-          console.log(res.data, 'invalid');
         } else {
           alert('password matched', res);
-          console.log(res.data, 'password ');
           navigation.navigate('ChangePass');
         }
       })

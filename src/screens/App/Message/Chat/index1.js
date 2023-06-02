@@ -31,9 +31,7 @@ const Chat = ({navigation, route}) => {
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const uid = route.params.id;
-  console.log('route data', route?.params);
   const renderItem = elem => {
-    console.log(elem);
     if (elem?.item.to === uid) {
       return (
         <View

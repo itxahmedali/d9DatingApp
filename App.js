@@ -30,7 +30,6 @@ const App = () => {
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
       authStatus === messaging.AuthorizationStatus.PROVISIONAL;
     if (enabled) {
-      console.log('Authorization status:', authStatus);
     }
   }
   const checkToken = async () => {
@@ -85,7 +84,6 @@ const App = () => {
           );
           if (status === RESULTS.GRANTED) {
             await AsyncStorage.setItem('permission', 'granted');
-            console.log('Notification permission already granted');
           } else {
             await requestNotificationPermission();
           }
@@ -152,7 +150,6 @@ const App = () => {
   }, []);
   const updateLastSeen = async () => {
     let tokens = await AsyncStorage.getItem('userToken');
-    console.log("hellosps", tokens);
     if (tokens) {
       await axiosconfig
         .post(
@@ -165,7 +162,6 @@ const App = () => {
           },
         )
         .then(res => {
-          console.log('last seen', res.data);
         })
         .catch(err => {
           console.log(err, 'last seen err1');
@@ -190,7 +186,6 @@ const App = () => {
   const setThemeMode = async () => {
     let SP = await AsyncStorage.getItem('id');
     let tokens = await AsyncStorage.getItem('userToken');
-    console.log("hellosps", tokens);
     axiosconfig
       .get(`user_view/${SP}`, {
         headers: {

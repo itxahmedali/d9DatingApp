@@ -1,5 +1,6 @@
 import {Dimensions, StyleSheet} from 'react-native';
 import {moderateScale} from 'react-native-size-matters';
+import { height } from '../../../Constants/Index';
 
 const Poppins = '';
 const PoppinsBold = '';
@@ -247,7 +248,7 @@ const styles = StyleSheet.create({
   funView: {
     position: 'absolute',
     right: 0,
-    top: moderateScale(90, 0.1),
+    bottom: moderateScale(height - 205, 0.1),
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: moderateScale(10, 0.1),

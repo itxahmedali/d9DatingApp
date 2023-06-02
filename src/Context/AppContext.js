@@ -15,6 +15,7 @@ export const AppProvider = ({children}) => {
   const [request, setRequest] = useState(false);
   const [messageAlert, setMessageAlert] = useState(false);
   const [uniqueId, setUniqueId] = useState(null);
+  const [storyLoader, setStoryLoader] = useState(null);
 
   useEffect(() => {
     async function fetchStoredValues() {
@@ -64,6 +65,8 @@ export const AppProvider = ({children}) => {
       setUniqueId,
       messageAlert,
       setMessageAlert,
+      storyLoader,
+      setStoryLoader,
     }),
     [
       token,
@@ -76,6 +79,8 @@ export const AppProvider = ({children}) => {
       setUniqueId,
       messageAlert,
       setMessageAlert,
+      storyLoader,
+      setStoryLoader,
     ],
   );
 
