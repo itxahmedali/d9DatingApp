@@ -61,6 +61,7 @@ const FunInteraction = ({}) => {
   const navigation = useNavigation();
   const route = useRoute();
   const flatListRef = useRef(null);
+  const [loadingStates, setLoadingStates] = useState({});
   const postID = route?.params?.data?.id;
   useEffect(() => {
     getID();
@@ -96,6 +97,7 @@ const FunInteraction = ({}) => {
       });
       const postData = await response?.data?.post_public;
       await setPublicPost(postData);
+      console.log(response);
       await matchId(postData);
       await setTimeout(async () => {
         await setLoader(false);
@@ -121,6 +123,10 @@ const FunInteraction = ({}) => {
       })
       .then(res => {
         toggleLike(index);
+        setLoadingStates(prevState => ({
+          ...prevState,
+          [id]: false,
+        }));
       })
       .catch(err => {
         console.log(err);
@@ -129,7 +135,7 @@ const FunInteraction = ({}) => {
   useEffect(() => {
     const handleLike = ({postId, postUserId, myId}) => {
       setPublicPost(prevPosts => {
-        return prevPosts.map(post => {
+        return prevPosts?.map(post => {
           if (post.id === postId) {
             const updatedPost = {...post};
             const likesIndex = updatedPost.post_likes.findIndex(
@@ -174,7 +180,7 @@ const FunInteraction = ({}) => {
   useEffect(() => {
     const handleComment = ({postId, postUserId, myId}) => {
       setPublicPost(prevPosts => {
-        return prevPosts.map(post => {
+        return prevPosts?.map(post => {
           if (post.id === postId) {
             const updatedPost = {...post};
             updatedPost.post_comments.push(myId);
@@ -207,7 +213,7 @@ const FunInteraction = ({}) => {
   };
 
   const matchId = postId => {
-    postId.map((post, index) => {
+    postId?.map((post, index) => {
       if (post.id == postID) {
         const matchedId = post.id;
         if (index !== -1 && flatListRef.current) {
@@ -257,12 +263,13 @@ const FunInteraction = ({}) => {
         },
       })
       .then(res => {
+        console.log(res,"hello hide res");
         getPosts(true);
         setLoader(false);
       })
       .catch(err => {
         setLoader(false);
-        console.log(err);
+        console.log(err,"hello hide res");
       });
   };
 
@@ -495,11 +502,22 @@ const FunInteraction = ({}) => {
           </TouchableWithoutFeedback>
           <TouchableOpacity
             onPress={() => {
+              setLoadingStates(prevState => ({
+                ...prevState,
+                [elem?.item?.id]: true,
+              }));
               hitLike(elem?.item?.id, elem?.item?.user_id, elem?.index);
               socketLike(elem?.item?.id, elem?.item?.user_id, userID);
             }}
             style={s.likes}>
-            <Text style={s.likesCount}> {elem?.item?.post_likes?.length}</Text>
+            {loadingStates[elem?.item?.id] ? (
+              <ActivityIndicator size="small" color={"yellow"}/>
+            ) : (
+              <Text style={s.likesCount}>
+                {' '}
+                {elem?.item?.post_likes?.length}
+              </Text>
+            )}
             <Icon
               name="heart"
               size={moderateScale(12, 0.1)}

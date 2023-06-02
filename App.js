@@ -131,7 +131,7 @@ const App = () => {
       } else {
         setTimeout(() => {
           SplashScreen.hide();
-        }, 1000);
+        }, 1500);
       }
     });
   }, []);
@@ -210,7 +210,7 @@ const App = () => {
         if (Platform.OS == 'android') {
           setTimeout(() => {
             SplashScreen.hide();
-          }, 1000);
+          }, 1500);
         }
         console.log('error', err);
       });

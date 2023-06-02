@@ -6,7 +6,6 @@ import {addUsers, addSocketUsers} from '../../../Redux/actions';
 import s from './style';
 import {FlatList} from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
-import {ScrollView} from 'react-native';
 import socket from '../../../utils/socket';
 import UserListModal from '../../../Components/userListModal';
 import axiosconfig from '../../../Providers/axios';
@@ -25,19 +24,14 @@ const Message = ({navigation, route}) => {
   const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
-  const users = useSelector(state => state.reducer.users);
-  const socketUsers = useSelector(state => state.reducer.socketUsers);
   const [userData, setUserData] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [loader, setLoader] = useState(true);
   const [rooms, setRooms] = useState([]);
-  const [user, setUser] = useState('');
-  const organizations = useSelector(state => state.reducer.organization);
   const [myData, setMyData] = useState('');
   useEffect(() => {
-    getData();
     userslist();
-    latestMsg();
+   
     setMessageAlert(false)
   }, [isFocused]);  
   useEffect(() => {
@@ -48,25 +42,30 @@ const Message = ({navigation, route}) => {
       dispatch(addSocketUsers(users));
     });
   }, []);
-
-  const getData = async () => {
-    const data = await AsyncStorage.getItem('userData');
-    setUserData(JSON.parse(data));
-  };
   useEffect(() => {
-    const handleMessage =async ({from, to, message,time}) => {
-      await getData()
+    const getData = async () => {
+      const data = await AsyncStorage.getItem('userData');
+      if(data){
+        setMyData(JSON.parse(data));
+      }
+    };
+    getData();
+
+    const handleMessage = ({from, to, message, time, socketUniqueId}) => {
       if (to == userData?.id || to == uniqueId) {
         latestMsg();
       }
     };
 
-    socket.on('message', handleMessage);
-
-    return () => {
-      socket.off('message', handleMessage);
+    const handleSocketMessage = ({from, to, message, time, socketUniqueId}) => {
+      handleMessage({from, to, message, time, socketUniqueId});
     };
-  }, [socket]);
+
+    socket.on('message', handleSocketMessage);
+    return () => {
+      socket.off('message', handleSocketMessage);
+    };
+  }, [socket, userData]);
   const userslist = async () => {
     setLoader(true);
     await axiosconfig
@@ -76,8 +75,8 @@ const Message = ({navigation, route}) => {
         },
       })
       .then(res => {
-        dispatch(addUsers(res.data.friends));
-        setLoader(false);
+        dispatch(addUsers(res?.data.friends));
+        latestMsg();
       })
       .catch(err => {
         setLoader(false);
@@ -93,7 +92,7 @@ const Message = ({navigation, route}) => {
         },
       })
       .then(res => {
-        setRooms(res.data);
+        setRooms(res?.data);
         setLoader(false);
       })
       .catch(err => {
@@ -179,7 +178,7 @@ const Message = ({navigation, route}) => {
           </TouchableOpacity>
           <View style={s.time}>
             <Text style={[s.textRegular, {color: textColor}]}>
-              {formatTimestamp(latest?.created_at)}
+              {moment(latest?.created_at).fromNow()}
             </Text>
           </View>
         </View>

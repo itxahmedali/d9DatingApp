@@ -1,9 +1,16 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { FlatList, Image, Modal, Text, TouchableOpacity, View } from 'react-native';
-const { CubeNavigationHorizontal } = require('react-native-3dcube-navigation');
+import React, {useRef, useState, useEffect} from 'react';
+import {
+  FlatList,
+  Image,
+  Modal,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+const {CubeNavigationHorizontal} = require('react-native-3dcube-navigation');
 import styles from './styles';
 import StoryContainer from './StoryContainer';
-import { AppContext, useAppContext } from '../Context/AppContext';
+import {AppContext, useAppContext} from '../Context/AppContext';
 import Loader from '../Components/Loader';
 
 const Stories = props => {
@@ -11,7 +18,7 @@ const Stories = props => {
   const [currentUserIndex, setCurrentUserIndex] = useState(0);
   const [currentScrollValue, setCurrentScrollValue] = useState(0);
   const [storyColor, setStoryColor] = useState('green');
-  const { storyLoader, setStoryLoader } = useAppContext(AppContext);
+  const {storyLoader, setStoryLoader} = useAppContext(AppContext);
   const modalScroll = useRef(null);
 
   useEffect(() => {
@@ -71,33 +78,44 @@ const Stories = props => {
         data={props.data}
         horizontal
         keyExtractor={item => item.title}
-        renderItem={({ item, index }) => (
-          <View style={styles.boxStory}>
-            <TouchableOpacity
-              onPress={() => {
-                if (props.setColorFun) {
-                  props.setColorFun('grey');
-                }
-                onStorySelect(index);
-                setStoryColor('grey');
-              }}
-            >
-              <View
-                style={[
-                  styles.superCircle,
-                  props.containerAvatarStyle,
-                  { borderColor: props.color ? props.color : storyColor },
-                ]}
-              >
-                <Image style={[styles.circle, props.avatarStyle]} source={{ uri: item.profile }} />
-              </View>
+        renderItem={({item, index}) => {
+          if (item.title) {
+            const titles = item.title
+              .split(' ')
+              .filter(title => title !== 'null');
+            const renderedTitles = titles.join(' ');
 
-              <Text style={[styles.title, props.titleStyle]}>
-                {item.title}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
+            return (
+              <View style={styles.boxStory}>
+                <TouchableOpacity
+                  onPress={() => {
+                    if (props.setColorFun) {
+                      props.setColorFun('grey');
+                    }
+                    onStorySelect(index);
+                    setStoryColor('grey');
+                  }}>
+                  <View
+                    style={[
+                      styles.superCircle,
+                      props.containerAvatarStyle,
+                      {borderColor: props.color ? props.color : storyColor},
+                    ]}>
+                    <Image
+                      style={[styles.circle, props.avatarStyle]}
+                      source={{uri: item.profile}}
+                    />
+                  </View>
+
+                  <Text style={[styles.title, props.titleStyle]}>
+                    {renderedTitles}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            );
+          }
+          return null;
+        }}
       />
       <Modal
         animationType="slide"
@@ -109,16 +127,14 @@ const Stories = props => {
             modalScroll?.current?.scrollTo?.(currentUserIndex, false);
           }
         }}
-        onRequestClose={onStoryClose}
-      >
+        onRequestClose={onStoryClose}>
         {storyLoader ? (
           <Loader />
         ) : (
           <CubeNavigationHorizontal
             callBackAfterSwipe={onScrollChange}
             ref={modalScroll}
-            style={styles.container}
-          >
+            style={styles.container}>
             {props.data.map((item, index) => (
               <StoryContainer
                 key={item.title}
@@ -127,6 +143,9 @@ const Stories = props => {
                 onStoryPrevious={onStoryPrevious}
                 dataStories={item}
                 isNewStory={index !== currentUserIndex}
+                textReadMore={props.textReadMore}
+                deleteFunc={props.deleteFunc}
+                navigation={props.navigation}
               />
             ))}
           </CubeNavigationHorizontal>

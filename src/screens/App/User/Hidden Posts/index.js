@@ -53,12 +53,13 @@ const HiddenPosts = ({navigation, route}) => {
         },
       })
       .then(res => {
+        console.log(res,"hello hide res");
         setHiddenPosts(res?.data);
         setLoader(false);
       })
       .catch(err => {
         setLoader(false);
-        console.log(err);
+        console.log(err,"hello hide res");
       });
   };
 

@@ -49,7 +49,7 @@ const BottomTabs = () => {
     };
     const handleLike = ({postId, postUserId, myId}) => {
       console.log(postUserId, myData?.id, 'idssso flike');
-      if (postUserId == myData?.id) {
+      if (postUserId == myData?.id && myId != myData?.id) {
         setRequest(true);
       }
     };
@@ -59,7 +59,7 @@ const BottomTabs = () => {
     };
     const handleComment = ({postId, postUserId, myId}) => {
       console.log(postUserId, myData?.id, 'idssso flike');
-      if (postUserId == myData?.id) {
+      if (postUserId == myData?.id && myId != myData?.id) {
         setRequest(true);
       }
     };

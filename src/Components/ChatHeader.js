@@ -9,7 +9,7 @@ import MaterialCIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Poppins, dummyImage, getColor, textColor} from '../Constants/Index';
 import {AppContext, useAppContext} from '../Context/AppContext';
 import {useSelector} from 'react-redux';
-
+import axiosconfig from '../Providers/axios';
 const ChatHeader = ({userData, getMessages, setLoader, navigation}) => {
   const {token} = useAppContext(AppContext);
   const theme = useSelector(state => state.reducer.theme);
@@ -24,10 +24,12 @@ const ChatHeader = ({userData, getMessages, setLoader, navigation}) => {
         },
       })
       .then(res => {
+        console.log(res);
         getMessages();
         setLoader(false);
       })
       .catch(err => {
+        console.log(err);
         setLoader(false);
       });
   };

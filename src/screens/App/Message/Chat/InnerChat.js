@@ -40,7 +40,9 @@ const InnerChat = ({navigation, route}) => {
   useEffect(() => {
     const getData = async () => {
       const data = await AsyncStorage.getItem('userData');
-      setMyData(JSON.parse(data));
+      if(data){
+        setMyData(JSON.parse(data));
+      }
     };
     getData();
 

@@ -51,6 +51,7 @@ import {
 import {Loader} from '../../../Components/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
 import moment from 'moment';
+import { ActivityIndicator } from 'react-native';
 
 const Organization = [
   {id: 'Alpha Phi Alpha Fraternity, Inc.', color: 'blue'},
@@ -96,6 +97,7 @@ const Home = ({navigation, route}) => {
   const socketUsers = useSelector(state => state.reducer.socketUsers);
   const postID = route?.params?.data?.id;
   const [myData, setMyData] = useState('');
+  const [loadingStates, setLoadingStates] = useState({});
   useEffect(() => {
     dispatch(setOrganization(Organization));
     getAllUsers();
@@ -250,6 +252,7 @@ const Home = ({navigation, route}) => {
       });
   };
   const hide = async id => {
+    console.log('hiding');
     setLoader(true);
     await axiosconfig
       .get(`post_action/${id}`, {
@@ -259,6 +262,7 @@ const Home = ({navigation, route}) => {
         },
       })
       .then(res => {
+        console.log(res,'hiding');
         getPosts(null, true);
         setLoader(false);
       })
@@ -304,7 +308,12 @@ const Home = ({navigation, route}) => {
           Accept: 'application/json',
         },
       })
-      .then(res => {})
+      .then(res => {
+        setLoadingStates(prevState => ({
+          ...prevState,
+          [id]: false,
+        }));
+      })
       .catch(err => {
         setLoader(false);
       });
@@ -894,11 +903,22 @@ const Home = ({navigation, route}) => {
           </TouchableWithoutFeedback>
           <TouchableOpacity
             onPress={() => {
+              setLoadingStates(prevState => ({
+                ...prevState,
+                [elem?.item?.id]: true,
+              }));
               hitLike(elem?.item?.id, elem?.index, elem?.item?.user);
               socketLike(elem?.item?.id, elem?.item?.user_id, userID);
             }}
             style={s.likes}>
-            <Text style={s.likesCount}> {elem?.item?.post_likes?.length}</Text>
+            {loadingStates[elem?.item?.id] ? (
+              <ActivityIndicator size="small" color={"yellow"}/>
+            ) : (
+              <Text style={s.likesCount}>
+                {' '}
+                {elem?.item?.post_likes?.length}
+              </Text>
+            )}
 
             <Icon
               name="heart"
@@ -1025,7 +1045,7 @@ const Home = ({navigation, route}) => {
             marginVertical: moderateScale(20, 0.1),
             flexDirection: 'row',
           }}>
-          {myStories?.length ? (
+          {myStories?.[0]?.stories?.length > 0 ? (
             <View>
               <TouchableOpacity
                 onPress={() => {
@@ -1045,10 +1065,11 @@ const Home = ({navigation, route}) => {
               <Stories
                 data={myStories}
                 theme={theme}
-                deleteFunc={() =>
+                deleteFunc={func =>
                   deleteAlert(
                     'Delete Story',
                     'Are you sure you want to delete this story?',
+                    func,
                   )
                 }
                 color={storyCircle}

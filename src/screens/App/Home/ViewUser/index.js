@@ -295,7 +295,7 @@ const ViewUser = ({navigation, route}) => {
               </View>
             </View>
           </View>
-          {userData && (
+          {userData && myData?.id != Userid && (
             <>
               {userData.block_status === 0 ? (
                 userData.connected === 2 && userData.accept === 0 ? (
