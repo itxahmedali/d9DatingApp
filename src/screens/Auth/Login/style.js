@@ -1,5 +1,6 @@
 import {StyleSheet} from 'react-native';
 import {moderateScale} from 'react-native-size-matters';
+import { width } from '../../../Constants/Index';
 const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
@@ -37,9 +38,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   btnText: {
-    lineHeight: moderateScale(20, 0.1),
-    fontSize: moderateScale(13, 0.1),
-    color: '#222222',
+    width:moderateScale(width / 2.5),
+    alignItems:'center',
+    paddingVertical:moderateScale(10)
   },
   forgetPass: {
     color: '#FFFFFF',

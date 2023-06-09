@@ -253,6 +253,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: moderateScale(10, 0.1),
+    zIndex:100
   },
   yellow: {
     alignItems: 'center',

@@ -5,14 +5,13 @@ import {moderateScale} from 'react-native-size-matters';
 import socket from '../utils/socket';
 import axiosconfig from '../Providers/axios';
 import moment from 'moment';
-export const emailReg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 export const passRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
 export const dummyImage =
   'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png';
 export const width = Dimensions.get('window').width;
 export const height = Dimensions.get('window').height;
-
+export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const Organization = [
   {id: 'Alpha Phi Alpha Fraternity, Inc.', color: 'blue'},
   {id: 'Alpha Kappa Alpha Sorority Inc.', color: 'green'},

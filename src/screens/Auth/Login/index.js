@@ -1,67 +1,31 @@
-import React, {useState, useEffect, useCallback} from 'react';
-import {
-  SafeAreaView,
-  Text,
-  View,
-  Keyboard,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {SafeAreaView, Text, View, TouchableOpacity} from 'react-native';
 import {Input, Button} from 'native-base';
 import {moderateScale} from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import Icon2 from 'react-native-vector-icons/Fontisto';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axiosconfig from '../../../provider/axios';
-import {Loader} from '../../../Components/Index';
-import socket from '../../../utils/socket';
+import {CustomButton, Loader} from '../../../Components/Index';
 import s from './style';
-import {height, width} from '../../../Constants/Index';
+import {emailRegex, height, width} from '../../../Constants/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
 import {theme} from '../../../Constants/Index';
-let userData = {
-  about_me: null,
-  block_status: 0,
-  connected: 0,
-  created_at: '2023-06-06T12:21:34.000000Z',
-  date: '6/06/2005',
-  date_login: '2023-06-07 07:27:08',
-  device_token:
-    'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
-  email: 'emilymartin9875@gmail.com',
-  email_verified_at: null,
-  gender: 'Female',
-  group: 'Omega Psi Phi Fraternity, Inc.',
-  id: 2,
-  image:
-    'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
-  last_name: 'martin',
-  location: null,
-  month: null,
-  name: 'Emily',
-  notify: '0',
-  otp: '8405',
-  phone_number: '+443334443333',
-  post_privacy: '1',
-  privacy_option: '1',
-  status: '1',
-  story_privacy: '00000000001',
-  theme_mode: null,
-  updated_at: '2023-06-07T07:29:02.000000Z',
-  year: null,
-};
 const Login = ({navigation}) => {
   // const FCMtoken = useSelector(state => state.reducer.fToken);
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
-  const {setToken, setUniqueId} = useAppContext(AppContext);
-  const [email, setEmail] = useState(null);
-  const [password, setPassword] = useState(null);
-  const [submitted, setSubmitted] = useState(false);
+  const {setToken, setLoading} = useAppContext(AppContext);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(true);
-  const [loader, setLoader] = useState(false);
+  const [disabled, setDisabled] = useState(true);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (email === '' || password === '') {
+      setDisabled(true);
+    } else {
+      setDisabled(false);
+    }
+  }, [email, password]);
 
   // const fcmToken = useCallback(
   //   token => {
@@ -84,64 +48,14 @@ const Login = ({navigation}) => {
   //   },
   //   [FCMtoken],
   // );
-
-  const onSignInUser = () => {
-    AsyncStorage.setItem('password', '123');
-    const id = '2';
-    AsyncStorage.setItem('id', id);
-    AsyncStorage.setItem('userUniqueId1', JSON.stringify(userData));
-    setUniqueId(id);
-    AsyncStorage.setItem('userToken', '123');
-    setToken('123');
+  const signIn = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setToken("true")
+      setLoading(false);
+    }, 1000);
   };
-  // const onSignInUser = useCallback(() => {
-  //   setSubmitted(false);
-  //   if (
-  //     email === null ||
-  //     email === '' ||
-  //     password === null ||
-  //     password === ''
-  //   ) {
-  //     setSubmitted(true);
-  //     return;
-  //   }
-
-  //   setLoader(true);
-  //   const data = {
-  //     email: email,
-  //     password: password,
-  //   };
-  //   Keyboard.dismiss();
-  //   axiosconfig
-  //     .post('login', data)
-  //     .then(res => {
-  //       AsyncStorage.setItem('password', password);
-  //       const id = res?.data?.userInfo.toString();
-  //       AsyncStorage.setItem('id', id);
-  //       AsyncStorage.setItem(
-  //         'userUniqueId1',
-  //         JSON.stringify(res?.data?.userInfo),
-  //       );
-  //       setUniqueId(id);
-  //       AsyncStorage.setItem('userToken', res?.data?.access_token);
-
-  //       fcmToken(res?.data?.access_token);
-  //       socket.auth = {username: email};
-  //       socket.connect();
-  //       // dispatch(setUserToken(res?.data?.access_token));
-  //       setToken(res?.data?.access_token);
-  //       setLoader(false);
-  //     })
-  //     .catch(err => {
-  //       console.log(err.response);
-  //       Alert.alert(err.response.data.message);
-  //       setLoader(false);
-  //     });
-  // }, [dispatch, email, password, fcmToken]);
-
-  return loader ? (
-    <Loader />
-  ) : (
+  return (
     <SafeAreaView style={{flex: 1, height: '100%'}}>
       <View
         style={{
@@ -178,22 +92,6 @@ const Login = ({navigation}) => {
               fontSize={moderateScale(14, 0.1)}
             />
           </View>
-          {submitted && (email == null || email === '') ? (
-            <>
-              <View
-                style={{
-                  alignSelf: 'flex-end',
-                  marginRight: moderateScale(35, 0.1),
-                }}>
-                <Text
-                  style={{
-                    color: 'red',
-                  }}>
-                  Required
-                </Text>
-              </View>
-            </>
-          ) : null}
           <View style={s.input}>
             <Input
               w={{
@@ -232,54 +130,16 @@ const Login = ({navigation}) => {
               secureTextEntry={showPass}
             />
           </View>
-          {submitted && (password == null || password === '') ? (
-            <>
-              <View
-                style={{
-                  alignSelf: 'flex-end',
-                  marginRight: moderateScale(35, 0.1),
-                }}>
-                <Text
-                  style={{
-                    color: 'red',
-                  }}>
-                  Required
-                </Text>
-              </View>
-            </>
-          ) : null}
-
           <View style={s.button}>
-            <Button
-              size="sm"
-              variant={'solid'}
-              _text={{
-                color: '#6627EC',
-              }}
-              backgroundColor={'#FFD700'}
+            <CustomButton
+              disabled={disabled}
+              backgroundColor={disabled ? 'grey' : '#FFD700'}
+              color="white"
               borderRadius={50}
-              w={moderateScale(140, 0.1)}
-              h={moderateScale(35, 0.1)}
-              alignItems={'center'}
-              onPressIn={async () => {
-                onSignInUser();
-              }}>
-              <Text style={s.btnText}>Login</Text>
-            </Button>
-          </View>
-
-          <View>
-            <Button
-              size="md"
-              variant={'link'}
-              onPressIn={() => navigation.navigate('ForgetPassword')}>
-              <View style={{flexDirection: 'row'}}>
-                <Text style={[s.forgetPass, {color: '#FFD700'}]}>Forgot </Text>
-                <Text style={[s.forgetPass, {color: Textcolor}]}>
-                  Password?
-                </Text>
-              </View>
-            </Button>
+              onPress={() => signIn()}
+              text="Login"
+              style={s.btnText}
+            />
           </View>
         </View>
 

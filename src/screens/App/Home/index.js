@@ -32,7 +32,7 @@ import RBSheet from 'react-native-raw-bottom-sheet';
 import RNFS from 'react-native-fs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosconfig from '../../../provider/axios';
-import {useIsFocused} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {
   dummyImage,
   getColor,
@@ -683,7 +683,7 @@ const Likes = [
     },
   },
 ];
-const Home = ({navigation, route}) => {
+const Home = ({route}) => {
   const refRBSheet = useRef();
   const refRBSheet1 = useRef();
   const flatListRef = useRef(null);
@@ -710,7 +710,7 @@ const Home = ({navigation, route}) => {
   const postID = route?.params?.data?.id;
   const [myData, setMyData] = useState('');
   const [loadingStates, setLoadingStates] = useState({});
-
+  const navigation = useNavigation()
   useEffect(() => {
     getAllUsers();
     getPosts(null, true);
@@ -1407,9 +1407,7 @@ const Home = ({navigation, route}) => {
     );
   };
 
-  return loader ? (
-    <Loader />
-  ) : (
+  return (
     <SafeAreaView style={{display: 'flex', flex: 1, backgroundColor: color}}>
       <View style={[s.container, s.col, {backgroundColor: color}]}>
         <ScrollView
@@ -1504,9 +1502,7 @@ const Home = ({navigation, route}) => {
 
         <TouchableOpacity
           style={s.funView}
-          onPress={() => {
-            navigation.navigate('FunInteraction');
-          }}>
+          onPress={() => console.log(navigation)}>
           <View style={[s.yellow, s.round]}>
             <Fun
               width={moderateScale(12, 0.1)}
