@@ -12,6 +12,7 @@ export const dummyImage =
   'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png';
 export const width = Dimensions.get('window').width;
 export const height = Dimensions.get('window').height;
+
 export const Organization = [
   {id: 'Alpha Phi Alpha Fraternity, Inc.', color: 'blue'},
   {id: 'Alpha Kappa Alpha Sorority Inc.', color: 'green'},
@@ -23,6 +24,8 @@ export const Organization = [
   {id: 'Zeta Phi Beta Sorority Inc.', color: 'purple'},
   {id: 'Iota Phi Theta Fraternity, Inc.', color: 'blue'},
 ];
+
+export const theme = 'dark';
 export const captureImage = async (type, refRBSheet, setFilePath) => {
   let options = {
     mediaType: type,
@@ -56,6 +59,7 @@ export const captureImage = async (type, refRBSheet, setFilePath) => {
     });
   }
 };
+
 const convertImage = async (image, setFilePath) => {
   await RNFS.readFile(image, 'base64')
     .then(res => {
@@ -165,11 +169,12 @@ export const socketMessage = (from, to, message, time, socketUniqueId) => {
     to: to,
     message: message,
     time: time,
-    socketUniqueId:socketUniqueId
+    socketUniqueId: socketUniqueId,
   });
 };
-export const storeMsg = async (msg,token) => {
-  await axiosconfig.post('message_store', msg, {
+export const storeMsg = async (msg, token) => {
+  await axiosconfig
+    .post('message_store', msg, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -178,7 +183,7 @@ export const storeMsg = async (msg,token) => {
       console.log('message send', res.data);
     })
     .catch(err => {
-      console.log(err)
+      console.log(err);
     });
 };
 export function formatTimestamp(timestamp) {

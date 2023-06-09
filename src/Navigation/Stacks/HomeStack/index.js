@@ -12,6 +12,7 @@ import PushNotification from 'react-native-push-notification';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import {Platform} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import Chat from '../../../screens/App/Message/Chat/index';
 
 const Stack = createStackNavigator();
 
@@ -46,13 +47,13 @@ const HomeStack = () => {
         if (notification?.data?.screen == 'InnerChat') {
           navigator.navigate('MessageStack', {
             screen: 'InnerChat',
-            params: {userData:userData}
+            params: {userData: userData},
           });
         }
         if (notification?.data?.screen == 'Notification') {
           navigator.navigate('Notification', {
             screen: 'Notification',
-            params: {userData:userData}
+            params: {userData: userData},
           });
         } else {
           RootNavigation.navigate(notification?.data?.screen, {
@@ -81,6 +82,7 @@ const HomeStack = () => {
       <Stack.Screen name="Likes" component={Likes} />
       <Stack.Screen name="createPost" component={CreatePost} />
       <Stack.Screen name="Map" component={Map} />
+      <Stack.Screen name="Chat" component={Chat} />
     </Stack.Navigator>
   );
 };

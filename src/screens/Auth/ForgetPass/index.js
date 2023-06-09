@@ -4,72 +4,30 @@ import s from './style';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {Input, Button} from 'native-base';
 import {moderateScale} from 'react-native-size-matters';
-import {useDispatch, useSelector} from 'react-redux';
 import axiosconfig from '../../../provider/axios';
 import {emailReg} from '../../../Constants/Index';
 import {Header, OTPModal, Loader} from '../../../Components/Index';
+import {theme} from '../../../Constants/Index';
 
 const ForgetPassword = ({navigation}) => {
-  const dispatch = useDispatch();
   const [email, setEmail] = useState(null);
   const [validEmail, setValidEmail] = useState('');
   const [loader, setLoader] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [submitted, setSubmitted] = useState();
   const [otp, setOtp] = useState();
-
-  const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
 
   const Reset = () => {
-    setSubmitted(true);
-    let sub = true;
-    if (email == null || email == '') {
-      sub = false;
-      return false;
-    }
-
-    if (sub) {
-      var data = {
-        email: email,
-      };
-      setLoader(true);
-      axiosconfig
-        .post('forgot', data)
-        .then(res => {
-          setLoader(false);
-          console.log(res);
-          Alert.alert(res?.data?.message);
-          setTimeout(() => {
-            setModalVisible(!modalVisible);
-          }, 3000);
-        })
-        .catch(err => {
-          setLoader(false);
-          console.log(err?.response, 'aaa');
-          Alert.alert(err?.response?.data?.message);
-        });
-    }
+    Alert.alert('check email');
+    setTimeout(() => {
+      setModalVisible(!modalVisible);
+    }, 3000);
   };
   const OtpSubmit = () => {
-    var data = {
-      email: email,
-      token: otp,
-    };
-    setLoader(true);
-    axiosconfig
-      .post('otp_password', data)
-      .then(res => {
-        setLoader(false);
-        Alert.alert(res?.data);
-        navigation.navigate('ChangePass', {email, otp});
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err?.response, 'aaa');
-        Alert.alert(err?.response?.data);
-      });
+    Alert.alert('valid code');
+    navigation.navigate('ChangePass', {email, otp});
   };
 
   return loader ? (

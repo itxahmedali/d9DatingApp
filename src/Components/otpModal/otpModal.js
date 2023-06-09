@@ -61,8 +61,7 @@ const OTPModal = ({
             autoFocusOnLoad={false}
             codeInputFieldStyle={s.underlineStyleBase}
             codeInputHighlightStyle={s.underlineStyleHighLighted}
-            onCodeFilled={code => {
-            }}
+            onCodeFilled={code => {}}
             onCodeChanged={code => {
               setOtp(code);
             }}
@@ -101,7 +100,9 @@ const OTPModal = ({
               w={moderateScale(140, 0.1)}
               h={moderateScale(35, 0.1)}
               alignItems={'center'}
-              onPressIn={() => submit()}>
+              onPressIn={() => {
+                console.log('resend');
+              }}>
               <Text style={[s.btnText, {color: '#222222'}]}>Resend</Text>
             </Button>
           </View>

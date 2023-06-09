@@ -1,13 +1,11 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
-import {useDispatch, useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
 import s from './style';
 import {Header, Loader} from '../../../../Components/Index';
+import {theme} from '../../../../Constants/Index';
 
 const About = ({navigation}) => {
-  const dispatch = useDispatch();
-  const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const [loader, setLoader] = useState(false);

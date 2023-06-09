@@ -1,6 +1,5 @@
 import {TouchableOpacity, Text, SafeAreaView, View, Image} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
 import s from './style';
 import {FlatList} from 'react-native';
 import {ScrollView} from 'react-native';
@@ -8,10 +7,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosconfig from '../../../Providers/axios';
 import firebase from 'firebase/app';
 import firestore from '@react-native-firebase/firestore';
-import { AppContext, useAppContext } from '../../../Context/AppContext';
+import {AppContext, useAppContext} from '../../../Context/AppContext';
+import {theme} from '../../../Constants/Index';
+
 const Message = ({navigation}) => {
-  const dispatch = useDispatch();
-  const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const {token} = useAppContext(AppContext);
@@ -19,58 +18,20 @@ const Message = ({navigation}) => {
   const [data, setData] = useState([]);
   const [id, setid] = useState(null);
 
-  const getAllUsers = async () => {
-    await axiosconfig
-      .get('users-connect', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        setUsers(res.data.public);
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  };
-  const getData = async () => {
-    let SP = await AsyncStorage.getItem('id');
-    setId(SP);
-    axiosconfig
-      .get(`user_view/${SP}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(res => {
-        if (res.data.user_details) {
-          setData(res.data.user_details);
-        }
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  };
+  const getAllUsers = async () => {};
+  const getData = async () => {};
   useEffect(() => {
     getId();
     getAllUsers();
   }, []);
 
-  useEffect(() => {
-    socket.on('users', users => {
-      users.forEach(user => {
-        user.self = user.userID === socket.id;
-      });
-
-      dispatch(addUsers(users));
-    });
-  }, []);
+  useEffect(() => {}, []);
 
   const getId = async () => {
     let SP = await AsyncStorage.getItem('id');
     setid(SP);
   };
+
   function onChatPress(otherUser) {
     const chatId = firestore().collection('chat').push().key;
 

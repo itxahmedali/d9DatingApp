@@ -17,6 +17,7 @@ import ProgressArray from "./ProgressArray";
 import { StoriesType, StoryType } from ".";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { width } from "../Constants/Index";
+import moment from "moment";
 
 type Props = {
   dataStories: StoriesType;
@@ -167,6 +168,7 @@ getID()
             user_id={dataStories.user_id}
             name={dataStories.username}
             profile={dataStories.profile}
+           
             datePublication={stories[currentIndex].created}
             onClosePress={props.onClose}
             navigation={props.navigation}

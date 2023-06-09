@@ -8,14 +8,45 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Input, Button} from 'native-base';
 import {Header, Loader} from '../../../../Components/Index';
 import {AppContext, useAppContext} from '../../../../Context/AppContext';
+import {theme} from '../../../../Constants/Index';
+
+const userDummy = {
+  about_me: 'my about info',
+  block_status: 0,
+  connected: 0,
+  created_at: '2023-06-06T12:21:34.000000Z',
+  date: '6/06/2005',
+  date_login: '2023-06-07 07:33:48',
+  device_token:
+    'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+  email: 'emilymartin9875@gmail.com',
+  email_verified_at: null,
+  gender: 'Female',
+  group: 'Omega Psi Phi Fraternity, Inc.',
+  id: 2,
+  image:
+    'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+  last_name: 'martin',
+  location: null,
+  month: null,
+  name: 'Emily',
+  notify: '0',
+  otp: '8405',
+  phone_number: '+443334443333',
+  post_privacy: '1',
+  privacy_option: '1',
+  status: '1',
+  story_privacy: '00000000001',
+  theme_mode: null,
+  updated_at: '2023-06-07T07:47:12.000000Z',
+  year: null,
+};
 
 const Help = ({navigation}) => {
-  const dispatch = useDispatch();
-  const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'dark' ? '#fff' : '#222222';
   const {token} = useAppContext(AppContext);
-  const [loader, setLoader] = useState(true);
+  const [loader, setLoader] = useState(false);
   const [fname, setFname] = useState(null);
   const [lastname, setLastname] = useState(null);
   const [email, setEmail] = useState(null);
@@ -29,28 +60,10 @@ const Help = ({navigation}) => {
   }, []);
 
   const getData = async () => {
-    let SP = await AsyncStorage.getItem('id');
-    setId(SP);
-    setLoader(true);
-    axiosconfig
-      .get(`user_view/${SP}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(res => {
-        if (res.data.user_details) {
-          setFname(res?.data?.user_details?.name);
-          setLastname(res?.data?.user_details?.last_name);
-          setEmail(res?.data?.user_details?.email);
-          setPhone(res?.data?.user_details?.phone_number);
-        }
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err);
-      });
+    setFname(userDummy?.name);
+    setLastname(userDummy?.last_name);
+    setEmail(userDummy?.email);
+    setPhone(userDummy?.phone_number);
   };
 
   const help = async () => {
@@ -78,13 +91,13 @@ const Help = ({navigation}) => {
         })
         .then(res => {
           Alert.alert(res?.data?.message);
-          setLoader(false);
+          // setLoader(false);
           setTimeout(() => {
             navigation.goBack();
           }, 2000);
         })
         .catch(err => {
-          setLoader(false);
+          // setLoader(false);
           console.log(err);
         });
     }
@@ -213,7 +226,10 @@ const Help = ({navigation}) => {
               h={moderateScale(35, 0.1)}
               alignItems={'center'}
               style={s.shadow}
-              onPress={() => help()}>
+              onPress={() => {
+                navigation.goBack();
+                console.log('Help');
+              }}>
               <Text style={{color: '#222222'}}>Send</Text>
             </Button>
           </View>

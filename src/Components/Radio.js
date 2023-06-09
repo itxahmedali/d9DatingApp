@@ -1,12 +1,10 @@
 import {StyleSheet, Text, View, TouchableOpacity, Platform} from 'react-native';
 import React, {useEffect} from 'react';
 import {moderateScale} from 'react-native-size-matters';
-import {useDispatch, useSelector} from 'react-redux';
-import {setTheme} from '../Redux/actions';
+import {theme} from '../Constants/Index';
 const poppins = '';
+
 const radio = ({onPress, selected, children}) => {
-  const theme = useSelector(state => state.reducer.theme);
-  const dispatch = useDispatch();
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
   return (
     <View style={styles.radioButtonContainer}>

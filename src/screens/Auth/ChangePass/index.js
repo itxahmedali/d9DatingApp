@@ -12,13 +12,13 @@ import Feather from 'react-native-vector-icons/Feather';
 import {Input, Button} from 'native-base';
 import {moderateScale} from 'react-native-size-matters';
 import Icon2 from 'react-native-vector-icons/Fontisto';
-import {useDispatch, useSelector} from 'react-redux';
+
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import axiosconfig from '../../../Providers/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Header, Loader} from '../../../Components/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
-
+import {theme} from '../../../Constants/Index';
 const ChangePass = ({navigation, route}) => {
   const screen = route?.params?.screen;
   const [email, setEmail] = useState(route.params.email);
@@ -29,77 +29,22 @@ const ChangePass = ({navigation, route}) => {
   const [showConfPass, setShowConfPass] = useState(true);
   const [submitted, setSubmitted] = useState();
   const [loader, setLoader] = useState(false);
-  const theme = useSelector(state => state.reducer.theme);
+
   const showToast = msg => {
     ToastAndroid.show(msg, ToastAndroid.LONG);
   };
   const color = theme === 'dark' ? '#222222' : '#fff';
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
   const {token} = useAppContext(AppContext);
+
   const submit = () => {
-    setSubmitted(false);
-    let sub = false;
-    if (confirmPassword == null || confirmPassword == '') {
-      setSubmitted(true);
-      sub = true;
-      return;
-    }
-    if (password == null || password == '') {
-      setSubmitted(true);
-      sub = true;
-      return;
-    }
-    if (password != confirmPassword) {
-      alert('password does not match');
-      return;
-    }
-    if (!sub) {
-      setLoader(true);
-      var data = {
-        email: email,
-        password: password,
-      };
-      if (screen == 'reset') {
-        var data = {
-          password: password,
-        };
-      } else {
-        var data = {
-          email: email,
-          password: password,
-          password_confirm: confirmPassword,
-          token: otp,
-        };
-      }
-      setLoader(true);
-      axiosconfig
-        .post(
-          screen == 'Reset' ? 'password_update' : 'reset',
-          data,
-          screen == 'Reset'
-            ? {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            : null,
-        )
-        .then(res => {
-          setLoader(false);
-          Alert.alert(res?.data?.message);
-          {
-            screen == 'Reset'
-              ? (AsyncStorage.setItem('password', password),
-                navigation.navigate('Settings'))
-              : (AsyncStorage.setItem('password', password),
-                navigation.navigate('Login'));
-          }
-        })
-        .catch(err => {
-          setLoader(false);
-          console.log(err.response, 'aaa');
-          alert(err?.response?.data?.message);
-        });
+    Alert.alert('password successfully changed');
+    {
+      screen == 'Reset'
+        ? (AsyncStorage.setItem('password', '123'),
+          navigation.navigate('Settings'))
+        : (AsyncStorage.setItem('password', '123'),
+          navigation.navigate('Login'));
     }
   };
 

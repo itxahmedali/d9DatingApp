@@ -9,7 +9,6 @@ import {
   FlatList,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
 import s from './style';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -19,18 +18,18 @@ import {Input, FormControl, Button} from 'native-base';
 import socket from '../../../../utils/socket';
 import io from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import {theme} from '../../../../Constants/Index';
 
 const Chat = ({navigation, route}) => {
   const [msg, setMsg] = useState([]);
   const [input, setInput] = useState('');
-  const dispatch = useDispatch();
   const data = route?.params;
   const [text, setText] = useState([]);
-  const theme = useSelector(state => state.reducer.theme);
+
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const uid = route.params.id;
+
   const renderItem = elem => {
     if (elem?.item.to === uid) {
       return (

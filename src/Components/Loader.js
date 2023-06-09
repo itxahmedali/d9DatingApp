@@ -1,16 +1,14 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {moderateScale} from 'react-native-size-matters';
-import {height, width} from '../Constants/Index';
-import { useSelector } from 'react-redux';
-import { ActivityIndicator } from 'react-native';
+import {height, theme, width} from '../Constants/Index';
+import {ActivityIndicator} from 'react-native';
 
 const Loader = () => {
-  const theme = useSelector(state => state.reducer.theme);
   const backgroundColor = theme === 'dark' ? '#000' : '#fff';
   return (
-    <View style={[styles.container,{backgroundColor: backgroundColor}]}>
-      <ActivityIndicator size='large' color='#FFD700'/>
+    <View style={[styles.container, {backgroundColor: backgroundColor}]}>
+      <ActivityIndicator size="large" color="#FFD700" />
     </View>
   );
 };

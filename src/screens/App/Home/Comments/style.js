@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   },
   chats: {
     fontSize: moderateScale(13, 0.1),
-    lineHeight: moderateScale(18, 0.1)
+    lineHeight: moderateScale(18, 0.1),
   },
   dp: {
     width: moderateScale(53, 0.1),
@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'grey',
     borderBottomWidth: moderateScale(1, 0.1),
     paddingVertical: moderateScale(10, 0.1),
+    marginBottom: moderateScale(5, 0.1),
   },
   name1: {
     fontSize: moderateScale(10, 0.1),

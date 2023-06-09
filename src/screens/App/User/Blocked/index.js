@@ -9,20 +9,82 @@ import {
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {moderateScale} from 'react-native-size-matters';
-import {useSelector} from 'react-redux';
 import axiosconfig from '../../../../Providers/axios';
 import s from './style';
 import {useIsFocused} from '@react-navigation/native';
 import {Header, Loader} from '../../../../Components/Index';
 import {AppContext, useAppContext} from '../../../../Context/AppContext';
 import {dummyImage, getColor} from '../../../../Constants/Index';
+import {theme} from '../../../../Constants/Index';
+
+const blocked = [
+  {
+    about_me: null,
+    block_status: 0,
+    connected: 0,
+    created_at: '2023-06-06T12:21:34.000000Z',
+    date: '6/06/2005',
+    date_login: '2023-06-07 07:27:08',
+    device_token:
+      'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+    email: 'emilymartin9875@gmail.com',
+    email_verified_at: null,
+    gender: 'Female',
+    group: 'Omega Psi Phi Fraternity, Inc.',
+    id: 5,
+    image: dummyImage,
+    last_name: 'Simmon',
+    location: null,
+    month: null,
+    name: 'Ava',
+    notify: '0',
+    otp: '8405',
+    phone_number: '+443334443333',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-07T07:29:02.000000Z',
+    year: null,
+  },
+  {
+    about_me: null,
+    block_status: 0,
+    connected: 0,
+    created_at: '2023-06-06T12:21:34.000000Z',
+    date: '6/06/2005',
+    date_login: '2023-06-07 07:27:08',
+    device_token:
+      'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+    email: 'emilymartin9875@gmail.com',
+    email_verified_at: null,
+    gender: 'Female',
+    group: 'Alpha Phi Alpha Fraternity, Inc.',
+    id: 8,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+    last_name: 'Marry',
+    location: null,
+    month: null,
+    name: 'Andy',
+    notify: '0',
+    otp: '8405',
+    phone_number: '+443334443333',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-07T07:29:02.000000Z',
+    year: null,
+  },
+];
 
 const Block = ({navigation}) => {
-  const [loader, setLoader] = useState(true);
-  const theme = useSelector(state => state.reducer.theme);
+  const [loader, setLoader] = useState(false);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
-  const organizations = useSelector(state => state.reducer.organization);
   const {token} = useAppContext(AppContext);
   const [data, setData] = useState([]);
   const isFocused = useIsFocused();
@@ -31,42 +93,14 @@ const Block = ({navigation}) => {
     block_list();
   }, [isFocused]);
 
-  const unblock = async id => {
-    setLoader(true);
-    await axiosconfig
-      .get(`block/${id}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(res => {
-        block_list();
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err, 'her');
-      });
-  };
+  const unblock = async id => {};
+
   const block_list = async () => {
-    setLoader(true);
-    axiosconfig
-      .get(`block-list`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(res => {
-        setData(res?.data);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err);
-      });
+    setData(blocked);
   };
+
   const renderItem = (elem, i) => {
+    console.log('dum', elem?.item?.group);
     return (
       <View style={s.card}>
         <View style={[s.dp, {borderColor: getColor(elem?.item?.group)}]}>

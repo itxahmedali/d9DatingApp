@@ -7,7 +7,6 @@ import {
   FlatList,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
-import {useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
 import s from './style';
 import {Menu, Pressable} from 'native-base';
@@ -20,16 +19,150 @@ import {useIsFocused} from '@react-navigation/native';
 import {Header, Loader} from '../../../../Components/Index';
 import {AppContext, useAppContext} from '../../../../Context/AppContext';
 import {dummyImage, getColor} from '../../../../Constants/Index';
+import moment from 'moment';
+import {theme} from '../../../../Constants/Index';
+
+const hiddenPostDummy = [
+  {
+    action: '0',
+    caption: 'public post',
+    created_at: '2023-06-07T06:59:09.000000Z',
+    id: 4,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686121149base64_image.png',
+    location: 'Dufferin St London',
+    post_comments: [[Object], [Object], [Object]],
+    post_likes: [[Object]],
+    privacy_option: '1',
+    status: '1',
+    updated_at: '2023-06-07T06:59:09.000000Z',
+    user: {
+      about_me: null,
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 07:27:08',
+      device_token:
+        'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T07:29:02.000000Z',
+      year: null,
+    },
+    user_id: '2',
+  },
+  {
+    action: '0',
+    caption: 'first post',
+    created_at: '2023-06-07T06:12:34.000000Z',
+    id: 3,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686118354base64_image.png',
+    location: '14 Red Lion Square',
+    post_comments: [],
+    post_likes: [],
+    privacy_option: '1',
+    status: '1',
+    updated_at: '2023-06-07T06:12:34.000000Z',
+    user: {
+      about_me: null,
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 07:27:08',
+      device_token:
+        'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T07:29:02.000000Z',
+      year: null,
+    },
+    user_id: '2',
+  },
+];
+const Likes = [
+  {
+    created_at: '2023-06-07T07:01:22.000000Z',
+    group: 'Omega Psi Phi Fraternity, Inc.',
+    id: 3,
+    image: null,
+    location: '2020 Amphitheatre Pkwy, Mountain View, CA 94043, USA',
+    post_id: '4',
+    status: '1',
+    updated_at: '2023-06-07T07:01:22.000000Z',
+    user_id: '2',
+    user_name: 'Emily',
+    users: {
+      about_me: 'my about info',
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 10:57:12',
+      device_token:
+        'fZYK_18WRRCK7bRQlIS0KC:APA91bEzzPVuCC0Jx-GbQA81cX8nfRgGQrhVDvpaphQxSBMLX2DSZj618DzwnKyAk9srilIQ4L6RtdpAYFGzuCMHfC2Y3g2gBbVESvPODUFG-7NzdJVmQA5pNS4ttkRZiKY7KQB_76B1',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T10:57:12.000000Z',
+      year: null,
+    },
+  },
+];
 
 const HiddenPosts = ({navigation, route}) => {
-  const organizations = useSelector(state => state.reducer.organization);
-  const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const isFocused = useIsFocused();
   const {token} = useAppContext(AppContext);
   const [hiddenPosts, setHiddenPosts] = useState();
-  const [loader, setLoader] = useState(true);
+  const [loader, setLoader] = useState(false);
   const [userID, setUserID] = useState('');
   const [userData, setUserData] = useState('');
 
@@ -44,42 +177,11 @@ const HiddenPosts = ({navigation, route}) => {
   };
 
   const getPosts = async () => {
-    setLoader(true);
-    await axiosconfig
-      .get('hide-post-list', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        console.log(res,"hello hide res");
-        setHiddenPosts(res?.data);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err,"hello hide res");
-      });
+    setHiddenPosts(hiddenPostDummy);
   };
 
   const unhide = async id => {
-    setLoader(true);
-    let connected;
-    await axiosconfig
-      .get(`post_action/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(res => {
-        getPosts();
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err);
-      });
+    getPosts();
   };
 
   const renderItem = elem => {
@@ -178,12 +280,12 @@ const HiddenPosts = ({navigation, route}) => {
         <View style={s.footer}>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('Likes', {data: elem?.item?.post_likes});
+              navigation.navigate('Likes', {data: Likes});
             }}
             style={{marginBottom: moderateScale(5, 0.1)}}>
             {elem?.item?.post_likes?.length ? (
               <Text style={[s.name, {color: textColor}]}>
-                {`Liked by ${elem?.item?.post_likes[0]?.user_name} ${elem?.item?.post_likes[0]?.last_name} `}
+                {`Liked by Ava Simmon`}
                 {elem?.item?.post_likes?.length - 1
                   ? `and ${elem?.item?.post_likes?.length - 1} other`
                   : null}
@@ -207,7 +309,7 @@ const HiddenPosts = ({navigation, route}) => {
 
           <View>
             <Text style={[s.textRegular, {color: 'grey', marginVertical: 0}]}>
-              {`${new Date(elem?.item?.created_at)}`}
+              {`${moment(elem?.item?.created_at).fromNow()}`}
             </Text>
           </View>
         </View>

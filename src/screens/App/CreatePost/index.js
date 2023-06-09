@@ -2,8 +2,6 @@ import {Text, View, Image, TouchableOpacity, Alert} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {moderateScale} from 'react-native-size-matters';
 import s from './style';
-import {setPostLocation} from '../../../Redux/actions';
-import {useSelector, useDispatch} from 'react-redux';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Button, Stack, Menu, Pressable, Input, ScrollView} from 'native-base';
@@ -13,24 +11,63 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useIsFocused} from '@react-navigation/native';
 import axiosconfig from '../../../provider/axios';
 import {Header, Loader} from '../../../Components/Index';
-import {captureImage, chooseFile, dummyImage, getColor} from '../../../Constants/Index';
+import {
+  captureImage,
+  chooseFile,
+  dummyImage,
+  getColor,
+} from '../../../Constants/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
+import {theme} from '../../../Constants/Index';
+
+const dummyData = {
+  about_me: null,
+  block_status: 0,
+  connected: 0,
+  created_at: '2023-06-06T12:21:34.000000Z',
+  date: '6/06/2005',
+  date_login: '2023-06-07 07:27:08',
+  device_token:
+    'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+  email: 'emilymartin9875@gmail.com',
+  email_verified_at: null,
+  gender: 'Female',
+  group: 'Omega Psi Phi Fraternity, Inc.',
+  id: 2,
+  image:
+    'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+  last_name: 'martin',
+  location: null,
+  month: null,
+  name: 'Emily',
+  notify: '0',
+  otp: '8405',
+  phone_number: '+443334443333',
+  post_privacy: '1',
+  privacy_option: '1',
+  status: '1',
+  story_privacy: '00000000001',
+  theme_mode: null,
+  updated_at: '2023-06-07T07:29:02.000000Z',
+  year: null,
+};
 
 const CreatePost = ({navigation, route}) => {
   const privacy = route?.params?.elem?.privacy_option;
-  const organization = useSelector(state => state.reducer.organization);
+
+  const [address, setaddress] = useState('');
 
   useEffect(() => {
     if (privacy == '1') {
       setStory('Public');
     } else if (privacy == '2') {
       setStory('Friends');
-    } else {s
+    } else {
+      s;
       setStory('Only Me');
     }
   }, []);
 
-  const theme = useSelector(state => state.reducer.theme);
   const [filePath, setFilePath] = useState(
     route?.params?.from == 'Home' || route?.params?.from == 'funInteraction'
       ? route?.params?.elem?.image
@@ -83,14 +120,8 @@ const CreatePost = ({navigation, route}) => {
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
   const color = theme === 'dark' ? '#222222' : '#fff';
   const {token} = useAppContext(AppContext);
-  const dispatch = useDispatch();
   const refRBSheet = useRef();
-  const postLocation = useSelector(state => state.reducer.postLocation);
-  const [location, setLocation] = useState(
-    route?.params?.from == 'Home' || route?.params?.from == 'funInteraction'
-      ? route?.params?.elem?.location
-      : 'Select Location....',
-  );
+  const [location, setLocation] = useState('');
   const [story, setStory] = useState(
     route?.params?.from == 'Home' || route?.params?.from == 'funInteraction'
       ? route?.params?.elem?.privacy_option
@@ -98,78 +129,18 @@ const CreatePost = ({navigation, route}) => {
   );
 
   const onsubmit = () => {
-    if (caption == '' || caption == null) {
-      alert('please write caption');
-      return;
-    } else if (filePath == '' || filePath == null) {
-      alert('please select an image');
-      return;
-    } else {
-      let data = {
-        image: filePath,
-        caption: caption,
-        privacy_option:
-          story == 'Public' ? '1' : story == 'Friends' ? '2' : '3',
-        location:
-          route?.params?.from == 'Home'
-            ? route.params.elem.location
-            : postLocation,
-      };
-      setLoader(true);
-      axiosconfig
-        .post(
-          route?.params?.from == 'Home'
-            ? `post_update/${route.params.elem.id}`
-            : 'post_store',
-          data,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        )
-        .then(res => {
-          setLoader(false);
-          alert(res?.data?.message);
-          setFilePath(null);
-          setCaption(null);
-          dispatch(setPostLocation(null));
-
-          navigation.navigate('Home');
-        })
-        .catch(err => {
-          setLoader(false);
-          Alert.alert(err?.response?.data?.message);
-        });
-    }
+    Alert.alert('Post uploaded');
+    navigation.navigate('Home');
   };
 
   useEffect(() => {
-    if (
-      route?.params?.from == 'Home' ||
-      route?.params?.from == 'funInteraction'
-    ) {
-      dispatch(setPostLocation(route?.params?.elem?.location));
-    }
-
     getData();
   }, []);
 
   const getData = async () => {
-    let SP = await AsyncStorage.getItem('id');
-    axiosconfig
-      .get(`user_view/${SP}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(res => {
-        setUserData(res?.data?.user_details);
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    setUserData(dummyData);
   };
+
   return loader ? (
     <Loader />
   ) : (
@@ -207,7 +178,7 @@ const CreatePost = ({navigation, route}) => {
                   borderWidth={moderateScale(1, 0.1)}
                   borderBottomColor={'grey'}
                   backgroundColor={color}
-                  top={moderateScale(24, 0.1)}
+                  // top={moderateScale(24, 0.1)}
                   borderColor={Textcolor}
                   trigger={triggerProps => {
                     return (
@@ -317,12 +288,12 @@ const CreatePost = ({navigation, route}) => {
           </View>
           <TouchableOpacity
             onPress={() => {
-              route?.params?.from == 'Home' ||
-              route?.params?.from == 'funInteraction'
-                ? null
-                : navigation.navigate('Map', {
-                    from: 'createPost',
-                  });
+              navigation.navigate('Map', {
+                address: address,
+                location: location,
+                setLocation: setLocation,
+                setaddress: setaddress,
+              });
             }}>
             <View style={[s.mText]}>
               <Text
@@ -332,7 +303,7 @@ const CreatePost = ({navigation, route}) => {
                   color: Textcolor,
                   fontSize: moderateScale(14, 0.1),
                 }}>
-                {postLocation ? postLocation : 'Enter location...'}
+                {address ? address : 'Enter location...'}
               </Text>
             </View>
           </TouchableOpacity>
@@ -406,23 +377,13 @@ const CreatePost = ({navigation, route}) => {
                     md: 'row',
                   }}
                   space={4}>
-                  <Button
-                    transparent
-                    style={s.capturebtn}
-                    onPress={() =>
-                      captureImage('photo', refRBSheet, setFilePath)
-                    }>
+                  <Button transparent style={s.capturebtn} onPress={() => {}}>
                     <View style={{flexDirection: 'row'}}>
                       <Ionicons name="camera" style={s.capturebtnicon} />
                       <Text style={s.capturebtntxt}>Open Camera</Text>
                     </View>
                   </Button>
-                  <Button
-                    transparent
-                    style={s.capturebtn}
-                    onPress={() =>
-                      chooseFile('photo', refRBSheet, setFilePath)
-                    }>
+                  <Button transparent style={s.capturebtn} onPress={() => {}}>
                     <View style={{flexDirection: 'row'}}>
                       <Ionicons
                         name="md-image-outline"

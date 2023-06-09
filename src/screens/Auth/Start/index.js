@@ -8,18 +8,18 @@ import {
   Animated,
   Platform,
 } from 'react-native';
-import {useSelector} from 'react-redux';
+
 import {Button} from 'native-base';
 import {moderateScale} from 'react-native-size-matters';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import {theme} from '../../../Constants/Index';
 import e1 from '../../../assets/images/png/as1.jpg';
 import e2 from '../../../assets/images/png/as2.jpg';
 import e3 from '../../../assets/images/png/as3.jpg';
 import e4 from '../../../assets/images/png/as4.jpg';
 import Logo from '../../../assets/images/png/logo.png';
+
 const StartScreen = ({navigation}) => {
-  const theme = useSelector(state => state.reducer.theme);
   const spinValue = useRef(new Animated.Value(0)).current;
   const transAnim = useRef(new Animated.Value(-100)).current;
   const circulate = useRef(new Animated.ValueXY({x: 70, y: 70})).current;
@@ -33,9 +33,18 @@ const StartScreen = ({navigation}) => {
   const circulate5 = useRef(new Animated.ValueXY({x: 140, y: 170})).current;
 
   useEffect(() => {
+    check();
     circulation();
     fadeIn();
   }, []);
+
+  const check = async () => {
+    const already = await AsyncStorage.getItem('already');
+    console.log('already', already);
+    if (already) {
+      navigation.navigate('Login');
+    }
+  };
 
   const fadeIn = () => {
     Animated.loop(

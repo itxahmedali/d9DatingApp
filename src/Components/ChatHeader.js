@@ -8,11 +8,11 @@ import Inicon from 'react-native-vector-icons/Ionicons';
 import MaterialCIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Poppins, dummyImage, getColor, textColor} from '../Constants/Index';
 import {AppContext, useAppContext} from '../Context/AppContext';
-import {useSelector} from 'react-redux';
+import {theme} from '../Constants/Index';
 import axiosconfig from '../Providers/axios';
+
 const ChatHeader = ({userData, getMessages, setLoader, navigation}) => {
   const {token} = useAppContext(AppContext);
-  const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const chatDlt = async () => {

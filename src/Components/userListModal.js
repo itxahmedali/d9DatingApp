@@ -12,12 +12,11 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {moderateScale} from 'react-native-size-matters';
-import {useDispatch, useSelector} from 'react-redux';
 import Inicon from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {addSocketUsers, addUsers} from '../Redux/actions';
-import { dummyImage, getColor } from '../Constants/Index';
+import {dummyImage, getColor, theme} from '../Constants/Index';
+
 const Poppins = '';
 const PoppinsBold = '';
 const Users = [
@@ -92,17 +91,11 @@ const UserListModal = ({
   navigation,
   handleCreateRoom,
 }) => {
-  const dispatch = useDispatch();
-  const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const [searchText, setSearchText] = useState('');
   const [searchedList, setSearchedList] = useState([]);
   const [user, setUser] = useState({});
-
-  const organization = useSelector(state => state.reducer.organization);
-  const users = useSelector(state => state.reducer.users);
-  const socketUsers = useSelector(state => state.reducer.socketUsers);
   const [disable, setDisable] = useState(false);
 
   useEffect(() => {
@@ -120,30 +113,9 @@ const UserListModal = ({
     setDisable(false);
   };
 
-  const filterUser = () => {
-    let temp = socketUsers.filter(elem => {
-      if (!elem.self) {
-        return elem;
-      }
-    });
-    dispatch(addSocketUsers(temp));
-  };
+  const filterUser = () => {};
 
-  const handleChange = text => {
-    setSearchText(text);
-    if (!text) {
-      clearData();
-    } else {
-      let searched = users.filter(item => {
-        let itm = `${item?.name} ${item?.last_name}`;
-        if (itm?.toLowerCase().trim().includes(text.toLowerCase().trim())) {
-          return item;
-        }
-      });
-
-      setSearchedList(searched);
-    }
-  };
+  const handleChange = text => {};
   const renderItem = (elem, i) => {
     return (
       <TouchableOpacity
@@ -152,7 +124,7 @@ const UserListModal = ({
           setSearchText(`${elem?.item?.name} ${elem?.item?.last_name}`);
           setDisable(true);
           setModalVisible(!modalVisible);
-          navigation.navigate('InnerChat', {userData:elem?.item});
+          navigation.navigate('InnerChat', {userData: elem?.item});
         }}>
         <View
           style={[
@@ -233,7 +205,7 @@ const UserListModal = ({
             />
           ) : (
             <FlatList
-              data={users}
+              data={[]}
               renderItem={renderItem}
               keyExtractor={(item, index) => String(index)}
               scrollEnabled={true}
@@ -277,7 +249,7 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: moderateScale(15, 0.1),
     textAlign: 'center',
-    fontSize: moderateScale(16, 0.1)
+    fontSize: moderateScale(16, 0.1),
   },
   list: {
     width: '100%',
@@ -324,6 +296,6 @@ const styles = StyleSheet.create({
     height: moderateScale(55, 0.1),
     borderRadius: moderateScale(55 / 2, 0.1),
     marginRight: moderateScale(20, 0.1),
-    borderWidth: 2
+    borderWidth: 2,
   },
 });

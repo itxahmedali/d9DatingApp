@@ -93,7 +93,10 @@ const Stories = props => {
                       props.setColorFun('grey');
                     }
                     onStorySelect(index);
-                    setStoryColor('grey');
+                    if(index==currentUserIndex){
+                      setStoryColor('grey');
+                    }
+                   
                   }}>
                   <View
                     style={[

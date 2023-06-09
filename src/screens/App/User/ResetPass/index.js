@@ -12,68 +12,40 @@ import Feather from 'react-native-vector-icons/Feather';
 import {Input, Button} from 'native-base';
 import {moderateScale} from 'react-native-size-matters';
 import Icon2 from 'react-native-vector-icons/Fontisto';
-import {useDispatch, useSelector} from 'react-redux';
 import axiosconfig from '../../../../provider/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Header, Loader} from '../../../../Components/Index';
+import {theme} from '../../../../Constants/Index';
 
 const Resetpass = ({navigation}) => {
-  const dispatch = useDispatch();
   const [password, setPassword] = useState('');
   const [showPass, setshowPass] = useState(true);
   const [loader, setLoader] = useState(false);
   const [storedPassword, setStorePassword] = useState('');
-  const theme = useSelector(state => state.reducer.theme);
-  const showToast = msg => {
-    ToastAndroid.show(msg, ToastAndroid.LONG);
-  };
   const color = theme === 'dark' ? '#222222' : '#fff';
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
+
   useEffect(() => {
     getPassword();
   }, []);
+
+  const showToast = msg => {
+    ToastAndroid.show(msg, ToastAndroid.LONG);
+  };
 
   const getPassword = async () => {
     let SP = await AsyncStorage.getItem('password');
     setStorePassword(SP);
   };
+
   const validate = () => {
-    if (password == storedPassword) {
-      navigation.navigate('ChangePass', {
-        screen: 'Reset',
-      });
-    } else {
-      Alert.alert('Password Incorrect');
-    }
-  };
-  const onsubmit = () => {
-    var data = {
-      password: 'admin123',
-    };
-    setLoader(true);
-    axiosconfig
-      .post('password_update', data)
-      .then(res => {
-        setLoader(false);
-        if (res.data.error) {
-          alert('invalid credentials');
-        } else {
-          alert('password matched', res);
-          navigation.navigate('ChangePass');
-        }
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err.response, 'aaa');
-        if (err.response.data.errors) {
-          for (const property in err.response.data.errors) {
-            alert(err.response.data.errors[property][0]);
-            return;
-          }
-        } else {
-          alert(err.response.data.message);
-        }
-      });
+    // if (password == storedPassword) {
+    navigation.navigate('ChangePass', {
+      screen: 'Reset',
+    });
+    // } else {
+    //   Alert.alert('Password Incorrect');
+    // }
   };
 
   return loader ? (

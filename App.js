@@ -6,8 +6,6 @@ import {NavigationContainer} from '@react-navigation/native';
 import {NativeBaseProvider, useToast} from 'native-base';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import MyStatusBar from './src/Components/StatusBar';
-import {useSelector, useDispatch} from 'react-redux';
-import {setTheme, setUserToken, setExist, setFToken} from './src/Redux/actions';
 import RNBootSplash from 'react-native-bootsplash';
 import BottomTabs from './src/Navigation/BottomTabs';
 import AuthStack from './src/Navigation/Stacks/AuthStack';
@@ -20,10 +18,39 @@ import {navigationRef} from './RootNavigation';
 import {AppState} from 'react-native';
 import {AppContext, AppProvider, useAppContext} from './src/Context/AppContext';
 
+const user_details = {
+  about_me: null,
+  block_status: 0,
+  connected: 0,
+  created_at: '2023-06-06T12:21:34.000000Z',
+  date: '6/06/2005',
+  date_login: '2023-06-07 07:27:08',
+  device_token:
+    'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+  email: 'emilymartin9875@gmail.com',
+  email_verified_at: null,
+  gender: 'Female',
+  group: 'Omega Psi Phi Fraternity, Inc.',
+  id: 2,
+  image:
+    'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+  last_name: 'martin',
+  location: null,
+  month: null,
+  name: 'Emily',
+  notify: '0',
+  otp: '8405',
+  phone_number: '+443334443333',
+  post_privacy: '1',
+  privacy_option: '1',
+  status: '1',
+  story_privacy: '00000000001',
+  theme_mode: null,
+  updated_at: '2023-06-07T07:29:02.000000Z',
+  year: null,
+};
+
 const App = () => {
-  const dispatch = useDispatch();
-  
-  const userToken = useSelector(state => state.reducer.userToken);
   async function requestUserPermission() {
     const authStatus = await messaging().requestPermission();
     const enabled =
@@ -32,12 +59,12 @@ const App = () => {
     if (enabled) {
     }
   }
-  const checkToken = async () => {
-    const fcmToken = await messaging().getToken();
-    if (fcmToken) {
-      dispatch(setFToken(fcmToken));
-    }
-  };
+  // const checkToken = async () => {
+  //   const fcmToken = await messaging().getToken();
+  //   if (fcmToken) {
+  //     dispatch(setFToken(fcmToken));
+  //   }
+  // };
 
   const requestNotificationPermission = async () => {
     try {
@@ -102,7 +129,6 @@ const App = () => {
     socket.on('disconnect', reason => {
       console.log('Socket disconnected');
       console.log('Reason:', reason);
-      updateLastSeen();
     });
     socket.on('error', error => {
       console.error('Socket error:', error);
@@ -117,8 +143,19 @@ const App = () => {
 
   useEffect(() => {
     requestUserPermission();
-    checkToken();
+    // checkToken();
   }, []);
+
+  useEffect(() => {}, []);
+
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
+  );
+};
+const AppContent = memo(() => {
+  const {token, setToken, setExist} = useAppContext(AppContext);
 
   useEffect(() => {
     const init = async () => {
@@ -136,103 +173,28 @@ const App = () => {
     });
   }, []);
 
-  useEffect(() => {
-    const handleAppStateChange = nextAppState => {
-      if (nextAppState === 'active') {
-        console.log('App is in the foreground');
-      } else {
-        console.log('App is in the background');
-        updateLastSeen();
-      }
-    };
-
-    AppState.addEventListener('change', handleAppStateChange);
-  }, []);
-  const updateLastSeen = async () => {
-    let tokens = await AsyncStorage.getItem('userToken');
-    if (tokens) {
-      await axiosconfig
-        .post(
-          `last-seen`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${JSON.parse(tokens)}`,
-            },
-          },
-        )
-        .then(res => {
-        })
-        .catch(err => {
-          console.log(err, 'last seen err1');
-        });
-    }
-  };
-
   const getToken = async () => {
     let token = await AsyncStorage.getItem('userToken');
     let exist = await AsyncStorage.getItem('already');
     let userData = await AsyncStorage.getItem('userData');
     userData = JSON.parse(userData);
-    dispatch(setExist(exist));
-    setThemeMode();
+    setExist(exist);
     if (token) {
       socket.auth = {username: userData?.email};
       socket.connect();
     }
-    dispatch(setUserToken(token));
+    setToken(token);
   };
-
-  const setThemeMode = async () => {
-    let SP = await AsyncStorage.getItem('id');
-    let tokens = await AsyncStorage.getItem('userToken');
-    axiosconfig
-      .get(`user_view/${SP}`, {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(tokens)}`,
-        },
-      })
-      .then(res => {
-        if (
-          res?.data?.user_details?.theme_mode == null ||
-          res?.data?.user_details?.theme_mode == '' ||
-          res?.data?.user_details?.theme_mode == 0
-        ) {
-          dispatch(setTheme('dark'));
-        } else {
-          dispatch(setTheme('light'));
-        }
-        if (Platform.OS == 'android') {
-          console.log('close splash');
-        }
-      })
-      .catch(err => {
-        if (Platform.OS == 'android') {
-          setTimeout(() => {
-            SplashScreen.hide();
-          }, 1500);
-        }
-        console.log('error', err);
-      });
-  };
-  return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
-  );
-};
-const AppContent = memo(() => {
-  const {token} = useAppContext(AppContext);
 
   return (
     <NativeBaseProvider>
-        <SafeAreaProvider>
-          <MyStatusBar backgroundColor="#000" barStyle="light-content" />
-            <NavigationContainer ref={navigationRef}>
-              {token === null ? <AuthStack /> : <BottomTabs />}
-            </NavigationContainer>
-        </SafeAreaProvider>
-      </NativeBaseProvider>
+      <SafeAreaProvider>
+        <MyStatusBar backgroundColor="#000" barStyle="light-content" />
+        <NavigationContainer ref={navigationRef}>
+          {token === null ? <AuthStack /> : <BottomTabs />}
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </NativeBaseProvider>
   );
 });
 export default App;

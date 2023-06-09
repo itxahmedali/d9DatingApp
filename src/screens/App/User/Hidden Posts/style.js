@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(50 / 2, 0.1),
     borderWidth: moderateScale(2, 0.1),
     marginHorizontal: moderateScale(15, 0.1),
+    marginVertical: moderateScale(3, 0.1),
   },
 
   smallDp: {
@@ -155,7 +156,7 @@ const styles = StyleSheet.create({
   textRegular: {
     fontSize: moderateScale(11, 0.1),
     lineHeight: moderateScale(15, 0.1),
-    marginVertical: moderateScale(5, 0.1)
+    marginVertical: moderateScale(5, 0.1),
   },
   img: {
     width: '100%',
@@ -261,7 +262,7 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(11, 0.1),
   },
   footer: {
-    marginHorizontal: moderateScale(10, 0.1),
+    marginHorizontal: moderateScale(15, 0.1),
     marginVertical: moderateScale(10, 0.1),
   },
   capturebtntxt: {

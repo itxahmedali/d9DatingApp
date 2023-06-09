@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import PhotoEditor from 'react-native-photo-editor';
 import React, {useState, useRef, useEffect} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
 import s from './style';
 import {Input, Button, Stack, Menu, Pressable} from 'native-base';
@@ -35,11 +34,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosconfig from '../../../provider/axios';
 import {useIsFocused} from '@react-navigation/native';
 import {
-  setOrganization,
-  setStories,
-  addSocketUsers,
-} from '../../../Redux/actions';
-import {
   dummyImage,
   getColor,
   requestCameraPermission,
@@ -51,8 +45,9 @@ import {
 import {Loader} from '../../../Components/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
 import moment from 'moment';
-import { ActivityIndicator } from 'react-native';
-
+import {ActivityIndicator} from 'react-native';
+import d1 from '../../../assets/images/png/ps1.jpg';
+import {theme} from '../../../Constants/Index';
 const Organization = [
   {id: 'Alpha Phi Alpha Fraternity, Inc.', color: 'blue'},
   {id: 'Alpha Kappa Alpha Sorority Inc.', color: 'green'},
@@ -65,24 +60,642 @@ const Organization = [
   {id: 'Iota Phi Theta Fraternity, Inc.', color: 'blue'},
 ];
 
+const mystory = {
+  about_me: null,
+  created_at: '2023-06-06T12:21:34.000000Z',
+  date: '6/06/2005',
+  date_login: '2023-06-07 07:27:08',
+  device_token:
+    'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+  email: 'emilymartin9875@gmail.com',
+  email_verified_at: null,
+  gender: 'Female',
+  group: 'Omega Psi Phi Fraternity, Inc.',
+  id: 2,
+  image:
+    'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+  last_name: 'martin',
+  location: null,
+  month: null,
+  name: 'Emily',
+  notify: '0',
+  otp: '8405',
+  phone_number: '+443334443333',
+  post_privacy: '1',
+  privacy_option: '1',
+  status: '1',
+  story_privacy: '00000000001',
+  theme_mode: null,
+  updated_at: '2023-06-07T07:29:02.000000Z',
+  user_stories: [
+    {
+      created_at: '2023-06-07T07:04:49.000000Z',
+      id: 3,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686121489base64_image.png',
+      privacy_option: '1',
+      status: '0',
+      swipe_text: 'Custom swipe text for this story',
+      updated_at: '2023-06-07T07:04:49.000000Z',
+      user_id: '2',
+    },
+    {
+      created_at: '2023-06-07T07:05:51.000000Z',
+      id: 4,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686121551base64_image.png',
+      privacy_option: '1',
+      status: '0',
+      swipe_text: 'Custom swipe text for this story',
+      updated_at: '2023-06-07T07:05:51.000000Z',
+      user_id: '2',
+    },
+  ],
+  year: null,
+};
+const allposts = [
+  {
+    action: '0',
+    caption: 'public post',
+    created_at: '2023-06-07T06:59:09.000000Z',
+    id: 4,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686121149base64_image.png',
+    location: 'Dufferin St London',
+    post_comments: [[Object], [Object], [Object]],
+    post_likes: [[Object]],
+    privacy_option: '1',
+    status: '1',
+    updated_at: '2023-06-07T06:59:09.000000Z',
+    user: {
+      about_me: null,
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 07:27:08',
+      device_token:
+        'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T07:29:02.000000Z',
+      year: null,
+    },
+    user_id: '2',
+  },
+  {
+    action: '0',
+    caption: 'first post',
+    created_at: '2023-06-07T06:12:34.000000Z',
+    id: 3,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686118354base64_image.png',
+    location: '14 Red Lion Square',
+    post_comments: [],
+    post_likes: [],
+    privacy_option: '1',
+    status: '1',
+    updated_at: '2023-06-07T06:12:34.000000Z',
+    user: {
+      about_me: null,
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 07:27:08',
+      device_token:
+        'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T07:29:02.000000Z',
+      year: null,
+    },
+    user_id: '2',
+  },
+];
+const funPostsdummy = [
+  {
+    action: '0',
+    caption: 'public post',
+    created_at: '2023-06-07T06:59:09.000000Z',
+    id: 4,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686121149base64_image.png',
+    location: 'Dufferin St London',
+    post_comments: [[Object], [Object], [Object]],
+    post_likes: [[Object]],
+    privacy_option: '1',
+    status: '1',
+    updated_at: '2023-06-07T06:59:09.000000Z',
+    user: {
+      about_me: null,
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 07:27:08',
+      device_token:
+        'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T07:29:02.000000Z',
+      year: null,
+    },
+    user_id: '2',
+  },
+  {
+    action: '0',
+    caption: 'first post',
+    created_at: '2023-06-07T06:12:34.000000Z',
+    id: 3,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686118354base64_image.png',
+    location: '14 Red Lion Square',
+    post_comments: [],
+    post_likes: [],
+    privacy_option: '1',
+    status: '1',
+    updated_at: '2023-06-07T06:12:34.000000Z',
+    user: {
+      about_me: null,
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 07:27:08',
+      device_token:
+        'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T07:29:02.000000Z',
+      year: null,
+    },
+    user_id: '2',
+  },
+  {
+    action: '0',
+    caption: 'Hii',
+    created_at: '2023-06-06T15:24:16.000000Z',
+    id: 2,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686065056base64_image.png',
+    location: 'C P West Manhattan',
+    post_comments: [],
+    post_likes: [],
+    privacy_option: '1',
+    status: '1',
+    updated_at: '2023-06-06T15:24:16.000000Z',
+    user: {
+      about_me: null,
+      created_at: '2023-06-06T15:00:12.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-06 16:27:20',
+      device_token:
+        'cydbRyXrTIac1T9wDKRogG:APA91bHyxSBNXeF7BxouxNc4vAij97kttA3T59YU-P2a7OYLKz8qUQ86hhfAeZfTpnnZgnZqh4NF-2c0paAALe56Sifx7oHDfdjU3h_E_aQokQyVojmPRzsvYDX_8nKs-w-I02bfuRHc',
+      email: 'aina@designprosuk.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Alpha Phi Alpha Fraternity, Inc.',
+      id: 4,
+      image: null,
+      last_name: 'James',
+      location: 'C P West Manhattan',
+      month: null,
+      name: 'Aina',
+      notify: '0',
+      otp: '3117',
+      phone_number: '+1',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-06T16:27:20.000000Z',
+      year: null,
+    },
+    user_id: '4',
+  },
+];
+const otherStoriesDummy = [
+  {
+    about_me: null,
+    created_at: '2023-06-06T12:21:34.000000Z',
+    date: '6/06/2005',
+    date_login: '2023-06-07 07:27:08',
+    device_token:
+      'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+    email: 'emilymartin9875@gmail.com',
+    email_verified_at: null,
+    gender: 'Female',
+    group: 'Iota Phi Theta Fraternity, Inc.',
+    id: 4,
+    image: dummyImage,
+    last_name: 'Simmon',
+    location: null,
+    month: null,
+    name: 'Ava',
+    notify: '0',
+    otp: '8405',
+    phone_number: '+443334443333',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-07T07:29:02.000000Z',
+    user_stories: [
+      {
+        created_at: '2023-06-07T07:04:49.000000Z',
+        id: 3,
+        image:
+          'https://designprosusa.com/the_night/storage/app/1686121489base64_image.png',
+        privacy_option: '1',
+        status: '0',
+        swipe_text: 'Custom swipe text for this story',
+        updated_at: '2023-06-07T07:04:49.000000Z',
+        user_id: '2',
+      },
+      {
+        created_at: '2023-06-07T07:05:51.000000Z',
+        id: 4,
+        image:
+          'https://designprosusa.com/the_night/storage/app/1686121551base64_image.png',
+        privacy_option: '1',
+        status: '0',
+        swipe_text: 'Custom swipe text for this story',
+        updated_at: '2023-06-07T07:05:51.000000Z',
+        user_id: '2',
+      },
+    ],
+    year: null,
+  },
+  {
+    about_me: null,
+    created_at: '2023-06-06T12:21:34.000000Z',
+    date: '6/06/2005',
+    date_login: '2023-06-07 07:27:08',
+    device_token:
+      'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+    email: 'emilymartin9875@gmail.com',
+    email_verified_at: null,
+    gender: 'Female',
+    group: 'Delta Sigma Theta Sorority Inc.',
+    id: 5,
+    image: dummyImage,
+    last_name: 'John',
+    location: null,
+    month: null,
+    name: 'Nick',
+    notify: '0',
+    otp: '8405',
+    phone_number: '+443334443333',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-07T07:29:02.000000Z',
+    user_stories: [
+      {
+        created_at: '2023-06-07T07:04:49.000000Z',
+        id: 3,
+        image:
+          'https://designprosusa.com/the_night/storage/app/1686121489base64_image.png',
+        privacy_option: '1',
+        status: '0',
+        swipe_text: 'Custom swipe text for this story',
+        updated_at: '2023-06-07T07:04:49.000000Z',
+        user_id: '2',
+      },
+      {
+        created_at: '2023-06-07T07:05:51.000000Z',
+        id: 4,
+        image:
+          'https://designprosusa.com/the_night/storage/app/1686121551base64_image.png',
+        privacy_option: '1',
+        status: '0',
+        swipe_text: 'Custom swipe text for this story',
+        updated_at: '2023-06-07T07:05:51.000000Z',
+        user_id: '2',
+      },
+    ],
+    year: null,
+  },
+  {
+    about_me: null,
+    created_at: '2023-06-06T12:21:34.000000Z',
+    date: '6/06/2005',
+    date_login: '2023-06-07 07:27:08',
+    device_token:
+      'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+    email: 'emilymartin9875@gmail.com',
+    email_verified_at: null,
+    gender: 'Female',
+    group: 'Sigma Gamma Rho Sorority Inc.',
+    id: 7,
+    image: dummyImage,
+    last_name: 'Marry',
+    location: null,
+    month: null,
+    name: 'Andy',
+    notify: '0',
+    otp: '8405',
+    phone_number: '+443334443333',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-07T07:29:02.000000Z',
+    user_stories: [
+      {
+        created_at: '2023-06-07T07:04:49.000000Z',
+        id: 3,
+        image:
+          'https://designprosusa.com/the_night/storage/app/1686121489base64_image.png',
+        privacy_option: '1',
+        status: '0',
+        swipe_text: 'Custom swipe text for this story',
+        updated_at: '2023-06-07T07:04:49.000000Z',
+        user_id: '2',
+      },
+      {
+        created_at: '2023-06-07T07:05:51.000000Z',
+        id: 4,
+        image:
+          'https://designprosusa.com/the_night/storage/app/1686121551base64_image.png',
+        privacy_option: '1',
+        status: '0',
+        swipe_text: 'Custom swipe text for this story',
+        updated_at: '2023-06-07T07:05:51.000000Z',
+        user_id: '2',
+      },
+    ],
+    year: null,
+  },
+];
+const dummyUser = {
+  about_me: null,
+  block_status: 0,
+  connected: 0,
+  created_at: '2023-06-06T12:21:34.000000Z',
+  date: '6/06/2005',
+  date_login: '2023-06-07 07:27:08',
+  device_token:
+    'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+  email: 'emilymartin9875@gmail.com',
+  email_verified_at: null,
+  gender: 'Female',
+  group: 'Omega Psi Phi Fraternity, Inc.',
+  id: 2,
+  image:
+    'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+  last_name: 'martin',
+  location: null,
+  month: null,
+  name: 'Emily',
+  notify: '0',
+  otp: '8405',
+  phone_number: '+443334443333',
+  post_privacy: '1',
+  privacy_option: '1',
+  status: '1',
+  story_privacy: '00000000001',
+  theme_mode: null,
+  updated_at: '2023-06-07T07:29:02.000000Z',
+  year: null,
+};
+const userslist = [
+  {
+    about_me: null,
+    created_at: '2023-06-06T15:00:12.000000Z',
+    date: '6/06/2005',
+    date_login: '2023-06-06 16:27:20',
+    device_token:
+      'cydbRyXrTIac1T9wDKRogG:APA91bHyxSBNXeF7BxouxNc4vAij97kttA3T59YU-P2a7OYLKz8qUQ86hhfAeZfTpnnZgnZqh4NF-2c0paAALe56Sifx7oHDfdjU3h_E_aQokQyVojmPRzsvYDX_8nKs-w-I02bfuRHc',
+    email: 'aina@designprosuk.com',
+    email_verified_at: null,
+    gender: 'Female',
+    group: 'Alpha Phi Alpha Fraternity, Inc.',
+    id: 4,
+    image: null,
+    last_name: 'James',
+    location: 'C P West Manhattan',
+    month: null,
+    name: 'Aina',
+    notify: '0',
+    otp: '3117',
+    phone_number: '+1',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-06T16:27:20.000000Z',
+    year: null,
+  },
+  {
+    about_me: null,
+    created_at: '2023-06-06T13:27:38.000000Z',
+    date: '6/06/1992',
+    date_login: '2023-06-06 15:17:51',
+    device_token:
+      'eHTkJdeDSb6FLKT_p7zLif:APA91bGcmu4pjgLJ4kNHDQ-50aaz0g42T1tuZQgFamW0K9yDuyczmxdkaQIu-xs2uyO0hhVUtZPzlCFZvrbR8SKsm18Ww_BsrVjziQzaMhCstjKjD6LFUOeHb475GJDonqNj1GOeQ3mN',
+    email: 'e.stone@designprosusa.com',
+    email_verified_at: null,
+    gender: 'Male',
+    group: 'Omega Psi Phi Fraternity, Inc.',
+    id: 3,
+    image: null,
+    last_name: 'Me',
+    location: 'London Greater London',
+    month: null,
+    name: 'Tester',
+    notify: '0',
+    otp: '2360',
+    phone_number: '+1',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-06T15:17:51.000000Z',
+    year: null,
+  },
+  {
+    about_me: null,
+    created_at: '2023-06-06T12:21:34.000000Z',
+    date: '6/06/2005',
+    date_login: '2023-06-07 07:33:48',
+    device_token:
+      'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+    email: 'emilymartin9875@gmail.com',
+    email_verified_at: null,
+    gender: 'Female',
+    group: 'Omega Psi Phi Fraternity, Inc.',
+    id: 2,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+    last_name: 'martin',
+    location: null,
+    month: null,
+    name: 'Emily',
+    notify: '0',
+    otp: '8405',
+    phone_number: '+443334443333',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-07T07:33:48.000000Z',
+    year: null,
+  },
+  {
+    about_me: null,
+    created_at: '2023-06-02T15:57:20.000000Z',
+    date: '6/02/2005',
+    date_login: '2023-06-02 15:57:53',
+    device_token:
+      'eRZHt3GHSpuMFYGrp_fjr-:APA91bHQq4L1AsH0l1TLjxNoEMVvtr2Z_HzvwrKNcP96E5RFncOKyL7-HQlY1S_jGj9lxR-IpMzIH1-y1r2TnxlW1kKlINIRIC1s_pbiI3KOD-U6fuk8dVW48z1VvBxP8FjDaMz8X6O4',
+    email: 'dominicxavier143@gmail.com',
+    email_verified_at: null,
+    gender: 'Male',
+    group: 'Zeta Phi Beta Sorority Inc.',
+    id: 1,
+    image: null,
+    last_name: 'Xavier',
+    location: 'London Greater London',
+    month: null,
+    name: 'Dominic',
+    notify: '0',
+    otp: '5347',
+    phone_number: '+1',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-02T15:57:53.000000Z',
+    year: null,
+  },
+];
+const Likes = [
+  {
+    created_at: '2023-06-07T07:01:22.000000Z',
+    group: 'Omega Psi Phi Fraternity, Inc.',
+    id: 3,
+    image: null,
+    location: '2020 Amphitheatre Pkwy, Mountain View, CA 94043, USA',
+    post_id: '4',
+    status: '1',
+    updated_at: '2023-06-07T07:01:22.000000Z',
+    user_id: '2',
+    user_name: 'Emily',
+    users: {
+      about_me: 'my about info',
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 10:57:12',
+      device_token:
+        'fZYK_18WRRCK7bRQlIS0KC:APA91bEzzPVuCC0Jx-GbQA81cX8nfRgGQrhVDvpaphQxSBMLX2DSZj618DzwnKyAk9srilIQ4L6RtdpAYFGzuCMHfC2Y3g2gBbVESvPODUFG-7NzdJVmQA5pNS4ttkRZiKY7KQB_76B1',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T10:57:12.000000Z',
+      year: null,
+    },
+  },
+];
 const Home = ({navigation, route}) => {
-  const dispatch = useDispatch();
-
   const refRBSheet = useRef();
   const refRBSheet1 = useRef();
   const flatListRef = useRef(null);
   const isFocused = useIsFocused();
-  const theme = useSelector(state => state.reducer.theme);
   const {token, storyLoader} = useAppContext(AppContext);
-  const storyID = useSelector(state => state.reducer.storyID);
-  const storiesData = useSelector(state => state.reducer.stories);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const [refresh, setRefresh] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [myStories, setMyStories] = useState([]);
   const [storyCircle, setStoryCircle] = useState('green');
-  const [loader, setLoader] = useState(true);
+  const [loader, setLoader] = useState(false);
   const [posts, setPosts] = useState([]);
   const [userID, setUserID] = useState('');
   const [comment, setComment] = useState('');
@@ -94,12 +707,11 @@ const Home = ({navigation, route}) => {
   const [funPostsData, setFunPostsData] = useState('');
   let userList = [];
   const {setLiked} = useAppContext(AppContext);
-  const socketUsers = useSelector(state => state.reducer.socketUsers);
   const postID = route?.params?.data?.id;
   const [myData, setMyData] = useState('');
   const [loadingStates, setLoadingStates] = useState({});
+
   useEffect(() => {
-    dispatch(setOrganization(Organization));
     getAllUsers();
     getPosts(null, true);
     if (postID) {
@@ -107,36 +719,14 @@ const Home = ({navigation, route}) => {
     } else {
       getPosts(null, true);
     }
-    getStories();
     getID();
     funPosts();
   }, [isFocused]);
 
   const getAllUsers = async () => {
-    setLoader(true);
-    await axiosconfig
-      .get('users-connect', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        const sourceData = [...res?.data?.friends, ...res?.data?.public];
-        userList = sourceData;
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    const sourceData = userslist;
+    userList = sourceData;
   };
-  useEffect(() => {
-    socket.on('users', users => {
-      users.forEach(user => {
-        user.self = user.userID === socket.id;
-      });
-      dispatch(addSocketUsers(users));
-    });
-  }, [socket]);
 
   useEffect(() => {
     getID();
@@ -149,22 +739,9 @@ const Home = ({navigation, route}) => {
   };
 
   const getData = async id => {
-    setLoader(true);
-    axiosconfig
-      .get(`user_view/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(res => {
-        setUserData(res?.data?.user_details);
-        const data = JSON.stringify(res?.data?.user_details);
-        AsyncStorage.setItem('userData', data);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-      });
+    setUserData(dummyUser);
+    const data = JSON.stringify(dummyUser);
+    AsyncStorage.setItem('userData', data);
   };
   const matchId = (postId, id) => {
     postId.map((post, index) => {
@@ -184,139 +761,51 @@ const Home = ({navigation, route}) => {
   });
 
   const getPosts = async (pid, loaderCondition) => {
-    if (loaderCondition) {
-      setLoader(true);
+    setPosts(allposts);
+    if (pid) {
+      matchId(allposts, pid);
     }
 
-    try {
-      const response = await axiosconfig.get('user_details', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      });
-
-      setPosts(response?.data?.post_friends);
-      if (pid) {
-        matchId(response?.data?.post_friends, pid);
-      } else {
-      }
-
-      setOtherStoriesData(response?.data?.stories);
-      myStoryData(response?.data?.myStories);
-    } catch (error) {
-    } finally {
-      if (loaderCondition) {
-        setLoader(false);
-      }
-    }
+    setOtherStoriesData(otherStoriesDummy);
+    myStoryData(mystory);
   };
 
   const funPosts = async () => {
-    setLoader(true);
-    await axiosconfig
-      .get('fun-interaction', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        setFunPostsData(res?.data?.post_public);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-      });
+    setFunPostsData(funPostsdummy);
   };
   const report = async repText => {
-    setLoader(true);
-    const data = {
-      post_id: postId,
-      text: repText,
-    };
-    await axiosconfig
-      .post('post-report', data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        getPosts(null, true);
-        refRBSheet1.current.close();
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-      });
+    refRBSheet1.current.close();
   };
-  const hide = async id => {
-    console.log('hiding');
-    setLoader(true);
-    await axiosconfig
-      .get(`post_action/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        console.log(res,'hiding');
-        getPosts(null, true);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err, 'hide error');
-      });
-  };
+  const hide = async id => {};
 
-  const setOtherStoriesData = data => {
+  const setOtherStoriesData = storiess => {
     let temp = [];
-
-    data?.forEach(elem => {
+    storiess?.forEach(data => {
       let tempelem = {
-        user_id: elem.id,
-        profile: elem.image ? elem?.image : dummyImage,
-        group: elem.organization,
-        username: elem.name + ' ' + elem.last_name,
-        title: elem.name + ' ' + elem.last_name,
-        stories: elem.stories.map(item => {
+        user_id: data.id,
+        profile: data.image ? data.image : dummyImage,
+        organization: data.group,
+        username: data.name + ' ' + data.last_name,
+        title: data.name + ' ' + data.last_name,
+        stories: data.user_stories.map(elem => {
           return {
-            id: item.story_id,
-            url: item.story_image,
+            id: elem.id,
+            url: elem.image,
             type: 'image',
             duration: 10,
             isReadMore: true,
             url_readmore: 'https://github.com/iguilhermeluis',
-            created: elem.created_at,
+            created: data.created_at,
           };
         }),
       };
       temp.push(tempelem);
     });
     setOtherStories(temp);
-    setLoader(false);
   };
 
   const hitLike = async (id, index, data) => {
-    await axiosconfig
-      .get(`like/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        setLoadingStates(prevState => ({
-          ...prevState,
-          [id]: false,
-        }));
-      })
-      .catch(err => {
-        setLoader(false);
-      });
+    console.log('like');
   };
 
   useEffect(() => {
@@ -385,6 +874,7 @@ const Home = ({navigation, route}) => {
       socket.off('comment', handleComment);
     };
   }, [socket]);
+
   useEffect(() => {
     const getData = async () => {
       const data = await AsyncStorage.getItem('userData');
@@ -407,6 +897,7 @@ const Home = ({navigation, route}) => {
     };
   }, [socket, myData]);
   var lastTap = null;
+
   const handleDoubleTap = (id, index, data) => {
     const now = Date.now();
     const DOUBLE_PRESS_DELAY = 300;
@@ -416,121 +907,41 @@ const Home = ({navigation, route}) => {
       lastTap = now;
     }
   };
-  const requestExternalReadPermission = async () => {
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-          {
-            title: 'External Storage Write Permission',
-            message: 'App needs write permission',
-          },
-        );
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } catch (err) {
-        console.warn(err);
-        alert('Write permission err', err);
-      }
-      return false;
-    } else return true;
-  };
-
-  const captureImage = async type => {
-    let options = {
-      mediaType: type,
-      maxWidth: width,
-      maxHeight: moderateScale(370, 0.1),
-      quality: 1,
-      videoQuality: 'low',
-      durationLimit: 30,
-      saveToPhotos: true,
-    };
-    let isCameraPermitted = await requestCameraPermission();
-    let isStoragePermitted = await requestExternalWritePermission();
-    let isReadStoragePermitted = await requestExternalReadPermission();
-
-    if (isCameraPermitted || isStoragePermitted || isReadStoragePermitted) {
-      launchCamera(options, response => {
-        if (response.didCancel) {
-          alert('User cancelled camera picker');
-          return;
-        } else if (response.errorCode == 'camera_unavailable') {
-          alert('Camera not available on device');
-          return;
-        } else if (response.errorCode == 'permission') {
-          alert('Permission not satisfied');
-          return;
-        } else if (response.errorCode == 'others') {
-          alert(response.errorMessage);
-          return;
-        }
-        let source = response;
-        refRBSheet.current.close();
-        convert(source);
-      });
-    }
-  };
-
-  const chooseFile = async type => {
-    var options = {
-      title: 'Select Image',
-      customButtons: [
-        {
-          name: 'customOptionKey',
-          title: 'Choose file from Custom Option',
-        },
-      ],
-      storageOptions: {
-        skipBackup: true,
-        path: 'images',
-      },
-    };
-    launchImageLibrary(options, res => {
-      if (res.didCancel) {
-      } else if (res.error) {
-      } else if (res.customButton) {
-        alert(res.customButton);
-      } else {
-        let source = res;
-        refRBSheet.current.close();
-        convert(source);
-      }
-    });
-  };
 
   const _onPress = async imageToeEdit => {
-    setTimeout(() => {
-      try {
-        PhotoEditor.Edit({
-          path:
-            Platform.OS == 'ios'
-              ? imageToeEdit
-              : RNFS.DocumentDirectoryPath + '/photo.jpg',
-          hiddenControls: ['save'],
-          colors: undefined,
-          onDone: res => {
-            convertToBase64(`file://${res}`);
-            let temp = storiesData?.[0]?.stories
-              ? storiesData[0].stories
-              : storiesData;
-            temp.push({
-              id: storiesData[0]?.stories?.length + 1,
-              url: `file://${res}`,
-              type: 'image',
-              duration: 30,
-              isReadMore: true,
-              url_readmore: 'https://github.com/iguilhermeluis',
-              created: new Date(),
-            });
-            // setMyStories(temp);
-            dispatch(setStories([{...storiesData[0], stories: temp}]));
-          },
-          onCancel: () => {},
-        });
-      } catch (err) {
-        console.log(err);
-      }
-    }, 1000);
+    console.log(imageToeEdit, 'imageToeEdit');
+    // setTimeout(() => {
+    //   try {
+    //     PhotoEditor.Edit({
+    //       path:
+    //         Platform.OS == 'ios'
+    //           ? imageToeEdit
+    //           : RNFS.DocumentDirectoryPath + '/photo.jpg',
+    //       hiddenControls: ['save'],
+    //       colors: undefined,
+    //       onDone: res => {
+    //         convertToBase64(`file://${res}`);
+    //         let temp = storiesData?.[0]?.stories
+    //           ? storiesData[0].stories
+    //           : storiesData;
+    //         temp.push({
+    //           id: storiesData[0]?.stories?.length + 1,
+    //           url: `file://${res}`,
+    //           type: 'image',
+    //           duration: 30,
+    //           isReadMore: true,
+    //           url_readmore: 'https://github.com/iguilhermeluis',
+    //           created: new Date(),
+    //         });
+    //         // setMyStories(temp);
+    //         dispatch(setStories([{...storiesData[0], stories: temp}]));
+    //       },
+    //       onCancel: () => {},
+    //     });
+    //   } catch (err) {
+    //     console.log(err);
+    //   }
+    // }, 1000);
   };
   const convert = source => {
     if (Platform.OS == 'ios') {
@@ -554,37 +965,7 @@ const Home = ({navigation, route}) => {
       .catch(err => {});
   };
 
-  const createStory = async base64 => {
-    setLoader(true);
-    if (!base64) {
-      s;
-      setLoader(false);
-      return;
-    }
-    const data = {
-      story_id: storiesData[0]?.stories?.length + 1,
-      image: base64,
-      swipe_text: 'Custom swipe text for this story',
-      privacy_option: '1',
-    };
-    await axiosconfig
-      .post(`story_store`, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        setStoryCircle('green');
-        getStories();
-        dispatch(set);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        getStories();
-      });
-  };
+  const createStory = async base64 => {};
 
   const handleRefresh = () => {
     getID();
@@ -593,7 +974,7 @@ const Home = ({navigation, route}) => {
 
   const addComment = async (id, index) => {
     if (comment) {
-      setLoader(true);
+      // // setLoader(true);
       const data = {
         text: comment,
         post_id: id,
@@ -609,31 +990,31 @@ const Home = ({navigation, route}) => {
           setComment('');
           // getPosts(null,true);
           setRefresh(!refresh);
-          setLoader(false);
+          // // setLoader(false);
         })
         .catch(err => {
-          setLoader(false);
+          // // setLoader(false);
           setComment('');
         });
     }
   };
 
-  const getStories = async token => {
-    setLoader(true);
-    await axiosconfig
-      .get('story_index', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        createStoryData(res.data?.user, token);
-      })
-      .catch(err => {
-        setLoader(false);
-      });
-  };
+  // const getStories = async token => {
+  //   // // setLoader(true);
+  //   await axiosconfig
+  //     .get('story_index', {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         Accept: 'application/json',
+  //       },
+  //     })
+  //     .then(res => {
+  //       createStoryData(res.data?.user, token);
+  //     })
+  //     .catch(err => {
+  //       // // setLoader(false);
+  //     });
+  // };
 
   const createStoryData = (data, token) => {
     let temp = {
@@ -654,32 +1035,32 @@ const Home = ({navigation, route}) => {
         };
       }),
     };
-    dispatch(setStories([temp]));
-    setLoader(false);
+
+    // // setLoader(false);
   };
 
   const deleteStory = async id => {
-    setLoader(true);
-    await axiosconfig
-      .get(`story_delete/${storyID}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        Alert.alert(res?.data?.message);
-        getStories(token);
-        id(false);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-      });
+    // // setLoader(true);
+    // await axiosconfig
+    //   .get(`story_delete/${storyID}`, {
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //       Accept: 'application/json',
+    //     },
+    //   })
+    //   .then(res => {
+    //     Alert.alert(res?.data?.message);
+    //     getStories(token);
+    //     id(false);
+    //     // // setLoader(false);
+    //   })
+    //   .catch(err => {
+    //     // // setLoader(false);
+    //   });
   };
 
   const deletePost = async id => {
-    setLoader(true);
+    // // setLoader(true);
     await axiosconfig
       .get(`post_delete/${id}`, {
         headers: {
@@ -687,24 +1068,23 @@ const Home = ({navigation, route}) => {
           Accept: 'application/json',
         },
       })
-      .then(async (res) => {
+      .then(async res => {
         Alert.alert(res?.data?.message);
         await getPosts(token, true);
         setTimeout(() => {
-          setLoader(false);
-        },0);
+          // // setLoader(false);
+        }, 0);
       })
       .catch(err => {
-        setLoader(false);
+        // // setLoader(false);
       });
   };
   const myStoryData = elem => {
-    console.log(elem, 'elemelem');
     let temp = [
       {
         user_id: elem.id,
         profile: elem.image ? elem?.image : dummyImage,
-        group: elem.organization,
+        group: elem.group,
         username: elem.name + ' ' + elem.last_name,
         title: elem.name + ' ' + elem.last_name,
         stories: elem.user_stories.map(item => {
@@ -720,7 +1100,7 @@ const Home = ({navigation, route}) => {
         }),
       },
     ];
-    console.log(temp, 'temptemp');
+    // console.log(temp, 'temptemp');
     setMyStories(temp);
   };
   const deleteAlert = (title, text, id) => {
@@ -749,6 +1129,7 @@ const Home = ({navigation, route}) => {
         liked = true;
       }
     });
+
     return (
       <View style={s.col}>
         <View style={s.header}>
@@ -809,7 +1190,7 @@ const Home = ({navigation, route}) => {
               }}>
               <Menu.Item
                 onPress={() => {
-                  hide(elem?.item?.id);
+                  // hide(elem?.item?.id);
                 }}>
                 <View style={s.optionView}>
                   <Icon
@@ -847,14 +1228,7 @@ const Home = ({navigation, route}) => {
               ) : null}
               {userID == elem?.item?.user?.id ? (
                 <>
-                  <Menu.Item
-                    onPress={() =>
-                      deleteAlert(
-                        'Delete Post',
-                        'Are you sure you want to delete this post?',
-                        elem?.item?.id,
-                      )
-                    }>
+                  <Menu.Item onPress={() => {}}>
                     <View style={s.optionView}>
                       <Antdesign
                         name={'delete'}
@@ -891,9 +1265,10 @@ const Home = ({navigation, route}) => {
         </View>
         <View style={s.img}>
           <TouchableWithoutFeedback
-            onPress={() =>
-              handleDoubleTap(elem?.item?.id, elem?.index, elem?.item?.user)
-            }>
+            onPress={() => {
+              handleDoubleTap(elem?.item?.id, elem?.index, elem?.item?.user);
+              socketLike(elem?.item?.id, elem?.item?.user_id, userID);
+            }}>
             <View style={s.img}>
               <Image
                 source={{uri: elem?.item?.image}}
@@ -903,16 +1278,16 @@ const Home = ({navigation, route}) => {
           </TouchableWithoutFeedback>
           <TouchableOpacity
             onPress={() => {
-              setLoadingStates(prevState => ({
-                ...prevState,
-                [elem?.item?.id]: true,
-              }));
+              // setLoadingStates(prevState => ({
+              //   ...prevState,
+              //   [elem?.item?.id]: true,
+              // }));
               hitLike(elem?.item?.id, elem?.index, elem?.item?.user);
               socketLike(elem?.item?.id, elem?.item?.user_id, userID);
             }}
             style={s.likes}>
             {loadingStates[elem?.item?.id] ? (
-              <ActivityIndicator size="small" color={"yellow"}/>
+              <ActivityIndicator size="small" color={'yellow'} />
             ) : (
               <Text style={s.likesCount}>
                 {' '}
@@ -931,12 +1306,12 @@ const Home = ({navigation, route}) => {
         <View style={s.footer}>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('Likes', {data: elem?.item?.post_likes});
+              navigation.navigate('Likes', {data: Likes});
             }}
             style={{marginBottom: moderateScale(5, 0.1)}}>
             {elem?.item?.post_likes?.length ? (
               <Text style={[s.name, {color: textColor}]}>
-                {`Liked by ${elem?.item?.post_likes[0]?.users?.name} ${elem?.item?.post_likes[0]?.users?.last_name} `}
+                {`Liked by Ava Simmon `}
                 {elem?.item?.post_likes?.length - 1
                   ? `and ${elem?.item?.post_likes?.length - 1} other`
                   : null}
@@ -994,10 +1369,11 @@ const Home = ({navigation, route}) => {
               }
               InputRightElement={
                 <TouchableOpacity
-                disabled={comment == ''}
+                  disabled={comment == ''}
                   onPress={() => {
-                    addComment(elem?.item?.id, elem?.index);
-                    socketComment(elem?.item?.id, elem?.item?.user_id, userID);
+                    setComment('');
+                    // addComment(elem?.item?.id, elem?.index);
+                    // socketComment(elem?.item?.id, elem?.item?.user_id, userID);
                   }}
                   style={{marginRight: moderateScale(15, 0.1)}}>
                   <Feather
@@ -1152,7 +1528,7 @@ const Home = ({navigation, route}) => {
           </View>
           <Text style={[s.funText, {color: textColor}]}>Fun Interaction</Text>
         </TouchableOpacity>
-        <View style={{height: moderateScale(22, 0.1)}}></View>
+        <View style={{height: moderateScale(40, 0.1)}}></View>
         {!posts?.length ? (
           <View
             style={{
@@ -1220,19 +1596,13 @@ const Home = ({navigation, route}) => {
               md: 'row',
             }}
             space={4}>
-            <Button
-              transparent
-              style={s.capturebtn}
-              onPressIn={() => captureImage('photo')}>
+            <Button transparent style={s.capturebtn} onPressIn={() => {}}>
               <View style={{flexDirection: 'row'}}>
                 <Ionicons name="camera" style={s.capturebtnicon} />
                 <Text style={s.capturebtntxt}>Open Camera</Text>
               </View>
             </Button>
-            <Button
-              transparent
-              style={s.capturebtn}
-              onPressIn={() => chooseFile('photo')}>
+            <Button transparent style={s.capturebtn} onPressIn={() => {}}>
               <View style={{flexDirection: 'row'}}>
                 <Ionicons name="md-image-outline" style={s.capturebtnicon} />
                 <Text style={s.capturebtntxt}>Open Gallery</Text>

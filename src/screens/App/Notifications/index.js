@@ -8,7 +8,6 @@ import {
   FlatList,
 } from 'react-native';
 import React, {useEffect, useState, useRef} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
 import s from './style';
 import {ScrollView} from 'react-native';
@@ -21,17 +20,182 @@ import socket from '../../../utils/socket';
 import {dummyImage, socketRequest, width} from '../../../Constants/Index';
 import moment from 'moment';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import {theme} from '../../../Constants/Index';
+const dummyData = [
+  {
+    created_at: '2023-06-07T07:01:22.000000Z',
+    id: 9,
+    notifiable_id: '2',
+    read_status: '0',
+    status: '0',
+    text: 'like your post',
+    type: 'Like',
+    type_id: '3',
+    updated_at: '2023-06-07T07:01:22.000000Z',
+    user_id: '2',
+    users: {
+      about_me: 'my about info',
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 12:12:30',
+      device_token:
+        'fZYK_18WRRCK7bRQlIS0KC:APA91bEzzPVuCC0Jx-GbQA81cX8nfRgGQrhVDvpaphQxSBMLX2DSZj618DzwnKyAk9srilIQ4L6RtdpAYFGzuCMHfC2Y3g2gBbVESvPODUFG-7NzdJVmQA5pNS4ttkRZiKY7KQB_76B1',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T12:12:30.000000Z',
+      year: null,
+    },
+  },
+  {
+    created_at: '2023-06-07T07:01:09.000000Z',
+    id: 8,
+    notifiable_id: '2',
+    read_status: '0',
+    status: '0',
+    text: 'oodd',
+    type: 'Comment',
+    type_id: '6',
+    updated_at: '2023-06-07T07:01:09.000000Z',
+    user_id: '2',
+    users: {
+      about_me: 'my about info',
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 12:12:30',
+      device_token:
+        'fZYK_18WRRCK7bRQlIS0KC:APA91bEzzPVuCC0Jx-GbQA81cX8nfRgGQrhVDvpaphQxSBMLX2DSZj618DzwnKyAk9srilIQ4L6RtdpAYFGzuCMHfC2Y3g2gBbVESvPODUFG-7NzdJVmQA5pNS4ttkRZiKY7KQB_76B1',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T12:12:30.000000Z',
+      year: null,
+    },
+  },
+  {
+    created_at: '2023-06-07T07:00:15.000000Z',
+    id: 7,
+    notifiable_id: '2',
+    read_status: '0',
+    status: '0',
+    text: 'beautiful',
+    type: 'Comment',
+    type_id: '5',
+    updated_at: '2023-06-07T07:00:15.000000Z',
+    user_id: '2',
+    users: {
+      about_me: 'my about info',
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 12:12:30',
+      device_token:
+        'fZYK_18WRRCK7bRQlIS0KC:APA91bEzzPVuCC0Jx-GbQA81cX8nfRgGQrhVDvpaphQxSBMLX2DSZj618DzwnKyAk9srilIQ4L6RtdpAYFGzuCMHfC2Y3g2gBbVESvPODUFG-7NzdJVmQA5pNS4ttkRZiKY7KQB_76B1',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T12:12:30.000000Z',
+      year: null,
+    },
+  },
+  {
+    created_at: '2023-06-07T06:59:41.000000Z',
+    id: 6,
+    notifiable_id: '2',
+    read_status: '0',
+    status: '0',
+    text: 'hello',
+    type: 'Comment',
+    type_id: '4',
+    updated_at: '2023-06-07T06:59:41.000000Z',
+    user_id: '2',
+    users: {
+      about_me: 'my about info',
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 12:12:30',
+      device_token:
+        'fZYK_18WRRCK7bRQlIS0KC:APA91bEzzPVuCC0Jx-GbQA81cX8nfRgGQrhVDvpaphQxSBMLX2DSZj618DzwnKyAk9srilIQ4L6RtdpAYFGzuCMHfC2Y3g2gBbVESvPODUFG-7NzdJVmQA5pNS4ttkRZiKY7KQB_76B1',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T12:12:30.000000Z',
+      year: null,
+    },
+  },
+];
 const Notifications = ({navigation, route}) => {
   const flatListRef = useRef(null);
   const isFocused = useIsFocused();
-  const theme = useSelector(state => state.reducer.theme);
   const {token, request, setRequest} = useAppContext(AppContext);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
-  const [loader, setLoader] = useState(true);
+  const [loader, setLoader] = useState(false);
   const [data, setData] = useState([]);
-  const [notificationdata, setNotificationData] = useState([]);
+  const [notificationdata, setNotificationData] = useState(dummyData);
   const [response, setResponse] = useState('');
   const [index, setIndex] = useState('');
   const [myData, setMyData] = useState('');
@@ -113,7 +277,7 @@ const Notifications = ({navigation, route}) => {
 
   const getList = async loader => {
     if (loader) {
-      setLoader(true);
+      // setLoader(true);
     }
 
     try {
@@ -129,32 +293,32 @@ const Notifications = ({navigation, route}) => {
       await getNotification();
     } catch (err) {
       if (loader) {
-        setLoader(false);
+        // setLoader(false);
       }
       console.log(err);
     }
   };
 
   const getNotification = async () => {
-    try {
-      const res = await axiosconfig.get('get-notification', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setNotificationData(res?.data);
-      console.log(res?.data, 'helloers');
-      setTimeout(() => {
-        setLoader(false);
-      }, 0);
-    } catch (err) {
-      setLoader(false);
-      console.log(err);
-    }
+    // try {
+    //   const res = await axiosconfig.get('get-notification', {
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //     },
+    //   });
+    setNotificationData(dummyData);
+    //   console.log(res?.data, 'helloers');
+    //   setTimeout(() => {
+    //     // setLoader(false);
+    //   }, 0);
+    // } catch (err) {
+    //   // setLoader(false);
+    //   console.log(err);
+    // }
   };
   const connectAccept = async connectId => {
     setIndex(connectId);
-    setLoader(true);
+    // setLoader(true);
     axiosconfig
       .get(`connect-accept/${connectId}`, {
         headers: {
@@ -165,15 +329,15 @@ const Notifications = ({navigation, route}) => {
         socketRequest(id, connectId, 'connect');
         setRequest(false);
         getList(true);
-        setLoader(false);
+        // setLoader(false);
       })
       .catch(err => {
-        setLoader(false);
+        // setLoader(false);
         console.log(err);
       });
   };
   const connectDecline = async connectId => {
-    setLoader(true);
+    // setLoader(true);
     setIndex(connectId);
     axiosconfig
       .get(`connect-remove/${connectId}`, {
@@ -185,10 +349,10 @@ const Notifications = ({navigation, route}) => {
         socketRequest(id, connectId, 'disconnect');
         setRequest(false);
         getList(true);
-        setLoader(false);
+        // setLoader(false);
       })
       .catch(err => {
-        setLoader(false);
+        // setLoader(false);
         console.log(err);
       });
   };
@@ -294,7 +458,9 @@ const Notifications = ({navigation, route}) => {
                   : 'comment on your post'}
               </Text>
             </View>
-            <Text style={s.name1}>{moment(notification?.item?.created_at).fromNow()}</Text>
+            <Text style={s.name1}>
+              {moment(notification?.item?.created_at).fromNow()}
+            </Text>
           </View>
         </TouchableOpacity>
       </View>

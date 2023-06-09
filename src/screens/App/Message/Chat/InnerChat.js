@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {useSelector} from 'react-redux';
+
 import {moderateScale} from 'react-native-size-matters';
 import {Menu, Pressable} from 'native-base';
 import {Text, View, Image, FlatList, Keyboard, StyleSheet} from 'react-native';
@@ -15,12 +15,13 @@ import {
   getColor,
   socketMessage,
   storeMsg,
+  theme,
 } from '../../../../Constants/Index';
 import ChatFooter from '../../../../Components/ChatFooter';
 import socket from '../../../../utils/socket';
 import Loader from '../../../../Components/Loader';
+
 const InnerChat = ({navigation, route}) => {
-  const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const [userData, setUserData] = useState(route.params?.userData);
@@ -40,7 +41,7 @@ const InnerChat = ({navigation, route}) => {
   useEffect(() => {
     const getData = async () => {
       const data = await AsyncStorage.getItem('userData');
-      if(data){
+      if (data) {
         setMyData(JSON.parse(data));
       }
     };
@@ -258,8 +259,9 @@ const InnerChat = ({navigation, route}) => {
     );
   };
 
-  return (
-    loader ? <Loader /> :
+  return loader ? (
+    <Loader />
+  ) : (
     <View style={[s.container, {backgroundColor: color}]}>
       <ChatHeader
         userData={userData}

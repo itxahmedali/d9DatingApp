@@ -15,8 +15,6 @@ import {moderateScale} from 'react-native-size-matters';
 import PhoneInput from 'react-native-phone-input';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RadioButton from '../../../Components/Radio';
-import {useDispatch, useSelector} from 'react-redux';
-import {setUserToken} from '../../../Redux/actions';
 import moment from 'moment';
 import Entypo from 'react-native-vector-icons/Entypo';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -24,11 +22,13 @@ import socket from '../../../utils/socket';
 import {Organization, emailReg} from '../../../Constants/Index';
 import {Header, OTPModal, Loader} from '../../../Components/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
+import Geocoder from 'react-native-geocoding';
+import Geolocation from '@react-native-community/geolocation';
+import GetLocation from 'react-native-get-location';
+import {theme} from '../../../Constants/Index';
 
 const Register = ({navigation}) => {
   const {setToken} = useAppContext(AppContext);
-  const dispatch = useDispatch();
-  const FCMtoken = useSelector(state => state.reducer.fToken);
   const phonenum = useRef();
   const [fname, setFname] = useState(null);
   const [lastname, setLastname] = useState(null);
@@ -46,7 +46,6 @@ const Register = ({navigation}) => {
   const [date, setDate] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [otp, setOtp] = useState();
-  const theme = useSelector(state => state.reducer.theme);
   const [isSelected, setIsSelected] = useState([
     {
       id: 1,
@@ -73,9 +72,10 @@ const Register = ({navigation}) => {
   const [y, setY] = useState('');
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
   const color = theme === 'dark' ? '#222222' : '#fff';
-  const userLocation = useSelector(state => state.reducer.location);
-  const [location, setLocation] = useState(userLocation);
-  useEffect(() => {}, []);
+  const [location, setLocation] = useState('');
+  const [locationon, setlocationon] = useState(true);
+  const [address, setaddress] = useState(null);
+
   const onRadioBtnClick = item => {
     let updatedState = isSelected.map(isSelectedItem =>
       isSelectedItem.id === item.id
@@ -96,97 +96,43 @@ const Register = ({navigation}) => {
       setIsEmail(false);
     }
   };
-  const submit = () => {
-    setOnsubmit(true);
-    let sub = true;
 
-    if (fname == null) {
-      sub = false;
-      return false;
-    }
-    if (lastname == null) {
-      sub = false;
-      return false;
-    }
-    if (email == null || email == '') {
-      sub = false;
-      return false;
-    }
-    if (date == null) {
-      sub = false;
-      return false;
-    }
-    if (password == null) {
-      sub = false;
-      return false;
-    }
-    if (date == null) {
-      sub = false;
-      return false;
-    }
-    if (Organization == null) {
-      sub = false;
-      return false;
-    }
-    if (password != confirmPassword) {
-      Alert.alert('password does not match');
-      sub = false;
-      return false;
-    }
-    if (!phonenum.current.isValidNumber()) {
-      Alert.alert('Please enter valid Phone Number');
-      sub = false;
-      return false;
-    }
-    if (sub) {
-      onSignupUser();
-    }
+  const submit = () => {
+    onSignupUser();
   };
+
   const onSignupUser = () => {
-    setLoader(true);
     setOnsubmit(false);
-    var data = {
-      email: email,
-    };
-    axiosconfig
-      .post('otp', data)
-      .then(res => {
-        if (modalVisible == false) {
-          Alert.alert(res?.data?.message);
-          setTimeout(() => {
-            setModalVisible(!modalVisible);
-          }, 3000);
-          setLoader(false);
-        } else {
-          Alert.alert('code sent');
-        }
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err, 'errors');
-        console.log(err.response?.data?.message, 'error messagaae');
-        Alert.alert(err?.response?.data?.message);
-      });
+    if (modalVisible == false) {
+      Alert.alert('check email');
+      setTimeout(() => {
+        setModalVisible(!modalVisible);
+      }, 3000);
+    } else {
+      Alert.alert('code sent');
+    }
   };
-  const fcmToken = token => {
-    setLoader(true);
-    var data = {
-      device_token: FCMtoken,
-    };
-    axiosconfig
-      .post('device-token', data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(res => {
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err, 'errors');
-      });
-  };
+
+  // const fcmToken = token => {
+  //   setLoader(true);
+  //   var data = {
+  //     device_token: FCMtoken,
+  //   };
+  //   axiosconfig
+  //     .post('device-token', data, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     })
+  //     .then(res => {
+  //       setLoader(false);
+  //     })
+  //     .catch(err => {
+  //       setLoader(false);
+  //       console.log(err, 'errors');
+  //     });
+  // };
+
   const handleSubmit = () => {
     setLoader(true);
     setOnsubmit(false);
@@ -197,35 +143,26 @@ const Register = ({navigation}) => {
       otp: otp,
       phone_number: phonenum.current.getValue(),
       gender: gender,
-      location: userLocation,
+      location: address,
       group: organization,
       password: password,
       confirm_password: confirmPassword,
       date: date,
       type: 'user',
     };
-    axiosconfig
-      .post('register', data)
-      .then(res => {
-        Alert.alert(res?.data?.message);
-        AsyncStorage.setItem('password', password);
-        AsyncStorage.setItem('userToken', res?.data?.access_token);
-        let id = res?.data?.userInfo.toString();
-        AsyncStorage.setItem('id', id);
-        // dispatch(setUserToken(res?.data?.access_token));
-        setToken(res?.data?.access_token);
-        fcmToken(res?.data?.access_token);
-        socket.auth = {username: email};
-        socket.connect();
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err, 'errors');
-        console.log(err?.response?.data?.message, 'msg');
-        Alert.alert(err.response?.data?.message);
-      });
+
+    Alert.alert('registered successfully');
+    AsyncStorage.setItem('password', '123');
+    AsyncStorage.setItem('userToken', '123');
+    let id = '2';
+    AsyncStorage.setItem('id', id);
+
+    setToken('123');
+    // fcmToken(res?.data?.access_token);
+    socket.auth = {username: email};
+    socket.connect();
   };
+
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -248,8 +185,48 @@ const Register = ({navigation}) => {
     setY(year);
     setD(dateex);
     setDate(`${month}/${dateex}/${year}`);
-
     hideDatePicker();
+  };
+
+  useEffect(() => {
+    // console.log(location, 'seet');
+    // getCurrentLocation();
+  }, []);
+
+  useEffect(() => {
+    console.log(location, 'new');
+  }, [location]);
+
+  const getCurrentLocation = () => {
+    // setLoader(true);
+    try {
+      Geolocation.getCurrentPosition(location => {
+        setLocation(location);
+        console.log(location, 'location');
+        getPhysicalAddress(location);
+      });
+    } catch (error) {
+      setlocationon(false);
+      const {code, message} = error;
+      // setLoader(false);
+    }
+  };
+
+  const getPhysicalAddress = location => {
+    Geocoder.init('AIzaSyCYvOXB3SFyyeR0usVOgnLyoDiAd2XDunU');
+    setTimeout(() => {
+      Geocoder.from(location?.coords?.latitude, location?.coords.longitude)
+        .then(json => {
+          var addressComponent = json.results[0].formatted_address;
+          console.log('hi', addressComponent);
+          setaddress(addressComponent);
+          // setLoader(false);
+        })
+        .catch(error => {
+          console.warn(error);
+          // setLoader(false);
+        });
+    }, 1000);
   };
 
   return loader ? (
@@ -583,7 +560,13 @@ const Register = ({navigation}) => {
               <View style={{flex: 0.6}}>
                 <TouchableOpacity
                   onPress={() =>
-                    navigation.navigate('Map', {from: 'register'})
+                    // navigation.navigate('Map', {from: 'register'})
+                    navigation.navigate('Map', {
+                      address: address,
+                      location: location,
+                      setLocation: setLocation,
+                      setaddress: setaddress,
+                    })
                   }>
                   <Input
                     w={{
@@ -595,10 +578,11 @@ const Register = ({navigation}) => {
                       borderBottomColor:
                         onsubmit && location == null ? 'red' : Textcolor,
                     }}
+                    isReadOnly={true}
                     variant="unstyled"
                     editable={false}
-                    placeholder={userLocation ? userLocation : 'Enter Location'}
-                    onChangeText={() => setLocation(location)}
+                    value={address}
+                    placeholder={'Add Location'}
                     placeholderTextColor={Textcolor}
                     color={Textcolor}
                     fontSize={moderateScale(12, 0.1)}

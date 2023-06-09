@@ -1,6 +1,5 @@
 import {Text, SafeAreaView, View, ScrollView} from 'react-native';
 import React, {useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
 import s from './style';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -10,19 +9,21 @@ import {Input, Menu, Pressable} from 'native-base';
 import Icon1 from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import axiosconfig from '../../../../Providers/axios';
-import { Header, Loader } from '../../../../Components/Index';
-import { AppContext, useAppContext } from '../../../../Context/AppContext';
+import {Header, Loader} from '../../../../Components/Index';
+import {AppContext, useAppContext} from '../../../../Context/AppContext';
+import {theme} from '../../../../Constants/Index';
+
 const Privacy = ({navigation}) => {
-  const [loader, setLoader] = useState(true);
-  const theme = useSelector(state => state.reducer.theme);
+  const [loader, setLoader] = useState(false);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const [story, setStory] = useState('Public');
   const [post, setPost] = useState('Public');
   const [connect, setConnect] = useState('Public');
   const {token} = useAppContext(AppContext);
+
   const userPrivacy = async () => {
-    setLoader(true);
+    // setLoader(true);
     const data = {
       privacy_option: connect == '1' ? 'Everyone' : 'Friends of Friends',
     };
@@ -34,15 +35,15 @@ const Privacy = ({navigation}) => {
         },
       })
       .then(res => {
-        setLoader(false);
+        // setLoader(false);
       })
       .catch(err => {
-        setLoader(false);
-        console.log(err)
+        // setLoader(false);
+        console.log(err);
       });
   };
   const postprivacy = async () => {
-    setLoader(true);
+    // setLoader(true);
     const data = {
       privacy_option: post == 'Public' ? '1' : post == 'Friends' ? '2' : '3',
     };
@@ -54,10 +55,10 @@ const Privacy = ({navigation}) => {
         },
       })
       .then(res => {
-        setLoader(false);
+        // setLoader(false);
       })
       .catch(err => {
-        setLoader(false);
+        // setLoader(false);
         console.log(err);
       });
   };
@@ -67,8 +68,7 @@ const Privacy = ({navigation}) => {
       {loader ? <Loader /> : null}
       <Header navigation={navigation} />
       <ScrollView
-        contentContainerStyle={[s.container, {backgroundColor: color}]}
-      >
+        contentContainerStyle={[s.container, {backgroundColor: color}]}>
         <View style={{flexDirection: 'row'}}>
           <View style={s.username}>
             <Text style={[s.textBold, {color: textColor}]}>Privacy</Text>
@@ -108,8 +108,7 @@ const Privacy = ({navigation}) => {
                         {...triggerProps}
                         style={{
                           flexDirection: 'row',
-                        }}
-                      >
+                        }}>
                         <Text style={[s.option, {color: textColor}]}>
                           {story}
                         </Text>
@@ -121,8 +120,7 @@ const Privacy = ({navigation}) => {
                         />
                       </Pressable>
                     );
-                  }}
-                >
+                  }}>
                   <Menu.Item onPress={() => setStory('Public')}>
                     <View style={s.optionView}>
                       <Entypo
@@ -202,8 +200,7 @@ const Privacy = ({navigation}) => {
                         {...triggerProps}
                         style={{
                           flexDirection: 'row',
-                        }}
-                      >
+                        }}>
                         <Text style={[s.option, {color: textColor}]}>
                           {post}
                         </Text>
@@ -215,14 +212,12 @@ const Privacy = ({navigation}) => {
                         />
                       </Pressable>
                     );
-                  }}
-                >
+                  }}>
                   <Menu.Item
                     onPress={() => {
                       setPost('Public');
-                      postprivacy();
-                    }}
-                  >
+                      // postprivacy();
+                    }}>
                     <View style={s.optionView}>
                       <Entypo
                         name={'globe'}
@@ -238,9 +233,8 @@ const Privacy = ({navigation}) => {
                   <Menu.Item
                     onPress={() => {
                       setPost('Friends');
-                      postprivacy();
-                    }}
-                  >
+                      // postprivacy();
+                    }}>
                     <View style={s.optionView}>
                       <Icon
                         name={'user-friends'}
@@ -256,9 +250,8 @@ const Privacy = ({navigation}) => {
                   <Menu.Item
                     onPress={() => {
                       setPost('Only Me');
-                      postprivacy();
-                    }}
-                  >
+                      // postprivacy();
+                    }}>
                     <View style={s.optionView}>
                       <Entypo
                         name={'lock'}
@@ -311,8 +304,7 @@ const Privacy = ({navigation}) => {
                         {...triggerProps}
                         style={{
                           flexDirection: 'row',
-                        }}
-                      >
+                        }}>
                         <Text style={[s.option, {color: textColor}]}>
                           {connect == '1' ? 'Everyone' : 'Friends of Friends'}
                         </Text>
@@ -324,14 +316,12 @@ const Privacy = ({navigation}) => {
                         />
                       </Pressable>
                     );
-                  }}
-                >
+                  }}>
                   <Menu.Item
                     onPress={() => {
                       setConnect('1');
-                      userPrivacy();
-                    }}
-                  >
+                      // userPrivacy();
+                    }}>
                     <View style={s.optionView}>
                       <Entypo
                         name={'globe'}
@@ -347,9 +337,8 @@ const Privacy = ({navigation}) => {
                   <Menu.Item
                     onPress={() => {
                       setConnect('2');
-                      userPrivacy();
-                    }}
-                  >
+                      // userPrivacy();
+                    }}>
                     <View style={s.optionView}>
                       <Icon
                         name={'users'}

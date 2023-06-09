@@ -4,8 +4,6 @@ import Video from 'react-native-video';
 import PropTypes from 'prop-types';
 import {StoryType} from '.';
 import { moderateScale } from 'react-native-size-matters';
-import { useSelector, useDispatch } from 'react-redux';
-import { setStoryID } from '../Redux/actions';
 import { width } from '../Constants/Index';
 
 type Props = {
@@ -18,15 +16,15 @@ type Props = {
 };
 const Story = (props: any) => {
   const {story} = props;
-  const dispatch = useDispatch();
+ 
   const {url, type, id} = story || {};
   const [isPortation, setIsPortation] = useState(false);
   const [heightScaled, setHeightScaled] = useState(moderateScale(231,0.1));
-  const storyID:any = useSelector((state:any)=> state.reducer.storyID)
+ 
 
   useEffect(()=> {
-    dispatch(setStoryID(id))
-    console.log(storyID)
+   
+   
   },[])
 
   return (

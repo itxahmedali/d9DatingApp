@@ -4,7 +4,7 @@ import Login from '../../../screens/Auth/Login';
 import Register from '../../../screens/Auth/Register';
 import StartScreen from '../../../screens/Auth/Start';
 import ChangePass from '../..//../screens/Auth/ChangePass';
-import Map from '../../../screens/Auth/Register/Map';
+import Map from '../../../screens/Auth/Register/MapTest';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
 
 const Stack = createStackNavigator();
